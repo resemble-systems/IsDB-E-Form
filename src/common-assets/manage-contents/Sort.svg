@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="12" height="12" viewBox="0 0 12 12">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_17804" data-name="Rectangle 17804" width="12" height="12" fill="#fff"/>
+    </clipPath>
+  </defs>
+  <g id="Icon-Sort" clip-path="url(#clip-path)">
+    <g id="Layer_2" data-name="Layer 2">
+      <g id="invisible_box" data-name="invisible box">
+        <rect id="Rectangle_17805" data-name="Rectangle 17805" width="12" height="12" fill="none"/>
+      </g>
+      <g id="Layer_6" data-name="Layer 6" transform="translate(2.513 0.941)">
+        <path id="Path_13632" data-name="Path 13632" d="M6.434,10.979,3.771,8.316a.477.477,0,0,0-.754.05.528.528,0,0,0,.05.678l3.015,2.99a.477.477,0,0,0,.7,0L9.8,9.044a.528.528,0,0,0,.05-.678.477.477,0,0,0-.754-.05Z" transform="translate(-2.917 -2.131)" fill="#fff"/>
+        <path id="Path_13633" data-name="Path 13633" d="M6.434,2.372,9.1,5.035a.477.477,0,0,0,.754-.05.528.528,0,0,0-.05-.678L6.786,1.317a.477.477,0,0,0-.7,0L3.067,4.307a.528.528,0,0,0-.05.678.477.477,0,0,0,.754.05Z" transform="translate(-2.917 -1.162)" fill="#fff"/>
+      </g>
+    </g>
+  </g>
+</svg>
