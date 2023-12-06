@@ -1,0 +1,40 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/package-solution.schema.json",
+  "solution": {
+    "name": "e-forms-client-side-solution",
+    "id": "e8fb5c7a-0944-4fc2-8b94-3bb40c380e54",
+    "version": "1.0.0.0",
+    "includeClientSideAssets": true,
+    "skipFeatureDeployment": true,
+    "isDomainIsolated": false,
+    "developer": {
+      "name": "",
+      "websiteUrl": "",
+      "privacyUrl": "",
+      "termsOfUseUrl": "",
+      "mpnId": "Undefined-1.18.0"
+    },
+    "metadata": {
+      "shortDescription": {
+        "default": "e-forms description"
+      },
+      "longDescription": {
+        "default": "e-forms description"
+      },
+      "screenshotPaths": [],
+      "videoUrl": "",
+      "categories": []
+    },
+    "features": [
+      {
+        "title": "e-forms Feature",
+        "description": "The feature that activates elements of the e-forms solution.",
+        "id": "c5621a1d-0fdb-44c2-9d03-011cb1cf3281",
+        "version": "1.0.0.0"
+      }
+    ]
+  },
+  "paths": {
+    "zippedPackage": "solution/isdb-sprint-eforms-sso.sppkg"
+  }
+}

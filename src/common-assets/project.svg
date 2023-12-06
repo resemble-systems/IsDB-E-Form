@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_18012" data-name="Rectangle 18012" width="24" height="24" fill="#707070"/>
+    </clipPath>
+  </defs>
+  <g id="Mask_Group_114" data-name="Mask Group 114" clip-path="url(#clip-path)">
+    <g id="__TEMP__SVG__" transform="translate(0.857 2.571)">
+      <path id="Path_15696" data-name="Path 15696" d="M20.571,4.286H6.857A2.422,2.422,0,0,0,4.286,6.429L2.571,14.571v6a2.579,2.579,0,0,0,2.571,2.571H22.286a2.579,2.579,0,0,0,2.571-2.571v-6L23.143,6.428a2.415,2.415,0,0,0-2.571-2.143Z" transform="translate(-2.571 -4.285)" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.714"/>
+      <path id="Path_15697" data-name="Path 15697" d="M2.571,14.571h7.714" transform="translate(-2.571 -4.285)" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.714"/>
+      <path id="Path_15698" data-name="Path 15698" d="M17.143,14.571h7.714" transform="translate(-2.571 -4.285)" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.714"/>
+      <path id="Path_15699" data-name="Path 15699" d="M10.286,14.571a3.429,3.429,0,0,0,6.857,0" transform="translate(-2.571 -4.285)" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.714"/>
+      <path id="Path_15700" data-name="Path 15700" d="M7.714,7.714h12" transform="translate(-2.571 -4.285)" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.714"/>
+      <path id="Path_15701" data-name="Path 15701" d="M6.857,11.143H20.571" transform="translate(-2.571 -4.285)" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.714"/>
+    </g>
+  </g>
+</svg>

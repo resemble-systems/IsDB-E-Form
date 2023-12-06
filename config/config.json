@@ -1,0 +1,198 @@
+{
+  "$schema": "https://developer.microsoft.com/json-schemas/spfx-build/config.2.0.schema.json",
+  "version": "2.0",
+  "bundles": {
+    "visitors-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitorsForm/VisitorsFormWebPart.js",
+          "manifest": "./src/webparts/visitorsForm/VisitorsFormWebPart.manifest.json"
+        }
+      ]
+    },
+    "parking-request-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/parkingRequestForm/ParkingRequestFormWebPart.js",
+          "manifest": "./src/webparts/parkingRequestForm/ParkingRequestFormWebPart.manifest.json"
+        }
+      ]
+    },
+    "visit-request-form-visitor-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitRequestFormVisitor/VisitRequestFormVisitorWebPart.js",
+          "manifest": "./src/webparts/visitRequestFormVisitor/VisitRequestFormVisitorWebPart.manifest.json"
+        }
+      ]
+    },
+    "visit-request-form-receptionist-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitRequestFormReceptionist/VisitRequestFormReceptionistWebPart.js",
+          "manifest": "./src/webparts/visitRequestFormReceptionist/VisitRequestFormReceptionistWebPart.manifest.json"
+        }
+      ]
+    },
+    "visit-request-block-list-view-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitRequestBlockListView/VisitRequestBlockListViewWebPart.js",
+          "manifest": "./src/webparts/visitRequestBlockListView/VisitRequestBlockListViewWebPart.manifest.json"
+        }
+      ]
+    },
+    "visit-request-third-visit-view-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitRequestThirdVisitView/VisitRequestThirdVisitViewWebPart.js",
+          "manifest": "./src/webparts/visitRequestThirdVisitView/VisitRequestThirdVisitViewWebPart.manifest.json"
+        }
+      ]
+    },
+    "visit-request-all-condition-view-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitRequestAllConditionView/VisitRequestAllConditionViewWebPart.js",
+          "manifest": "./src/webparts/visitRequestAllConditionView/VisitRequestAllConditionViewWebPart.manifest.json"
+        }
+      ]
+    },
+    "visit-request-check-out-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitRequestCheckOut/VisitRequestCheckOutWebPart.js",
+          "manifest": "./src/webparts/visitRequestCheckOut/VisitRequestCheckOutWebPart.manifest.json"
+        }
+      ]
+    },
+    "contract-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/contractForm/ContractFormWebPart.js",
+          "manifest": "./src/webparts/contractForm/ContractFormWebPart.manifest.json"
+        }
+      ]
+    },
+    "contract-form-short-term-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/contractFormShortTerm/ContractFormShortTermWebPart.js",
+          "manifest": "./src/webparts/contractFormShortTerm/ContractFormShortTermWebPart.manifest.json"
+        }
+      ]
+    },
+    "contract-form-long-term-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/contractFormLongTerm/ContractFormLongTermWebPart.js",
+          "manifest": "./src/webparts/contractFormLongTerm/ContractFormLongTermWebPart.manifest.json"
+        }
+      ]
+    },
+    "contract-form-task-view-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/contractFormTaskView/ContractFormTaskViewWebPart.js",
+          "manifest": "./src/webparts/contractFormTaskView/ContractFormTaskViewWebPart.manifest.json"
+        }
+      ]
+    },
+    "parking-request-task-view-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/parkingRequestTaskView/ParkingRequestTaskViewWebPart.js",
+          "manifest": "./src/webparts/parkingRequestTaskView/ParkingRequestTaskViewWebPart.manifest.json"
+        }
+      ]
+    },
+    "visitor-access-end-user-table-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitorAccessEndUserTable/VisitorAccessEndUserTableWebPart.js",
+          "manifest": "./src/webparts/visitorAccessEndUserTable/VisitorAccessEndUserTableWebPart.manifest.json"
+        }
+      ]
+    },
+    "visitor-access-reception-view-table-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitorAccessReceptionViewTable/VisitorAccessReceptionViewTableWebPart.js",
+          "manifest": "./src/webparts/visitorAccessReceptionViewTable/VisitorAccessReceptionViewTableWebPart.manifest.json"
+        }
+      ]
+    },
+    "visitor-access-manager-view-table-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/visitorAccessManagerViewTable/VisitorAccessManagerViewTableWebPart.js",
+          "manifest": "./src/webparts/visitorAccessManagerViewTable/VisitorAccessManagerViewTableWebPart.manifest.json"
+        }
+      ]
+    },
+    "contractor-requester-view-table-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/contractorRequesterViewTable/ContractorRequesterViewTableWebPart.js",
+          "manifest": "./src/webparts/contractorRequesterViewTable/ContractorRequesterViewTableWebPart.manifest.json"
+        }
+      ]
+    },
+    "contractor-manager-view-table-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/contractorManagerViewTable/ContractorManagerViewTableWebPart.js",
+          "manifest": "./src/webparts/contractorManagerViewTable/ContractorManagerViewTableWebPart.manifest.json"
+        }
+      ]
+    },
+    "parking-requestor-view-table-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/parkingRequestorViewTable/ParkingRequestorViewTableWebPart.js",
+          "manifest": "./src/webparts/parkingRequestorViewTable/ParkingRequestorViewTableWebPart.manifest.json"
+        }
+      ]
+    },
+    "parking-supervisor-view-table-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/parkingSupervisorViewTable/ParkingSupervisorViewTableWebPart.js",
+          "manifest": "./src/webparts/parkingSupervisorViewTable/ParkingSupervisorViewTableWebPart.manifest.json"
+        }
+      ]
+    },
+    "print-visit-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/printVisitForm/PrintVisitFormWebPart.js",
+          "manifest": "./src/webparts/printVisitForm/PrintVisitFormWebPart.manifest.json"
+        }
+      ]
+    }
+  },
+  "externals": {},
+  "localizedResources": {
+    "VisitorsFormWebPartStrings": "lib/webparts/visitorsForm/loc/{locale}.js",
+    "ParkingRequestFormWebPartStrings": "lib/webparts/parkingRequestForm/loc/{locale}.js",
+    "VisitRequestFormVisitorWebPartStrings": "lib/webparts/visitRequestFormVisitor/loc/{locale}.js",
+    "VisitRequestFormReceptionistWebPartStrings": "lib/webparts/visitRequestFormReceptionist/loc/{locale}.js",
+    "VisitRequestBlockListViewWebPartStrings": "lib/webparts/visitRequestBlockListView/loc/{locale}.js",
+    "VisitRequestThirdVisitViewWebPartStrings": "lib/webparts/visitRequestThirdVisitView/loc/{locale}.js",
+    "VisitRequestAllConditionViewWebPartStrings": "lib/webparts/visitRequestAllConditionView/loc/{locale}.js",
+    "VisitRequestCheckOutWebPartStrings": "lib/webparts/visitRequestCheckOut/loc/{locale}.js",
+    "ContractFormWebPartStrings": "lib/webparts/contractForm/loc/{locale}.js",
+    "ContractFormShortTermWebPartStrings": "lib/webparts/contractFormShortTerm/loc/{locale}.js",
+    "ContractFormLongTermWebPartStrings": "lib/webparts/contractFormLongTerm/loc/{locale}.js",
+    "ContractFormTaskViewWebPartStrings": "lib/webparts/contractFormTaskView/loc/{locale}.js",
+    "ParkingRequestTaskViewWebPartStrings": "lib/webparts/parkingRequestTaskView/loc/{locale}.js",
+    "VisitorAccessEndUserTableWebPartStrings": "lib/webparts/visitorAccessEndUserTable/loc/{locale}.js",
+    "VisitorAccessReceptionViewTableWebPartStrings": "lib/webparts/visitorAccessReceptionViewTable/loc/{locale}.js",
+    "VisitorAccessManagerViewTableWebPartStrings": "lib/webparts/visitorAccessManagerViewTable/loc/{locale}.js",
+    "ContractorRequesterViewTableWebPartStrings": "lib/webparts/contractorRequesterViewTable/loc/{locale}.js",
+    "ContractorManagerViewTableWebPartStrings": "lib/webparts/contractorManagerViewTable/loc/{locale}.js",
+    "ParkingRequestorViewTableWebPartStrings": "lib/webparts/parkingRequestorViewTable/loc/{locale}.js",
+    "ParkingSupervisorViewTableWebPartStrings": "lib/webparts/parkingSupervisorViewTable/loc/{locale}.js",
+    "PrintVisitFormWebPartStrings": "lib/webparts/printVisitForm/loc/{locale}.js"
+  }
+}

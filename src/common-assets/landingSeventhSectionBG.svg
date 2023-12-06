@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="437" height="340.996" viewBox="0 0 437 340.996">
+  <defs>
+    <clipPath id="clip-path">
+      <path id="Path_15387" data-name="Path 15387" d="M437,0H0V341H437Z" transform="translate(0 0)" fill="#1e2b45"/>
+    </clipPath>
+  </defs>
+  <g id="Mask_Group_33" data-name="Mask Group 33" transform="translate(0)" opacity="0.054" clip-path="url(#clip-path)">
+    <path id="Polygon_72" data-name="Polygon 72" d="M115.125,0,153.5,66.3l-38.375,66.3H38.375L0,66.3,38.375,0Z" transform="translate(48.254 68.511)" fill="#1e2b45"/>
+    <path id="Polygon_77" data-name="Polygon 77" d="M115.125,0,153.5,65.851,115.125,131.7H38.375L0,65.851,38.375,0Z" transform="translate(169.056 136.632)" fill="#1e2b45"/>
+    <path id="Polygon_82" data-name="Polygon 82" d="M115.125,0,153.5,66.3l-38.375,66.3H38.375L0,66.3,38.375,0Z" transform="translate(169.056 274.691)" fill="#1e2b45"/>
+    <path id="Polygon_78" data-name="Polygon 78" d="M114.444,0l38.148,65.851L114.444,131.7h-76.3L0,65.851,38.148,0Z" transform="translate(50.07 343.721)" fill="#1e2b45"/>
+    <path id="Polygon_76" data-name="Polygon 76" d="M115.125,0,153.5,66.3l-38.375,66.3H38.375L0,66.3,38.375,0Z" transform="translate(49.162 205.662)" fill="#1e2b45"/>
+    <path id="Polygon_79" data-name="Polygon 79" d="M115.125,0,153.5,66.3l-38.375,66.3H38.375L0,66.3,38.375,0Z" transform="translate(-70.732 412.751)" fill="#1e2b45"/>
+    <path id="Polygon_73" data-name="Polygon 73" d="M115.125,0,153.5,65.851,115.125,131.7H38.375L0,65.851,38.375,0Z" transform="translate(-70.732 0.389)" fill="#1e2b45"/>
+    <path id="Polygon_74" data-name="Polygon 74" d="M115.125,0,153.5,65.851,115.125,131.7H38.375L0,65.851,38.375,0Z" transform="translate(-70.732 137.54)" fill="#1e2b45"/>
+    <path id="Polygon_75" data-name="Polygon 75" d="M114.444,0l38.148,65.851L114.444,131.7h-76.3L0,65.851,38.148,0Z" transform="translate(-68.915 274.691)" fill="#1e2b45"/>
+  </g>
+</svg>

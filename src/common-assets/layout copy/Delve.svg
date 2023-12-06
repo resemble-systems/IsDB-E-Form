@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_17644" data-name="Rectangle 17644" width="24" height="24" transform="translate(370 646)"/>
+    </clipPath>
+  </defs>
+  <g id="Mask_Group_168" data-name="Mask Group 168" transform="translate(-370 -646)" clip-path="url(#clip-path)">
+    <g id="__TEMP__SVG__" transform="translate(366 642)">
+      <path id="Path_15830" data-name="Path 15830" d="M16,18H6a2,2,0,0,1-2-2V6A2,2,0,0,1,6,4H16a2,2,0,0,1,2,2V16A2,2,0,0,1,16,18ZM6,6V16H16V6Z"/>
+      <path id="Path_15831" data-name="Path 15831" d="M26,12v4H22V12h4m0-2H22a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V12A2,2,0,0,0,26,10Z"/>
+      <path id="Path_15832" data-name="Path 15832" d="M26,22v4H22V22h4m0-2H22a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22A2,2,0,0,0,26,20Z"/>
+      <path id="Path_15833" data-name="Path 15833" d="M16,22v4H12V22h4m0-2H12a2,2,0,0,0-2,2v4a2,2,0,0,0,2,2h4a2,2,0,0,0,2-2V22A2,2,0,0,0,16,20Z"/>
+    </g>
+  </g>
+</svg>

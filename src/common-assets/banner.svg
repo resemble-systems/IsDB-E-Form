@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="24" height="24" viewBox="0 0 24 24">
+  <defs>
+    <clipPath id="clip-path">
+      <rect id="Rectangle_18022" data-name="Rectangle 18022" width="24" height="24" transform="translate(53 1684)" fill="#707070"/>
+    </clipPath>
+  </defs>
+  <g id="Mask_Group_123" data-name="Mask Group 123" transform="translate(-53 -1684)" clip-path="url(#clip-path)">
+    <g id="__TEMP__SVG__" transform="translate(53 1683.998)">
+      <path id="Path_15732" data-name="Path 15732" d="M20,5.184V4.443a2.228,2.228,0,0,0-2.222-2.222H2.962A2.228,2.228,0,0,0,.741,4.443V16.292a2.228,2.228,0,0,0,2.222,2.222H3.7" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.481"/>
+      <path id="Path_15733" data-name="Path 15733" d="M6.572,5.924H20.828a2.129,2.129,0,0,1,2.129,2.129V19.347a2.129,2.129,0,0,1-2.129,2.129H6.572a2.129,2.129,0,0,1-2.129-2.129V8.053A2.129,2.129,0,0,1,6.572,5.924Z" fill="none" stroke="#000" stroke-linejoin="round" stroke-width="1.481"/>
+      <path id="Path_15734" data-name="Path 15734" d="M18.684,10.166A1.424,1.424,0,1,1,17.26,8.752a1.419,1.419,0,0,1,1.424,1.414Z" fill="none" stroke="#000" stroke-width="1.481"/>
+      <path id="Path_15735" data-name="Path 15735" d="M15.836,17.226l-4.033-4a1.432,1.432,0,0,0-1.952-.056L4.443,17.942" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.481"/>
+      <path id="Path_15736" data-name="Path 15736" d="M12.276,21.476l5.489-5.449a1.435,1.435,0,0,1,1.919-.086l3.274,2.708" fill="none" stroke="#000" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.481"/>
+    </g>
+  </g>
+</svg>

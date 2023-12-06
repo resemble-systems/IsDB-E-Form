@@ -1,0 +1,19 @@
+<svg id="Microsoft_Office_Word__2019_present_" data-name="Microsoft_Office_Word_(2019–present)" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="21.503" height="20.003" viewBox="0 0 21.503 20.003">
+  <defs>
+    <linearGradient id="linear-gradient" x1="0.174" y1="1.067" x2="0.826" y2="-0.063" gradientUnits="objectBoundingBox">
+      <stop offset="0" stop-color="#2368c4"/>
+      <stop offset="0.5" stop-color="#1a5dbe"/>
+      <stop offset="1" stop-color="#1146ac"/>
+    </linearGradient>
+  </defs>
+  <path id="Path_15993" data-name="Path 15993" d="M453.086,0H438.417a.917.917,0,0,0-.917.917h0V5L446,7.5,454,5V.917A.917.917,0,0,0,453.086,0Z" transform="translate(-432.499)" fill="#41a5ee"/>
+  <path id="Path_15994" data-name="Path 15994" d="M454,437.5H437.5v5L446,444l8-1.5Z" transform="translate(-432.499 -432.499)" fill="#2b7cd3"/>
+  <path id="Path_15995" data-name="Path 15995" d="M437.5,875v5l8,1,8.5-1v-5Z" transform="translate(-432.499 -864.999)" fill="#185abd"/>
+  <path id="Path_15996" data-name="Path 15996" d="M438.417,1317.5h14.669a.917.917,0,0,0,.917-.917h0V1312.5H437.5v4.084a.917.917,0,0,0,.917.917Z" transform="translate(-432.499 -1297.498)" fill="#103f91"/>
+  <path id="Path_15997" data-name="Path 15997" d="M443.584,350H437.5v12.5h6.084a.92.92,0,0,0,.917-.917V350.917A.92.92,0,0,0,443.584,350Z" transform="translate(-432.499 -345.999)" opacity="0.1"/>
+  <path id="Path_15998" data-name="Path 15998" d="M443.084,393.75H437.5v12.5h5.584a.92.92,0,0,0,.917-.917V394.667A.92.92,0,0,0,443.084,393.75Z" transform="translate(-432.499 -389.249)" opacity="0.2"/>
+  <path id="Path_15999" data-name="Path 15999" d="M443.084,393.75H437.5v11.5h5.584a.92.92,0,0,0,.917-.917v-9.668A.92.92,0,0,0,443.084,393.75Z" transform="translate(-432.499 -389.249)" opacity="0.2"/>
+  <path id="Path_16000" data-name="Path 16000" d="M442.584,393.75H437.5v11.5h5.084a.92.92,0,0,0,.917-.917v-9.668A.92.92,0,0,0,442.584,393.75Z" transform="translate(-432.499 -389.249)" opacity="0.2"/>
+  <path id="Path_16001" data-name="Path 16001" d="M.917,393.75h9.168a.917.917,0,0,1,.917.917v9.168a.917.917,0,0,1-.917.917H.917A.917.917,0,0,1,0,403.835v-9.168A.917.917,0,0,1,.917,393.75Z" transform="translate(0 -389.249)" fill="url(#linear-gradient)"/>
+  <path id="Path_16002" data-name="Path 16002" d="M149.211,618.676c.018.141.03.264.035.37h.021q.012-.15.05-.362t.069-.357l.964-4.16H151.6l1,4.1a6.068,6.068,0,0,1,.125.773h.017a5.924,5.924,0,0,1,.1-.75l.8-4.122h1.135l-1.4,5.961h-1.326l-.95-3.948c-.027-.113-.059-.262-.094-.445s-.056-.316-.064-.4h-.017q-.017.145-.064.432t-.077.424l-.893,3.935H148.54l-1.409-5.958h1.155l.869,4.168C149.174,618.421,149.193,618.535,149.211,618.676Z" transform="translate(-145.449 -607.145)" fill="#fff"/>
+</svg>
