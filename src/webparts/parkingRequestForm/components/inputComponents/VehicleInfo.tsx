@@ -7,6 +7,7 @@ interface IVehicleInfoProps {
   self: any;
   vehicleInfo: any;
   state: any;
+  handleFileChange?: any;
 }
 
 export default class VehicleInfo extends React.Component<
@@ -14,7 +15,7 @@ export default class VehicleInfo extends React.Component<
   {}
 > {
   public render(): React.ReactElement<IVehicleInfoProps> {
-    const { type, label, name, self, vehicleInfo, state } = this.props;
+    const { type, label, name, self, vehicleInfo, state ,handleFileChange} = this.props;
     const handleChange = (event: { target: { name: any; value: any; }; }) => {
       self.setState({
         vehicleInfo: { ...state, [event.target.name]: event.target.value },
@@ -48,7 +49,7 @@ export default class VehicleInfo extends React.Component<
             id={label}
             name={name}
             value={vehicleInfo}
-            onChange={handleChange}
+            onChange={handleFileChange}
             style={{
               color:
                 type === "date" && vehicleInfo === ""

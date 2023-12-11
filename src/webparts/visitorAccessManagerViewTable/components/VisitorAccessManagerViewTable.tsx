@@ -1,8 +1,7 @@
 import * as React from "react";
 import styles from "./VisitorAccessManagerViewTable.module.scss";
 import type { IVisitorAccessManagerViewTableProps } from "./IVisitorAccessManagerViewTableProps";
-// import { escape } from '@microsoft/sp-lodash-subset';
-import { Col, Row, Table, Button, DatePicker, Dropdown, Space } from "antd";
+import { Col, Row, Table, Button, DatePicker, Dropdown } from "antd";
 import "../components/index.css";
 import * as moment from "moment";
 import { navData } from "./navdata";
@@ -50,25 +49,22 @@ export default class VisitorAccessEndUserTable extends React.Component<
   }
   public columns: ColumnsType<DataType> = [
     {
-      title: "Req No",
+      title: "Task ID",
       dataIndex: "Id",
     },
     {
-      title: "Visitor Name",
+      title: "Task Name",
       dataIndex: "Title",
     },
     {
-      title: "Visit Time",
-      dataIndex: "Visitorvisithour",
+      title: "Request By",
+      dataIndex: "CreatedBy",
     },
-    {
-      title: "Checkout",
-      dataIndex: "Visitorvisithour",
-    },
+
     {
       title: "Request date",
       dataIndex: "Created",
-      render: (t) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
+      render: (t:any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
     },
     {
       title: "Status",
@@ -78,45 +74,67 @@ export default class VisitorAccessEndUserTable extends React.Component<
       title: "Pending With",
       dataIndex: "PendingWith",
     },
+    // {
+    //   title: "Actions",
+    //   dataIndex: "Id",
+    //   key: "operation",
+    //   width: 220,
+    //   render: (t, r, i) => (
+    //     <Space size="middle">
+    //       <a
+    //         className={`${styles.departmentManageEventAction} mx-2`}
+    //         onClick={() => {
+    //           window.location.href = `${
+    //             this.props.context.pageContext.site.absoluteUrl
+    //           }/SitePages/visit-request-form-employee.aspx?itemID=${t.toString()}`;
+    //         }}
+    //       >
+    //         Edit
+    //       </a>
+    //       <a
+    //         className={`${styles.departmentManageEventAction} mx-2`}
+    //         onClick={() => {
+    //           window.location.href = `${
+    //             this.props.context.pageContext.site.absoluteUrl
+    //           }/SitePages/visit-request-printout.aspx?itemID=${t.toString()}`;
+    //         }}
+    //       >
+    //         Print
+    //       </a>
+    //       <a
+    //         className={`${styles.departmentManageEventAction} mx-2`}
+    //         onClick={() => {
+    //           window.location.href = `${
+    //             this.props.context.pageContext.site.absoluteUrl
+    //           }/SitePages/visit-request-check-out.aspx?itemID=${t.toString()}`;
+    //         }}
+    //       >
+    //         Checkout
+    //       </a>
+    //     </Space>
+    //   ),
+    // },
+  ];
+  public columnsBlackList: any = [
     {
-      title: "Actions",
+      title: "Visitor ID",
       dataIndex: "Id",
-      key: "operation",
-      width: 220,
-      render: (t, r, i) => (
-        <Space size="middle">
-          <a
-            className={`${styles.departmentManageEventAction} mx-2`}
-            onClick={() => {
-              window.location.href = `${
-                this.props.context.pageContext.site.absoluteUrl
-              }/SitePages/visit-request-form-employee.aspx?itemID=${t.toString()}`;
-            }}
-          >
-            Edit
-          </a>
-          <a
-            className={`${styles.departmentManageEventAction} mx-2`}
-            onClick={() => {
-              window.location.href = `${
-                this.props.context.pageContext.site.absoluteUrl
-              }/SitePages/visit-request-printout.aspx?itemID=${t.toString()}`;
-            }}
-          >
-            Print
-          </a>
-          <a
-            className={`${styles.departmentManageEventAction} mx-2`}
-            onClick={() => {
-              window.location.href = `${
-                this.props.context.pageContext.site.absoluteUrl
-              }/SitePages/visit-request-check-out.aspx?itemID=${t.toString()}`;
-            }}
-          >
-            Checkout
-          </a>
-        </Space>
-      ),
+    },
+    {
+      title: "Visitor Name",
+      dataIndex: "Title",
+    },
+    {
+      title: "Visit Company",
+      dataIndex: "Visitorrelatedorganization",
+    },
+    {
+      title: "Blacklisted By",
+      dataIndex: "Filledby",
+    },
+    {
+      title: "Reason",
+      dataIndex: "Visitorremarks",
     },
   ];
   public componentDidMount() {
@@ -136,9 +154,13 @@ export default class VisitorAccessEndUserTable extends React.Component<
       .then((listItems: any) => {
         console.log("VisitorRequestForm", listItems);
 
-        let filterMyData = listItems.value.filter(
-          (e: any) => e.PendingWith == "Manager"
-        );
+        let filterMyData = listItems.value.filter((e: any) => {
+          if (this.state.activeNav == "Home") {
+            return e.PendingWith != ".";
+          } else if (this.state.activeNav === "My Tasks") {
+            return e.PendingWith == "Manager";
+          }
+        });
         console.log(
           "Context Details",
           context.pageContext.user.displayName,
@@ -211,17 +233,53 @@ export default class VisitorAccessEndUserTable extends React.Component<
       });
   };
   public componentDidUpdate(prevProps: any, prevState: any) {
-    const { searchData, intialTableData } = this.state;
+    const { searchData, intialTableData, activeNav } = this.state;
+    const trimmedSearchData = searchData.trim();
     if (prevState.activeNav !== this.state.activeNav) {
       console.log("in cdu");
-    } else if (prevState.searchData !== searchData) {
-      const filteredData = intialTableData.filter(
-        (data: any) =>
-          data.Title?.toLowerCase().includes(searchData?.toLowerCase()) ||
-          data.Id?.toString().toLowerCase().includes(searchData?.toLowerCase())
-      );
+    } else if (prevState.searchData !== trimmedSearchData) {
+      const filteredData = intialTableData.filter((data: any) => {
+        {
+          (activeNav == "Home" || activeNav == "My Tasks") &&
+          data.Title?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+            data.Status?.toLowerCase().includes(
+              trimmedSearchData?.toLowerCase()
+            ) ||
+            moment(data.Created).format("DD/MM/YYYY, h:mm:ss")?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+            data.CreatedBy?.toLowerCase().includes(
+              trimmedSearchData?.toLowerCase()
+            ) ||
+            data.PendingWith?.toLowerCase().includes(
+              trimmedSearchData?.toLowerCase()
+            ) ||
+            data.Id?.toString()
+              .toLowerCase()
+              .includes(trimmedSearchData?.toLowerCase());
+        }
+        {
+          activeNav == "Blacklisted Visitor" &&
+          data.Title?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+            data.Id?.toString()
+              .toLowerCase()
+              .includes(trimmedSearchData?.toLowerCase()) ||
+            data.Visitorremarks?.toLowerCase().includes(
+              trimmedSearchData?.toLowerCase()
+            ) ||
+            data.Filledby?.toLowerCase().includes(
+              trimmedSearchData?.toLowerCase()
+            ) ||
+            data.Visitorrelatedorganization?.toLowerCase().includes(
+              trimmedSearchData?.toLowerCase()
+            );
+        }
+      });
       this.setState({
         tableData: filteredData,
+        searchData: trimmedSearchData,
       });
     }
   }
@@ -333,14 +391,9 @@ export default class VisitorAccessEndUserTable extends React.Component<
           <div className="pb-5">
             <div className="">
               <HeaderComponent
-                currentPageTitle={"Visitor Access End User Table"}
+                currentPageTitle={"Visitor Access Manager Table"}
                 context={context}
               />
-            </div>
-            <div className="d-flex justify-content-between align-items-center p-4 pt-5 pb-2">
-              <div className="visitorHeading">
-                Visit Access Management(Manager View)
-              </div>
             </div>
 
             <div className="d-flex justify-content-between align-items-center px-4 mb-3 pt-2">
@@ -393,6 +446,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
 
                 <div className="d-flex  align-items-center justify-content-end">
                   <Dropdown
+                   trigger={["click"]}
                     overlay={
                       <div
                         className={`bg-light shadow`}
@@ -467,10 +521,18 @@ export default class VisitorAccessEndUserTable extends React.Component<
                 </div>
               </div>
             </div>
-
+            <div className="d-flex justify-content-between align-items-center p-3 px-4">
+              <div className="visitorHeading">
+                Visit Access Management(Manager View)
+              </div>
+            </div>
             <div className="px-4">
               <Table
-                columns={this.columns}
+                columns={
+                  activeNav === "Home" || activeNav == "My Tasks"
+                    ? this.columns
+                    : this.columnsBlackList
+                }
                 dataSource={tableData}
                 size="middle"
                 pagination={{

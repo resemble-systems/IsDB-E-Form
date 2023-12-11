@@ -1,16 +1,17 @@
-  import * as React from 'react';
-import styles from './VisitRequestFormReceptionist.module.sass';
-import type { IVisitRequestFormReceptionistProps } from './IVisitRequestFormReceptionistProps';
+import * as React from "react";
+import styles from "./VisitRequestFormReceptionist.module.sass";
+import type { IVisitRequestFormReceptionistProps } from "./IVisitRequestFormReceptionistProps";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-// import { escape } from '@microsoft/sp-lodash-subset';
+
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import { Select } from "antd";
 import InputFeild from "./InputFeild";
 import "./index.css";
-import { SPHttpClient,
+import {
+  SPHttpClient,
   ISPHttpClientOptions,
   SPHttpClientResponse,
- } from "@microsoft/sp-http";
+} from "@microsoft/sp-http";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
 
 interface IVisitRequestFormReceptionistState {
@@ -24,14 +25,16 @@ interface IVisitRequestFormReceptionistState {
   checkBox: any;
   nameSelected: any;
   nameOptions: any;
- 
 }
 
 export default class VisitorsForm extends React.Component<
-IVisitRequestFormReceptionistProps,
-IVisitRequestFormReceptionistState
+  IVisitRequestFormReceptionistProps,
+  IVisitRequestFormReceptionistState
 > {
-  public constructor(props: IVisitRequestFormReceptionistProps, state: IVisitRequestFormReceptionistState) {
+  public constructor(
+    props: IVisitRequestFormReceptionistProps,
+    state: IVisitRequestFormReceptionistState
+  ) {
     super(props);
     this.state = {
       inputFeild: {
@@ -69,7 +72,6 @@ IVisitRequestFormReceptionistState
       checkBox: false,
       nameSelected: "",
       nameOptions: [],
-     
     };
   }
   public componentDidMount() {
@@ -155,8 +157,8 @@ IVisitRequestFormReceptionistState
         Visitorvisithour: inputFeild.visitorVisitTime,
         Visitornotify: inputFeild.visitorNotify,
         Visitorremarks: inputFeild.visitorRemarks,
-        Filledby:context.pageContext.user.displayName,
-        Filledbytype:"Receptionist",
+        Filledby: context.pageContext.user.displayName,
+        Filledbytype: "Receptionist",
         Consecutive: this.state.consecutive.toString(),
         Sheduledtime: this.state.sheduledTime.toString(),
       }),
@@ -169,13 +171,11 @@ IVisitRequestFormReceptionistState
     if (postResponse.ok) {
       const postData = await postResponse.json();
       console.log("visitor Created", postData);
-      // setTimeout(() => {
-      //   console.log("visitor request form success");
-      // }, 1000);
     } else {
       alert("visitor form Failed.");
       console.log("Post Failed", postResponse);
     }
+    window.history.go(-1);
     this.setState({
       inputFeild: {
         staffName: "",
@@ -243,9 +243,7 @@ IVisitRequestFormReceptionistState
         grahpClient
           .api(`/me`)
           .version("v1.0")
-          .select("*"
-            // "department,jobTitle,displayName,mobilePhone,officeLocation"
-          )
+          .select("*")
 
           .get((error: any, user: any, rawResponse?: any) => {
             if (error) {
@@ -260,12 +258,12 @@ IVisitRequestFormReceptionistState
               inputFeild: {
                 ...InputFeild,
                 staffName: user.displayName,
-                // email: user.userPrincipalName,
+
                 Department: user.department,
-                // jobTitle: user.jobTitle,
-                 officeNumber:user.mobilePhone,
-                mobileNumber:user.mobilePhone,
-                officeLocation:user.officeLocation,
+
+                officeNumber: user.mobilePhone,
+                mobileNumber: user.mobilePhone,
+                officeLocation: user.officeLocation,
               },
             });
           });
@@ -355,8 +353,7 @@ IVisitRequestFormReceptionistState
   public render(): React.ReactElement<IVisitRequestFormReceptionistProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    // let bootstarp5JS =
-    //   "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
+
     let sansFont =
       "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap";
     let font =
@@ -364,7 +361,7 @@ IVisitRequestFormReceptionistState
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
+
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
@@ -376,9 +373,8 @@ IVisitRequestFormReceptionistState
       checkBox,
       nameOptions,
       nameSelected,
-      
     } = this.state;
-    const { context, self,  } = this.props;
+    const { context, self } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
       event.preventDefault();
       console.log("Form Data", event);
@@ -411,11 +407,6 @@ IVisitRequestFormReceptionistState
             className="d-flex justify-content-center text-white py-2 mb-2 headerText"
             style={{ backgroundColor: "#223771" }}
           >
-            {/* {filledBy === "Receptionist Task View" ? (
-              <> Visit Request ({filledBy})</>
-            ) : (
-              <> Visit Request Form ({filledBy})</>
-            )} */}
             Visit Request Form (if filled by employee)
           </div>
           <div
@@ -425,7 +416,7 @@ IVisitRequestFormReceptionistState
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-          <Select
+            <Select
               style={{ width: "200px" }}
               bordered={false}
               allowClear={false}
@@ -437,8 +428,6 @@ IVisitRequestFormReceptionistState
 
                 this.setState({
                   language: value === "English" ? "En" : "Ar",
-
-      
                 });
               }}
             ></Select>
@@ -453,6 +442,7 @@ IVisitRequestFormReceptionistState
             <div className="row">
               <InputFeild
                 self={this}
+                disabled = {true}
                 type="text"
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
@@ -461,6 +451,7 @@ IVisitRequestFormReceptionistState
               />
               <InputFeild
                 type="text"
+                disabled = {true}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={inputFeild}
@@ -471,6 +462,7 @@ IVisitRequestFormReceptionistState
             <div className="row">
               <InputFeild
                 type="text"
+                disabled = {true}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={inputFeild}
@@ -479,6 +471,7 @@ IVisitRequestFormReceptionistState
               />
               <InputFeild
                 type="text"
+                disabled = {true}
                 label={language === "En" ? "Department" : "قسم"}
                 name="Department"
                 state={inputFeild}
@@ -489,6 +482,7 @@ IVisitRequestFormReceptionistState
             <div className="row">
               <InputFeild
                 type="text"
+                disabled = {true}
                 label={language === "En" ? "Office Location" : "موقع المكتب"}
                 name="officeLocation"
                 state={inputFeild}
@@ -497,6 +491,7 @@ IVisitRequestFormReceptionistState
               />
               <InputFeild
                 type="text"
+                disabled = {true}
                 label={language === "En" ? "Office Number" : "رقم المكتب"}
                 name="officeNumber"
                 state={inputFeild}
@@ -507,6 +502,7 @@ IVisitRequestFormReceptionistState
             <div className="row">
               <InputFeild
                 type="text"
+                disabled = {true}
                 label={
                   language === "En" ? "Mobile Number" : "رقم الهاتف المحمول"
                 }
@@ -517,6 +513,7 @@ IVisitRequestFormReceptionistState
               />
               <InputFeild
                 type="text"
+                disabled = {true}
                 label={
                   language === "En" ? "Immediate Supervisor" : "المشرف المباشر"
                 }
@@ -527,7 +524,7 @@ IVisitRequestFormReceptionistState
               />
             </div>
             <div className="row mb-4">
-            <div className="d-flex">
+              <div className="d-flex">
                 <div
                   className="d-flex justify-content-between"
                   style={{
@@ -582,78 +579,77 @@ IVisitRequestFormReceptionistState
             </div>
             {checkBox && (
               <div>
-            <div
-              className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
-              style={{ backgroundColor: "#223771" }}
-            >
-              Visited Employee Information
-            </div>
-            
-  
-            <div className="row">
-              <InputFeild
-                type="text"
-                label={
-                  language === "En"
-                    ? "Visited Employee Name"
-                    : "اسم الموظف الذي تمت زيارته"
-                }
-                name="visitedEmployeeName"
-                state={inputFeild}
-                inputFeild={inputFeild.visitedEmployeeName}
-                self={this}
-              />
-              <InputFeild
-                type="text"
-                label={
-                  language === "En"
-                    ? "Visited Employee ID"
-                    : "معرف الموظف الذي تمت زيارته"
-                }
-                name="visitedEmployeeID"
-                state={inputFeild}
-                inputFeild={inputFeild.visitedEmployeeID}
-                self={this}
-              />
-            </div>
-            <div className="row">
-              <InputFeild
-                type="text"
-                label={
-                  language === "En"
-                    ? "Visited Employee Entity"
-                    : "تمت زيارة كيان الموظف"
-                }
-                name="visitedEmployeeEntity"
-                state={inputFeild}
-                inputFeild={inputFeild.visitedEmployeeEntity}
-                self={this}
-              />
-              <InputFeild
-                type="text"
-                label={
-                  language === "En"
-                    ? "Visited Employee Phone"
-                    : "تمت زيارة هاتف الموظف"
-                }
-                name="visitedEmployeePhone"
-                state={inputFeild}
-                inputFeild={inputFeild.visitedEmployeePhone}
-                self={this}
-              />
-            </div>
-            <div className="row mb-4">
-              <InputFeild
-                type="text"
-                label={language === "En" ? "Grade" : "درجة"}
-                name="visitedEmployeeGrade"
-                state={inputFeild}
-                inputFeild={inputFeild.visitedEmployeeGrade}
-                self={this}
-              />
-            </div>
-            </div>
-  )}
+                <div
+                  className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
+                  style={{ backgroundColor: "#223771" }}
+                >
+                  Visited Employee Information
+                </div>
+
+                <div className="row">
+                  <InputFeild
+                    type="text"
+                    label={
+                      language === "En"
+                        ? "Visited Employee Name"
+                        : "اسم الموظف الذي تمت زيارته"
+                    }
+                    name="visitedEmployeeName"
+                    state={inputFeild}
+                    inputFeild={inputFeild.visitedEmployeeName}
+                    self={this}
+                  />
+                  <InputFeild
+                    type="text"
+                    label={
+                      language === "En"
+                        ? "Visited Employee ID"
+                        : "معرف الموظف الذي تمت زيارته"
+                    }
+                    name="visitedEmployeeID"
+                    state={inputFeild}
+                    inputFeild={inputFeild.visitedEmployeeID}
+                    self={this}
+                  />
+                </div>
+                <div className="row">
+                  <InputFeild
+                    type="text"
+                    label={
+                      language === "En"
+                        ? "Visited Employee Entity"
+                        : "تمت زيارة كيان الموظف"
+                    }
+                    name="visitedEmployeeEntity"
+                    state={inputFeild}
+                    inputFeild={inputFeild.visitedEmployeeEntity}
+                    self={this}
+                  />
+                  <InputFeild
+                    type="text"
+                    label={
+                      language === "En"
+                        ? "Visited Employee Phone"
+                        : "تمت زيارة هاتف الموظف"
+                    }
+                    name="visitedEmployeePhone"
+                    state={inputFeild}
+                    inputFeild={inputFeild.visitedEmployeePhone}
+                    self={this}
+                  />
+                </div>
+                <div className="row mb-4">
+                  <InputFeild
+                    type="text"
+                    label={language === "En" ? "Grade" : "درجة"}
+                    name="visitedEmployeeGrade"
+                    state={inputFeild}
+                    inputFeild={inputFeild.visitedEmployeeGrade}
+                    self={this}
+                  />
+                </div>
+              </div>
+            )}
             <div
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
@@ -700,8 +696,7 @@ IVisitRequestFormReceptionistState
               />
             </div>
             <div className="row">
-             
-            <InputFeild
+              <InputFeild
                 type="text"
                 label={
                   language === "En"
@@ -709,7 +704,6 @@ IVisitRequestFormReceptionistState
                     : "المؤسسة/الشركة ذات الصلة"
                 }
                 name="visitorRelatedOrg"
-                // options={["India", "UAE", "Dubai", "Saudi"]}
                 state={inputFeild}
                 inputFeild={inputFeild.visitorRelatedOrg}
                 self={this}
@@ -728,16 +722,14 @@ IVisitRequestFormReceptionistState
               />
             </div>
             <div className="row">
-            <InputFeild
+              <InputFeild
                 type="customradio"
                 label={language === "En" ? "Purpose of Visit" : "غرض الزيارة"}
                 name="visitorPurposeOfVisit"
-               
                 state={inputFeild}
                 inputFeild={inputFeild.visitorPurposeOfVisit}
                 self={this}
               />
-             
             </div>
             <div className="row">
               <InputFeild
@@ -847,7 +839,7 @@ IVisitRequestFormReceptionistState
                 inputFeild={inputFeild.visitorRemarks}
               />
             </div>
-           
+
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -858,18 +850,17 @@ IVisitRequestFormReceptionistState
               >
                 Cancel
               </button>
-             
-                <button
-                  className="px-4 py-2 text-white"
-                  style={{ backgroundColor: "#223771" }}
-                  type="submit"
-                  onClick={() => {
-                    this.onSubmit();
-                  }}
-                >
-                  Submit
-                </button>
-              
+
+              <button
+                className="px-4 py-2 text-white"
+                style={{ backgroundColor: "#223771" }}
+                type="submit"
+                onClick={() => {
+                  this.onSubmit();
+                }}
+              >
+                Submit
+              </button>
             </div>
           </form>
         </div>

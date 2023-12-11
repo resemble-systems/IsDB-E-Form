@@ -7,6 +7,7 @@ import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
 import { Select } from "antd";
+import { Web } from "sp-pnp-js";
 import "./index.css";
 import {
   SPHttpClient,
@@ -21,6 +22,9 @@ interface IContractFormState {
   language: any;
   postAttachments: any;
   attachmentJson: any;
+  requestorIdProofJSON: any;
+  requestorPhotoJSON: any;
+  requestorContractJSON: any;
 }
 
 export default class ContractForm extends React.Component<
@@ -61,6 +65,9 @@ export default class ContractForm extends React.Component<
       language: "En",
       postAttachments: [],
       attachmentJson: [],
+      requestorIdProofJSON: {},
+      requestorPhotoJSON: {},
+      requestorContractJSON: {},
     };
   }
   public componentDidMount() {
@@ -106,7 +113,7 @@ export default class ContractForm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild } = this.state;
+    const { inputFeild, postAttachments } = this.state;
     const headers: any = {
       "X-HTTP-Method": "POST",
       "If-Match": "*",
@@ -118,7 +125,6 @@ export default class ContractForm extends React.Component<
         Grade: inputFeild.grade,
         Staff_id: inputFeild.staffId,
         Department: inputFeild.Department,
-        // OfficeLocation: inputFeild.officeLocation,
         phoneExtension: inputFeild.phoneExtension,
         Mobilenumber: inputFeild.mobileNumber,
         requestType: inputFeild.requestType,
@@ -138,6 +144,7 @@ export default class ContractForm extends React.Component<
         requestorValidityFrom: inputFeild.requestorValidityFrom,
         requestorValidityTo: inputFeild.requestorValidityTo,
         requestorRemarks: inputFeild.requestorRemarks,
+        AttachmentJSON: JSON.stringify(this.state.attachmentJson),
         // requestorIdProof: ,
         // requestorPhoto: "",
         // requestorContract: "",
@@ -151,14 +158,14 @@ export default class ContractForm extends React.Component<
     );
     if (postResponse.ok) {
       const postData = await postResponse.json();
+
       console.log("visitor Created", postData);
-      // setTimeout(() => {
-      //   console.log("visitor request form success");
-      // }, 1000);
+      this.upload(postData.ID, postAttachments);
     } else {
       alert("visitor form Failed.");
       console.log("Post Failed", postResponse);
     }
+
     this.setState({
       inputFeild: {
         staffName: "",
@@ -190,6 +197,55 @@ export default class ContractForm extends React.Component<
       requestorContract: "",
     });
   };
+
+  public componentDidUpdate(
+    prevProps: Readonly<IContractFormProps>,
+    prevState: Readonly<IContractFormState>
+  ): void {
+    const { requestorContractJSON, requestorIdProofJSON, requestorPhotoJSON } =
+      this.state;
+    if (prevState.postAttachments !== this.state.postAttachments) {
+      const attachmentPostJson = [
+        requestorPhotoJSON,
+        requestorIdProofJSON,
+        requestorContractJSON,
+      ]?.filter((data: any) => {
+        if (Object.keys(data)?.length > 0) {
+          return data;
+        }
+      });
+      this.setState({
+        attachmentJson: attachmentPostJson,
+      });
+    }
+  }
+  public async upload(ID: number, Attachment: any) {
+    console.log("In Attachment Post", Attachment);
+    const postAttachment = [
+      ...Attachment.requestorContract,
+      ...Attachment.requestorPhoto,
+      ...Attachment.requestorIdProof,
+    ];
+    console.log("postAttachment", postAttachment);
+    const uniqueAttachmentData = postAttachment?.reduce(
+      (acc: any, curr: any) => {
+        if (!acc.find((item: { name: string }) => item.name === curr.name)) {
+          acc.push(curr);
+        }
+        return acc;
+      },
+      []
+    );
+    console.log("uniqueAttachmentData", uniqueAttachmentData);
+    let web = new Web(this.props.context.pageContext.web.absoluteUrl);
+    const postResponse = await web.lists
+      .getByTitle("Contractor-Form")
+      .items.getById(ID)
+      .attachmentFiles.addMultiple(uniqueAttachmentData);
+    console.log("Attachment Post Status", postResponse);
+    window.history.go(-1);
+  }
+
   public render(): React.ReactElement<IContractFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -213,6 +269,9 @@ export default class ContractForm extends React.Component<
       requestorPhoto,
       language,
       postAttachments,
+      requestorContractJSON,
+      requestorIdProofJSON,
+      requestorPhotoJSON,
       attachmentJson,
     } = this.state;
     const { context, self } = this.props;
@@ -246,22 +305,28 @@ export default class ContractForm extends React.Component<
           if (targetName === "requestorIdProof") {
             this.setState({
               requestorIdProof: event.target.files,
+              requestorIdProofJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
             });
           } else if (targetName === "requestorPhoto") {
             this.setState({
               requestorPhoto: event.target.files,
+              requestorPhotoJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
             });
           } else if (targetName === "requestorContract") {
             this.setState({
               requestorContract: event.target.files,
+              requestorContractJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
             });
           }
-          this.setState({
-            attachmentJson: [
-              ...attachmentJson,
-              { targetName: targetName, fileName: fileName },
-            ],
-          });
           var reader = new FileReader();
           reader.onload = (function (file) {
             return function (e) {
@@ -285,7 +350,13 @@ export default class ContractForm extends React.Component<
     };
 
     console.log("Attachments", postAttachments);
-    console.log("Target Name", attachmentJson);
+    console.log(
+      "Target Name",
+      requestorIdProofJSON,
+      requestorContractJSON,
+      requestorPhotoJSON,
+      attachmentJson
+    );
 
     return (
       <CommunityLayout
@@ -320,8 +391,6 @@ export default class ContractForm extends React.Component<
 
                 this.setState({
                   language: value === "English" ? "En" : "Ar",
-
-                  // selectOption: value === "Department Tasks" ? false : true,
                 });
               }}
             ></Select>
@@ -340,10 +409,12 @@ export default class ContractForm extends React.Component<
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
                 state={inputFeild}
+                disabled={true}
                 inputFeild={inputFeild.staffName}
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={inputFeild}
@@ -354,6 +425,7 @@ export default class ContractForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={inputFeild}
@@ -362,6 +434,7 @@ export default class ContractForm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Department" : "قسم "}
                 name="Department"
                 state={inputFeild}
@@ -372,6 +445,7 @@ export default class ContractForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={true}
                 label={
                   language === "En" ? "Phone Extension " : "تحويلة الهاتف "
                 }
@@ -381,6 +455,7 @@ export default class ContractForm extends React.Component<
                 self={this}
               />
               <InputFeild
+                disabled={true}
                 type="text"
                 label={language === "En" ? "Mobile Number " : "رقم الموبايل "}
                 name="mobileNumber"
@@ -401,7 +476,6 @@ export default class ContractForm extends React.Component<
                 label={language === "En" ? "Request Type " : "نوع الطلب "}
                 name="requestType"
                 options={[
-                  " ",
                   "Trainee",
                   "Short Term Contract",
                   "Long Term Contract",
@@ -661,11 +735,7 @@ export default class ContractForm extends React.Component<
                 self={this}
                 state={requestorContract}
                 fileData={requestorContract}
-                /* handleFileChange={(event: any) => {
-                  this.setState({
-                    requestorContract: event.target.files,
-                  });
-                }} */ handleFileChange={handleChange}
+                 handleFileChange={handleChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
                 {requestorContract && (

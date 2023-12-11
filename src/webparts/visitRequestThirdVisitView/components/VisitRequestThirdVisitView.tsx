@@ -91,11 +91,7 @@ export default class VisitRequestThirdVisitView extends React.Component<
             className="d-flex justify-content-center text-white py-2 mb-2 headerText"
             style={{ backgroundColor: "#223771" }}
           >
-            {/* {filledBy === "Receptionist Task View" ? (
-            <> Visit Request ({filledBy})</>
-          ) : (
-            <> Visit Request Form ({filledBy})</>
-          )} */}
+           
             Visitor Request (Receptionist Task View)
           </div>
           <div

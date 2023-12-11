@@ -263,8 +263,6 @@ export default class ContractFormLongTerm extends React.Component<
 
                 this.setState({
                   language: value === "English" ? "En" : "Ar",
-
-                  // selectOption: value === "Department Tasks" ? false : true,
                 });
               }}
             ></Select>
@@ -280,6 +278,7 @@ export default class ContractFormLongTerm extends React.Component<
               <InputFeild
                 self={this}
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
                 state={inputFeild}
@@ -287,6 +286,7 @@ export default class ContractFormLongTerm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={inputFeild}
@@ -297,6 +297,7 @@ export default class ContractFormLongTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={inputFeild}
@@ -305,6 +306,7 @@ export default class ContractFormLongTerm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Department" : "قسم "}
                 name="Department"
                 state={inputFeild}
@@ -315,6 +317,7 @@ export default class ContractFormLongTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={true}
                 label={
                   language === "En" ? "Phone Extension " : "تحويلة الهاتف "
                 }
@@ -325,6 +328,7 @@ export default class ContractFormLongTerm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Mobile Number " : "رقم الموبايل "}
                 name="mobileNumber"
                 state={inputFeild}

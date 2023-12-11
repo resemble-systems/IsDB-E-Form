@@ -56,7 +56,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             type={type}
             id={label}
             name={name}
-            
+         
             value={inputFeild}
             onChange={handleChange}
             style={{

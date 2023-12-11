@@ -12,6 +12,7 @@ interface IInputFeildProps {
   options?: any;
   fileData?: any;
   handleFileChange?: any;
+  autoComplete: any
 }
 
 export default class InputFeild extends React.Component<IInputFeildProps, {}> {
@@ -24,10 +25,10 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
       name,
       state,
       disabled,
-
+      autoComplete,
       self,
       options,
-      /*  fileData, */
+
       handleFileChange,
     } = this.props;
 
@@ -61,6 +62,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             value={inputFeild}
             onChange={handleChange}
             disabled={disabled}
+            autoComplete={autoComplete}
             style={{
               color:
                 type === "datetime-local" && inputFeild === ""
@@ -137,8 +139,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <label htmlFor="No">No</label>
             </div>
           </div>
-        
-          ) : type === "customradio" ? (
+        ) : type === "customradio" ? (
           <div className="d-flex gap-5 ps-3">
             <div className="d-flex gap-1 align-items-center">
               <input
@@ -150,7 +151,10 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 checked
                 onClick={() => {
                   self.setState({
-                    inputFeild: { ...state, visitorPurposeOfVisit: "BuisnessVisit" },
+                    inputFeild: {
+                      ...state,
+                      visitorPurposeOfVisit: "BuisnessVisit",
+                    },
                   });
                 }}
               />
@@ -165,14 +169,17 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 value={inputFeild}
                 onClick={() => {
                   self.setState({
-                    inputFeild: { ...state, visitorPurposeOfVisit: "PersonalVisit" },
+                    inputFeild: {
+                      ...state,
+                      visitorPurposeOfVisit: "PersonalVisit",
+                    },
                   });
                 }}
               />
               <label htmlFor="PersonalVisit">Personal Visit</label>
             </div>
           </div>
-        ) : (  
+        ) : (
           <>Input Type Missing</>
         )}
       </div>

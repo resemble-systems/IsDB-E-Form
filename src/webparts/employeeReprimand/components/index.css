@@ -1,0 +1,143 @@
+input {
+  border: none;
+  font-weight: 500;
+}
+input:focus {
+  border: none;
+  outline: none;
+  font-weight: 500;
+}
+textarea {
+  border: none;
+  font-weight: 500;
+}
+textarea:focus {
+  border: none;
+  outline: none;
+  font-weight: 500;
+}
+select:focus {
+  border: none;
+  outline: none;
+}
+input::-moz-selection {
+  border: none;
+  outline: none;
+}
+input[type="checkbox"] {
+  cursor: pointer;
+  height: 25px;
+  width: 25px;
+}
+button {
+  border: none;
+  font-size: 1em;
+  font-family: Open Sans;
+  font-weight: 600;
+}
+
+label {
+  font-size: 1em;
+  font-family: Open Sans;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+input[type=file]::file-selector-button {
+  border: none;
+  padding: .2em .4em;
+  border-radius: .2em;
+  background-color: transparent;
+  transition: 1s;
+  color: transparent;
+}
+
+/* input[type=file]::file-selector-button:hover {
+  background-color: #81ecec;
+  border: 2px solid #00cec9;
+} */
+
+.headerText {
+  font-size: 1.125em;
+  font-family: Open Sans;
+  font-weight: 800;
+}
+
+@media only screen and (max-width: 600px) {
+  .headerText {
+    font-size: 0.75em;
+  }
+  label {
+    font-size: 0.7em;
+  }
+  button {
+    font-size: 0.7em;
+  }
+}
+.ant-select-selector{
+  background-color: transparent !important;
+    border: none !important;
+    width:35% !important;
+}
+.ant-select-borderless .ant-select-selector{
+  width:100% !important;
+}
+.announcementsFilterInput{
+  background-color: #FCFCFC !important;
+  border-radius: 6px !important;
+  font-family: Open Sans !important;
+  /* &:active
+    outline: none !important; */
+}
+.publiFweight{
+  font-weight: 500;
+}
+.publicationAttachment{
+  color: #ffffff;
+  cursor: pointer;
+}
+.publicationAttachmentButton{
+  background-color: #3b9642;
+  height: 40px;
+  border-radius: 5px;
+  
+  border: 2px solid #3b9642;
+}
+.fileInfo{
+  border-radius: 15px;
+  background-color: #d3dbf1;
+  color: grey;
+  font-weight: 500;
+}
+
+.fileName{
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.newsAttachmentButton{
+  background-color: #3b9642;
+  height: 40px;
+  border-radius: 6px;
+  width: 145px;
+  border: 2px solid #3b9642;
+  @media only screen and (max-width: 768px){
+      height:60px;
+      width:250px;
+  }}
+  .img1{
+  margin-bottom: 4px;
+  margin-top: 0;
+  }
+.newsAttachment{
+  color: #ffffff;
+  font-size: 16px;
+  cursor: pointer;
+}
+.title{
+  color: #585858;
+  font-family: Open Sans;
+  font-size: 16px;
+  outline: none !important;
+}

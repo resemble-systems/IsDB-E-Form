@@ -1,8 +1,6 @@
 
 import * as React from "react";
-// import styles from './ParkingRequestForm.module.scss';
 import type { IParkingRequestTaskViewProps } from "./IParkingRequestTaskViewProps";
-// import { escape } from '@microsoft/sp-lodash-subset';
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import "./index.css";
 import RequestorInfo from "./inputComponents/RequestInfo";
@@ -62,8 +60,7 @@ IParkingRequestTaskViewState
   public render(): React.ReactElement<IParkingRequestTaskViewProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    // let bootstarp5JS =
-    //   "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
+   
     let sansFont =
       "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap";
     let font =
@@ -71,7 +68,7 @@ IParkingRequestTaskViewState
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
+   
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
@@ -102,7 +99,7 @@ IParkingRequestTaskViewState
             className="d-flex justify-content-center text-danger py-2 mb-4 headerText"
             style={{ backgroundColor: "#C8CDDB" }}
           >
-            Please fill out the feilds in * to proceed
+            Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
             <select className="form-select" style={{ width: "max-content" }}>

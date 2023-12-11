@@ -1,7 +1,7 @@
 import * as React from "react";
 import styles from "./ParkingRequestorViewTable.module.scss";
 import type { IParkingRequestorViewTableProps } from "./IParkingRequestorViewTableProps";
-
+import * as moment from "moment";
 import { Table, Row, Col, Button, Dropdown, DatePicker } from "antd";
 import "../components/index.css";
 import type { ColumnsType } from "antd/es/table";
@@ -66,6 +66,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
     {
       title: "Request Date",
       dataIndex: "Created",
+      render: (t: any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
     },
     {
       title: "Status",
@@ -109,15 +110,33 @@ export default class VisitorAccessEndUserTable extends React.Component<
   };
   public componentDidUpdate(prevProps: any, prevState: any) {
     const { searchData, intialTableData } = this.state;
-
-    if (prevState.searchData !== searchData) {
+    const trimmedSearchData = searchData.trim();
+    if (prevState.searchData !== trimmedSearchData) {
       const filteredData = intialTableData.filter(
         (data: any) =>
-          data.Title?.toLowerCase().includes(searchData?.toLowerCase()) ||
-          data.Id?.toString().toLowerCase().includes(searchData?.toLowerCase())
+          data.Title?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.Id?.toString()
+            .toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          data.Status?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.requestType
+            ?.toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          moment(data.Created)
+            .format("DD/MM/YYYY, h:mm:ss")
+            ?.toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          data.PendingWith?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          )
       );
       this.setState({
         tableData: filteredData,
+        searchData: trimmedSearchData,
       });
     }
   }
@@ -237,6 +256,9 @@ export default class VisitorAccessEndUserTable extends React.Component<
                 <button
                   className="px-3 py-2 text-white"
                   style={{ backgroundColor: "#3B9642" }}
+                  onClick={() => {
+                    window.location.href = `${this.props.context.pageContext.site.absoluteUrl}/SitePages/parking-request-form.aspx`;
+                  }}
                 >
                   <span className="pe-1" style={{ fontWeight: 700 }}>
                     <i className="fas fa-plus me-1"></i>
@@ -276,6 +298,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
 
                 <div className="d-flex  align-items-center justify-content-end">
                   <Dropdown
+                    trigger={["click"]}
                     overlay={
                       <div
                         className={`bg-light shadow`}
@@ -295,7 +318,6 @@ export default class VisitorAccessEndUserTable extends React.Component<
                             placement={"bottomLeft"}
                             format={"DD-MM-YYYY"}
                             className={`w-100 my-2 border border-2 ${styles.newsFilterDatePicker}`}
-                            // value={filterStartDate ? filterStartDate._d : ""}
                             onChange={(dateString) => {
                               console.log("dateString", dateString);
                               this.setState({

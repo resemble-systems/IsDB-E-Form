@@ -25,8 +25,7 @@ export default class ContractFormWebPart extends BaseClientSideWebPart<IContract
     const element: React.ReactElement<IContractFormProps> = React.createElement(
       ContractForm,
       {
-        self: "",
-       
+        self: "",      
         context: this.context,
         siteUrl: this.context.pageContext.web.absoluteUrl,
         description: this.properties.description,

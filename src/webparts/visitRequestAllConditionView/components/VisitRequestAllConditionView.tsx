@@ -1,9 +1,8 @@
 import * as React from "react";
-// import styles from './VisitRequestBlockListView.module.sass';
+
 import type { IVisitRequestAllConditionViewProps } from "./IVisitRequestAllConditionViewProps";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 
-// import { escape } from '@microsoft/sp-lodash-subset';
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import InputFeild from "./InputFeild";
 import { Select } from "antd";
@@ -92,11 +91,6 @@ export default class VisitRequestAllConditionView extends React.Component<
             className="d-flex justify-content-center text-white py-2 mb-2 headerText"
             style={{ backgroundColor: "#223771" }}
           >
-            {/* {filledBy === "Receptionist Task View" ? (
-            <> Visit Request ({filledBy})</>
-          ) : (
-            <> Visit Request Form ({filledBy})</>
-          )} */}
             Visitor Request (Receptionist Task View)
           </div>
           <div
@@ -483,12 +477,7 @@ export default class VisitRequestAllConditionView extends React.Component<
                 inputFeild={inputFeild.visitorRemarks}
               />
             </div>
-            {/* <div className="d-flex justify-content-start py-2 mb-4">
-            <input type="checkbox" />
-            <label className="ps-2">
-              <a href="#">I agree to Terms & Conditions</a>
-            </label>
-          </div> */}
+
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -499,15 +488,7 @@ export default class VisitRequestAllConditionView extends React.Component<
               >
                 Cancel
               </button>
-              {/* {filledBy === "Receptionist Task View" ? (
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="submit"
-              >
-                Send for Approval
-              </button>
-            ) : ( */}
+
               <button
                 className="px-4 py-2 text-white"
                 style={{ backgroundColor: "#223771" }}
@@ -515,7 +496,6 @@ export default class VisitRequestAllConditionView extends React.Component<
               >
                 Submit
               </button>
-              {/* )} */}
             </div>
           </form>
         </div>

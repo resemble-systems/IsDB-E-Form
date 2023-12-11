@@ -6,7 +6,7 @@ import { Table, Row, Col, Button, Dropdown, DatePicker } from "antd";
 import "../components/index.css";
 import type { ColumnsType } from "antd/es/table";
 import { navData } from "./navdata";
-
+import * as moment from "moment";
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import HeaderComponent from "../../../common-components/header/HeaderComponent";
 import * as XLSX from "xlsx";
@@ -65,6 +65,7 @@ export default class ParkingSupervisorViewTable extends React.Component<
     {
       title: "Request Date",
       dataIndex: "Created",
+      render: (t: any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
     },
     {
       title: "Status",
@@ -111,12 +112,27 @@ export default class ParkingSupervisorViewTable extends React.Component<
   };
   public componentDidUpdate(prevProps: any, prevState: any) {
     const { searchData, intialTableData } = this.state;
+    const trimmedSearchData = searchData.trim();
 
-    if (prevState.searchData !== searchData) {
+    if (prevState.searchData !== trimmedSearchData) {
       const filteredData = intialTableData.filter(
         (data: any) =>
-          data.Title?.toLowerCase().includes(searchData?.toLowerCase()) ||
-          data.Id?.toString().toLowerCase().includes(searchData?.toLowerCase())
+          data.VisitorName?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.Id?.toString()
+            .toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          data.Status?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          moment(data.Created)
+            .format("DD/MM/YYYY, h:mm:ss")
+            ?.toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          data.requestType
+            ?.toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase())
       );
       this.setState({
         tableData: filteredData,
@@ -278,6 +294,7 @@ export default class ParkingSupervisorViewTable extends React.Component<
 
                 <div className="d-flex  align-items-center justify-content-end">
                   <Dropdown
+                    trigger={["click"]}
                     overlay={
                       <div
                         className={`bg-light shadow`}

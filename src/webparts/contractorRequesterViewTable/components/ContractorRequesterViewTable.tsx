@@ -1,15 +1,14 @@
 import * as React from "react";
 import styles from "./ContractorRequesterViewTable.module.scss";
 import type { IContractorRequesterViewTableProps } from "./IContractorRequesterViewTableProps";
-// import { escape } from '@microsoft/sp-lodash-subset';
 import { Table, Row, Col, Button, Dropdown, DatePicker } from "antd";
 import "../components/index.css";
-
 import { navData } from "./navdata";
-
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import HeaderComponent from "../../../common-components/header/HeaderComponent";
 import * as XLSX from "xlsx";
+import * as moment from "moment";
+
 interface IContractorRequesterViewTableState {
   searchData: string;
   tableData: DataType[];
@@ -63,7 +62,7 @@ export default class ContractorRequesterViewTable extends React.Component<
     },
     {
       title: "Request For",
-      dataIndex: "Created By",
+      dataIndex: "CreatedBy",
     },
     {
       title: "ID Type",
@@ -72,6 +71,7 @@ export default class ContractorRequesterViewTable extends React.Component<
     {
       title: "Request date",
       dataIndex: "Created",
+      render: (t:any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
     },
     {
       title: "Status",
@@ -115,15 +115,33 @@ export default class ContractorRequesterViewTable extends React.Component<
 
   public componentDidUpdate(prevProps: any, prevState: any) {
     const { searchData, intialTableData } = this.state;
+    const trimmedSearchData = searchData.trim();
 
-    if (prevState.searchData !== searchData) {
+    if (prevState.searchData !== trimmedSearchData) {
       const filteredData = intialTableData.filter(
         (data: any) =>
-          data.Title?.toLowerCase().includes(searchData?.toLowerCase()) ||
-          data.Id?.toString().toLowerCase().includes(searchData?.toLowerCase())
+          data.Title?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          data.Status?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.PendingWith?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.idType?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.requestType?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.CreatedBy?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          moment(data.Created).format("DD/MM/YYYY, h:mm:ss")?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          data.Id?.toString().toLowerCase().includes(trimmedSearchData?.toLowerCase())
       );
       this.setState({
         tableData: filteredData,
+        searchData: trimmedSearchData,
       });
     }
   }
@@ -231,7 +249,7 @@ export default class ContractorRequesterViewTable extends React.Component<
           <div className="pb-5">
             <div className="">
               <HeaderComponent
-                currentPageTitle={"Visitor Access End User Table"}
+                currentPageTitle={"Contractor/Trainee Request Requester View Table"}
                 context={context}
               />
             </div>
@@ -244,6 +262,9 @@ export default class ContractorRequesterViewTable extends React.Component<
                 <button
                   className="px-3 py-2 text-white"
                   style={{ backgroundColor: "#3B9642" }}
+                  onClick={() => {
+                    window.location.href = `${this.props.context.pageContext.site.absoluteUrl}/SitePages/contract-form.aspx`;
+                  }}
                 >
                   <span className="pe-1" style={{ fontWeight: 700 }}>
                     <i className="fas fa-plus me-1"></i>
@@ -284,6 +305,7 @@ export default class ContractorRequesterViewTable extends React.Component<
 
                 <div className="d-flex  align-items-center justify-content-end">
                   <Dropdown
+                   trigger={["click"]}
                     overlay={
                       <div
                         className={`bg-light shadow`}

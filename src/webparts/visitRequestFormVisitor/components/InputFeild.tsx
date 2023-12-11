@@ -11,6 +11,7 @@ interface IInputFeildProps {
   options?: any;
   fileData?: any;
   handleFileChange?: any;
+  disabled?:boolean
 }
 
 export default class InputFeild extends React.Component<IInputFeildProps, {}> {
@@ -21,6 +22,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
       type,
       name,
       state,
+      disabled,
       self,
       options,
       /*  fileData, */
@@ -52,6 +54,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           <input
             className="w-50 ps-3"
             type={type}
+            disabled = {disabled}
             id={label}
             name={name}
             value={inputFeild}

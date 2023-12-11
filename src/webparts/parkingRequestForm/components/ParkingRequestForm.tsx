@@ -1,5 +1,4 @@
 import * as React from "react";
-// import styles from './ParkingRequestForm.module.sass';
 import type { IParkingRequestFormProps } from "./IParkingRequestFormProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import "./index.css";
@@ -8,18 +7,23 @@ import { MSGraphClientV3 } from "@microsoft/sp-http";
 import RequestorInfo from "./inputComponents/RequestInfo";
 import VehicleInfo from "./inputComponents/VehicleInfo";
 import ParkingInfo from "./inputComponents/ParkingInfo";
-import {
-  SPHttpClient,
-  ISPHttpClientOptions,
-  // SPHttpClientResponse,
-} from "@microsoft/sp-http";
+import { SPHttpClient, ISPHttpClientOptions } from "@microsoft/sp-http";
 import CommunityLayout from "../../../common-components/communityLayout/index";
+import { Web } from "sp-pnp-js";
 
 interface IParkingRequestFormState {
   requestorInfo: any;
   parkingInfo: any;
   vehicleInfo: any;
   language: any;
+  attachStaffID: any;
+  attachCarRegistration: any;
+  attachDriverID: any;
+  postAttachments: any;
+  attachmentJson: any;
+  requestorIdProofJSON: any;
+  requestorPhotoJSON: any;
+  requestorContractJSON: any;
 }
 
 export default class ParkingRequestForm extends React.Component<
@@ -57,19 +61,22 @@ export default class ParkingRequestForm extends React.Component<
         plateNumber: "",
         color: "",
         modelYear: "",
-        attachStaffID: "",
-        attachCarRegistration: "",
-        attachDriverID: "",
+
         comments: "",
       },
       language: "En",
+      attachStaffID: "",
+      attachCarRegistration: "",
+      attachDriverID: "",
+      postAttachments: [],
+      attachmentJson: [],
+      requestorIdProofJSON: {},
+      requestorPhotoJSON: {},
+      requestorContractJSON: {},
     };
   }
 
   public componentDidMount() {
-    // const { context } = this.props;
-    // let data = window.location.href.split("=");
-    // let itemId = data[data.length - 1];
     this.getDetails();
   }
   public getDetails() {
@@ -80,9 +87,7 @@ export default class ParkingRequestForm extends React.Component<
         grahpClient
           .api(`/users/${context.pageContext.user.email}`)
           .version("v1.0")
-          .select(
-            "*"
-          )
+          .select("*")
 
           .get((error: any, user: any, rawResponse?: any) => {
             if (error) {
@@ -97,9 +102,7 @@ export default class ParkingRequestForm extends React.Component<
               requestorInfo: {
                 ...RequestorInfo,
                 staffName: user.displayName,
-
                 Department: user.department,
-
                 phoneExtension: user.mobilePhone,
                 mobileNumber: user.mobilePhone,
                 officeLocation: user.officeLocation,
@@ -110,7 +113,7 @@ export default class ParkingRequestForm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const {requestorInfo, parkingInfo,vehicleInfo } = this.state;
+    const { requestorInfo, parkingInfo, vehicleInfo } = this.state;
     const headers: any = {
       "X-HTTP-Method": "POST",
       "If-Match": "*",
@@ -124,7 +127,7 @@ export default class ParkingRequestForm extends React.Component<
         Gender: requestorInfo.gender,
         Department: requestorInfo.Department,
         HiringDate: requestorInfo.hiringDate,
-        JobCategory:  requestorInfo.jobCategory,
+        JobCategory: requestorInfo.jobCategory,
         StaffExtension: requestorInfo.staffExtension,
         Mobilenumber: requestorInfo.mobileNumber,
         RelatedEntity: requestorInfo.relatedEntity,
@@ -137,14 +140,14 @@ export default class ParkingRequestForm extends React.Component<
         CarName: vehicleInfo.carName,
         PlateNumber: vehicleInfo.plateNumber,
         Color: vehicleInfo.color,
-        RequestorNationalIdExpiryDate: vehicleInfo.requestorNationalIdExpiryDate,
+        RequestorNationalIdExpiryDate:
+          vehicleInfo.requestorNationalIdExpiryDate,
         ModelYear: vehicleInfo.modelYear,
         AttachStaffID: vehicleInfo.attachStaffID,
         AttachCarRegistration: vehicleInfo.attachCarRegistration,
         AttachDriverID: vehicleInfo.attachDriverID,
         Comments: vehicleInfo.comments,
         RequestorValidityTo: vehicleInfo.requestorValidityTo,
-       
       }),
     };
     console.log(parkingInfo.requestType, "requestType");
@@ -156,13 +159,11 @@ export default class ParkingRequestForm extends React.Component<
     if (postResponse.ok) {
       const postData = await postResponse.json();
       console.log("visitor Created", postData);
-      // setTimeout(() => {
-      //   console.log("visitor request form success");
-      // }, 1000);
     } else {
       alert("visitor form Failed.");
       console.log("Post Failed", postResponse);
     }
+    window.history.go(-1);
     this.setState({
       requestorInfo: {
         staffName: "",
@@ -189,19 +190,64 @@ export default class ParkingRequestForm extends React.Component<
         plateNumber: "",
         color: "",
         modelYear: "",
-        attachStaffID: "",
-        attachCarRegistration: "",
-        attachDriverID: "",
+
         comments: "",
       },
-    })
-    
+      attachStaffID: "",
+      attachCarRegistration: "",
+      attachDriverID: "",
+    });
+  };
+  public componentDidUpdate(
+    prevProps: Readonly<IParkingRequestFormProps>,
+    prevState: Readonly<IParkingRequestFormState>
+  ): void {
+    const { requestorContractJSON, requestorIdProofJSON, requestorPhotoJSON } =
+      this.state;
+    if (prevState.postAttachments !== this.state.postAttachments) {
+      const attachmentPostJson = [
+        requestorPhotoJSON,
+        requestorIdProofJSON,
+        requestorContractJSON,
+      ]?.filter((data: any) => {
+        if (Object.keys(data)?.length > 0) {
+          return data;
+        }
+      });
+      this.setState({
+        attachmentJson: attachmentPostJson,
+      });
+    }
+  }
+  public async upload(ID: number, Attachment: any) {
+    console.log("In Attachment Post", Attachment);
+    const postAttachment = [
+      ...Attachment.attachStaffID,
+      ...Attachment.attachCarRegistration,
+      ...Attachment.attachDriverID,
+    ];
+    console.log("postAttachment", postAttachment);
+    const uniqueAttachmentData = postAttachment?.reduce(
+      (acc: any, curr: any) => {
+        if (!acc.find((item: { name: string }) => item.name === curr.name)) {
+          acc.push(curr);
+        }
+        return acc;
+      },
+      []
+    );
+    console.log("uniqueAttachmentData", uniqueAttachmentData);
+    let web = new Web(this.props.context.pageContext.web.absoluteUrl);
+    const postResponse = await web.lists
+      .getByTitle("Parking-Request")
+      .items.getById(ID)
+      .attachmentFiles.addMultiple(uniqueAttachmentData);
+    console.log("Attachment Post Status", postResponse);
   }
   public render(): React.ReactElement<IParkingRequestFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    // let bootstarp5JS =
-    //   "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
+
     let sansFont =
       "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap";
     let font =
@@ -209,19 +255,101 @@ export default class ParkingRequestForm extends React.Component<
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
 
-    const { vehicleInfo, parkingInfo, requestorInfo, language } = this.state;
+    const {
+      vehicleInfo,
+      parkingInfo,
+      requestorInfo,
+      language,
+      postAttachments,
+      requestorContractJSON,
+      requestorIdProofJSON,
+      requestorPhotoJSON,
+      attachDriverID,
+      attachCarRegistration,
+      attachStaffID,
+
+      attachmentJson,
+    } = this.state;
     const { context, self } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
       event.preventDefault();
       console.log("Form Data", event);
       console.log("Form Submit", vehicleInfo, parkingInfo, requestorInfo);
     };
+    const handleChange = (event: { target: { name: any; files: any } }) => {
+      console.log(`Attachment ${event.target.name}`, event.target.files);
+      let inputArr = event.target.files;
+      let arrLength = event.target.files?.length;
+      const targetName = event.target.name;
+      let fileData: any = [];
+      for (let i = 0; i < arrLength; i++) {
+        console.log(`In for loop ${i} times`);
+        var file = inputArr[i];
+        const fileName = inputArr[i].name;
+        console.log("fileName", fileName);
+        const regex = /\.(pdf|PDF)$/i;
+        if (!regex.test(fileName)) {
+          alert("Please select an PDF File.");
+        } else {
+          if (targetName === "attachStaffID") {
+            this.setState({
+              attachStaffID: event.target.files,
+              requestorIdProofJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
+            });
+          } else if (targetName === "attachCarRegistration") {
+            this.setState({
+              attachCarRegistration: event.target.files,
+              requestorPhotoJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
+            });
+          } else if (targetName === "attachDriverID") {
+            this.setState({
+              attachDriverID: event.target.files,
+              requestorContractJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
+            });
+          }
+          var reader = new FileReader();
+          reader.onload = (function (file) {
+            return function (e) {
+              fileData.push({
+                name: file.name,
+                content: e.target?.result,
+                attachmentTarget: targetName,
+              });
+            };
+          })(file);
+          reader.readAsArrayBuffer(file);
+          console.log("fileData Attachment", fileData);
+          this.setState({
+            postAttachments: {
+              ...postAttachments,
+              [event.target.name]: fileData,
+            },
+          });
+        }
+      }
+    };
 
+    console.log("Attachments", postAttachments);
+    console.log(
+      "Target Name",
+      requestorIdProofJSON,
+      requestorContractJSON,
+      requestorPhotoJSON,
+      attachmentJson
+    );
     return (
       <CommunityLayout
         self={this}
@@ -248,7 +376,7 @@ export default class ParkingRequestForm extends React.Component<
               bordered={false}
               allowClear={false}
               options={[{ value: "English" }, { value: "Arabic" }]}
-              // className={`border border-2 ${styles.announcementsFilterInput}`}
+              className={`border border-2 `}
               placeholder="Select Language"
               onChange={(value) => {
                 console.log("value", value);
@@ -369,7 +497,6 @@ export default class ParkingRequestForm extends React.Component<
                 options={[
                   "Permanent Entry Permission",
                   "Temporary Entry Permission",
-                 
                 ]}
                 state={parkingInfo}
                 parkingInfo={parkingInfo.requestType}
@@ -378,8 +505,7 @@ export default class ParkingRequestForm extends React.Component<
               <ParkingInfo
                 label={language === "En" ? "Request Building " : "طلب بناء"}
                 name="requestedBuilding"
-                options={[ "Permanent Parking",
-                "Temporary Parking",]}
+                options={["Permanent Parking", "Temporary Parking"]}
                 state={parkingInfo}
                 parkingInfo={parkingInfo.requestedBuilding}
                 self={this}
@@ -487,7 +613,32 @@ export default class ParkingRequestForm extends React.Component<
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.attachStaffID}
                 self={this}
+                handleFileChange={handleChange}
               />
+              <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
+                {attachStaffID && (
+                  <div
+                    className="d-flex justify-content-between w-100"
+                    style={{ backgroundColor: "#F0F0F0" }}
+                  >
+                    <span
+                      className="ps-2 py-2"
+                      style={{ fontSize: "1em", fontWeight: "600" }}
+                    >
+                      {attachStaffID[0]?.name}
+                    </span>
+                    <span
+                      className="px-3 py-2 bg-danger text-white fw-bold"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        this.setState({ attachStaffID: "" });
+                      }}
+                    >
+                      X
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="row">
               <VehicleInfo
@@ -501,7 +652,32 @@ export default class ParkingRequestForm extends React.Component<
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.attachCarRegistration}
                 self={this}
+                handleFileChange={handleChange}
               />
+              <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
+                {attachCarRegistration && (
+                  <div
+                    className="d-flex justify-content-between w-100"
+                    style={{ backgroundColor: "#F0F0F0" }}
+                  >
+                    <span
+                      className="ps-2 py-2"
+                      style={{ fontSize: "1em", fontWeight: "600" }}
+                    >
+                      {attachCarRegistration[0]?.name}
+                    </span>
+                    <span
+                      className="px-3 py-2 bg-danger text-white fw-bold"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        this.setState({ attachCarRegistration: "" });
+                      }}
+                    >
+                      X
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="row">
               <VehicleInfo
@@ -513,7 +689,32 @@ export default class ParkingRequestForm extends React.Component<
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.attachDriverID}
                 self={this}
-              />
+                handleFileChange={handleChange}
+              />{" "}
+              <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
+                {attachDriverID && (
+                  <div
+                    className="d-flex justify-content-between w-100"
+                    style={{ backgroundColor: "#F0F0F0" }}
+                  >
+                    <span
+                      className="ps-2 py-2"
+                      style={{ fontSize: "1em", fontWeight: "600" }}
+                    >
+                      {attachDriverID[0]?.name}
+                    </span>
+                    <span
+                      className="px-3 py-2 bg-danger text-white fw-bold"
+                      style={{ cursor: "pointer" }}
+                      onClick={() => {
+                        this.setState({ attachDriverID: "" });
+                      }}
+                    >
+                      X
+                    </span>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="row">
               <VehicleInfo
@@ -537,6 +738,7 @@ export default class ParkingRequestForm extends React.Component<
                 style={{ backgroundColor: "#E5E5E5" }}
                 onClick={() => {
                   self.setState({ isHomeActive: true });
+                  window.history.go(-1);
                 }}
               >
                 Cancel

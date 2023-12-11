@@ -90,7 +90,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
       width: 220,
       render: (t: any, r: any, i: any) => (
         <Space size="middle">
-          <a
+          {/* <a
             className={`${styles.departmentManageEventAction} mx-2`}
             onClick={() => {
               window.location.href = `${
@@ -101,7 +101,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
             }}
           >
             Edit
-          </a>
+          </a> */}
           <a
             className={`${styles.departmentManageEventAction} mx-2`}
             onClick={() => {
@@ -213,15 +213,23 @@ export default class VisitorAccessEndUserTable extends React.Component<
   };
   public componentDidUpdate(prevProps: any, prevState: any) {
     const { searchData, intialTableData } = this.state;
+    const trimmedSearchData = searchData.trim();
     if (prevState.activeNav !== this.state.activeNav) this.onEventTabChange();
-    else if (prevState.searchData !== searchData) {
+    else if (prevState.searchData !== trimmedSearchData) {
       const filteredData = intialTableData.filter(
         (data: any) =>
-          data.Title?.toLowerCase().includes(searchData?.toLowerCase()) ||
-          data.Id?.toString().toLowerCase().includes(searchData?.toLowerCase())
+          data.Title?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          data.Id?.toString().toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          data.Status?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          data.PendingWith?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          moment(data.Visitorvisithour).format("h:mm a")?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          moment(data.CheckoutDate).format("DD/MM/YYYY, h:mm:ss")?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          moment(data.Created).format("DD/MM/YYYY, h:mm:ss")?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) 
       );
+    
       this.setState({
         tableData: filteredData,
+        searchData: trimmedSearchData,
       });
     }
   }

@@ -108,6 +108,7 @@ export default class ContractFormShortTerm extends React.Component<
   public onSubmit = async () => {
     const { context } = this.props;
     const { inputFeild } = this.state;
+    console.log("Request Type",  inputFeild.requestType)
     const headers: any = {
       "X-HTTP-Method": "POST",
       "If-Match": "*",
@@ -152,9 +153,7 @@ export default class ContractFormShortTerm extends React.Component<
     if (postResponse.ok) {
       const postData = await postResponse.json();
       console.log("visitor Created", postData);
-      // setTimeout(() => {
-      //   console.log("visitor request form success");
-      // }, 1000);
+    
     } else {
       alert("visitor form Failed.");
       console.log("Post Failed", postResponse);
@@ -167,7 +166,7 @@ export default class ContractFormShortTerm extends React.Component<
         Department: "",
         phoneExtension: "",
         mobileNumber: "",
-        requestType: "",
+        requestType: "Short Term Contract",
         idType: "",
         idNumber: "",
         contractCompany: "",
@@ -193,8 +192,7 @@ export default class ContractFormShortTerm extends React.Component<
   public render(): React.ReactElement<IContractFormShortTermProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    // let bootstarp5JS =
-    //   "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
+    
     let sansFont =
       "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap";
     let font =
@@ -202,7 +200,7 @@ export default class ContractFormShortTerm extends React.Component<
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
+   
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
@@ -237,11 +235,7 @@ export default class ContractFormShortTerm extends React.Component<
             className="d-flex justify-content-center text-white py-2 mb-2 headerText"
             style={{ backgroundColor: "#223771" }}
           >
-            {/* {filledBy === "Receptionist Task View" ? (
-              <> Visit Request ({filledBy})</>
-            ) : (
-              <> Trainee/Contract Form ({filledBy})</>
-            )} */}
+           
             Trainee/Contract Form (Short term contract)
           </div>
           <div
@@ -263,8 +257,6 @@ export default class ContractFormShortTerm extends React.Component<
 
                 this.setState({
                   language: value === "English" ? "En" : "Ar",
-
-                  // selectOption: value === "Department Tasks" ? false : true,
                 });
               }}
             ></Select>
@@ -280,6 +272,7 @@ export default class ContractFormShortTerm extends React.Component<
               <InputFeild
                 self={this}
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
                 state={inputFeild}
@@ -287,6 +280,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={inputFeild}
@@ -297,6 +291,7 @@ export default class ContractFormShortTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={inputFeild}
@@ -305,6 +300,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Department" : "قسم "}
                 name="Department"
                 state={inputFeild}
@@ -315,6 +311,7 @@ export default class ContractFormShortTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={true}
                 label={
                   language === "En" ? "Phone Extension " : "تحويلة الهاتف "
                 }
@@ -325,6 +322,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Mobile Number " : "رقم الموبايل "}
                 name="mobileNumber"
                 state={inputFeild}

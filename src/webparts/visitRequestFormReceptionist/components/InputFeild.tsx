@@ -11,6 +11,7 @@ interface IInputFeildProps {
   options?: any;
   fileData?: any;
   handleFileChange?: any;
+  disabled?:boolean
 }
 
 export default class InputFeild extends React.Component<IInputFeildProps, {}> {
@@ -21,6 +22,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
       type,
       name,
       state,
+      disabled,
       self,
       options,
       /*  fileData, */
@@ -48,17 +50,18 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           <span className="text-danger ms-2">*</span>
         </label>
 
-        {type === "date" || type === "text" ? (
+        {type === "datetime-local" || type === "text" ? (
           <input
             className="w-50 ps-3"
             type={type}
+            disabled={disabled}
             id={label}
             name={name}
             value={inputFeild}
             onChange={handleChange}
             style={{
               color:
-                type === "date" && inputFeild === ""
+                type === "datetime-local" && inputFeild === ""
                   ? "transparent"
                   : "inherit",
             }}

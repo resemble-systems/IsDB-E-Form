@@ -24,7 +24,6 @@ interface IVisitRequestFormVisitorState {
   checkBox: any;
   nameSelected: any;
   nameOptions: any;
-
 }
 
 export default class VisitRequestFormVisitor extends React.Component<
@@ -64,7 +63,6 @@ export default class VisitRequestFormVisitor extends React.Component<
       checkBox: false,
       nameSelected: "",
       nameOptions: [],
-     
     };
   }
   public componentDidMount() {
@@ -163,9 +161,6 @@ export default class VisitRequestFormVisitor extends React.Component<
     if (postResponse.ok) {
       const postData = await postResponse.json();
       console.log("visitor Created", postData);
-      // setTimeout(() => {
-      //   console.log("visitor request form success");
-      // }, 1000);
     } else {
       alert("visitor form Failed.");
       console.log("Post Failed", postResponse);
@@ -235,10 +230,7 @@ export default class VisitRequestFormVisitor extends React.Component<
         grahpClient
           .api(`/users/${context.pageContext.user.email}`)
           .version("v1.0")
-          .select(
-            "*"
-            // "department,jobTitle,displayName,mobilePhone,officeLocation"
-          )
+          .select("*")
 
           .get((error: any, user: any, rawResponse?: any) => {
             if (error) {
@@ -253,9 +245,9 @@ export default class VisitRequestFormVisitor extends React.Component<
               inputFeild: {
                 ...InputFeild,
                 staffName: user.displayName,
-                // email: user.userPrincipalName,
+
                 Department: user.department,
-                // jobTitle: user.jobTitle,
+
                 officeNumber: user.mobilePhone,
                 mobileNumber: user.mobilePhone,
                 officeLocation: user.officeLocation,
@@ -348,8 +340,7 @@ export default class VisitRequestFormVisitor extends React.Component<
   public render(): React.ReactElement<IVisitRequestFormVisitorProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    // let bootstarp5JS =
-    //   "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
+
     let sansFont =
       "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap";
     let font =
@@ -357,7 +348,7 @@ export default class VisitRequestFormVisitor extends React.Component<
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
+
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
@@ -402,8 +393,6 @@ export default class VisitRequestFormVisitor extends React.Component<
 
                 this.setState({
                   language: value === "English" ? "En" : "Ar",
-
-                  // selectOption: value === "Department Tasks" ? false : true,
                 });
               }}
             ></Select>
@@ -418,6 +407,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
+                
                 type="text"
                 label={language === "En" ? "Visitor Name" : "اسم الزائر"}
                 name="visitorName"

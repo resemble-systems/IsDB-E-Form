@@ -1,9 +1,6 @@
 import * as React from "react";
-// import styles from './VisitRequestBlockListView.module.sass';
 import type { IVisitRequestBlockListViewProps } from "./IVisitRequestBlockListViewProps";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-
-// import { escape } from '@microsoft/sp-lodash-subset';
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import InputFeild from "./InputFeild";
 import { SPHttpClient, ISPHttpClientOptions } from "@microsoft/sp-http";
@@ -150,7 +147,7 @@ export default class VisitRequestBlockListView extends React.Component<
           .version("v1.0")
           .select(
             "*"
-            // "department,jobTitle,displayName,mobilePhone,officeLocation"
+          
           )
 
           .get((error: any, user: any, rawResponse?: any) => {
@@ -166,9 +163,9 @@ export default class VisitRequestBlockListView extends React.Component<
               inputFeild: {
                 ...InputFeild,
                 staffName: user.displayName,
-                // email: user.userPrincipalName,
+               
                 Department: user.department,
-                // jobTitle: user.jobTitle,
+              
                 officeNumber: user.mobilePhone,
                 mobileNumber: user.mobilePhone,
                 officeLocation: user.officeLocation,
@@ -180,8 +177,7 @@ export default class VisitRequestBlockListView extends React.Component<
   public render(): React.ReactElement<IVisitRequestBlockListViewProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    // let bootstarp5JS =
-    //   "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
+   
     let sansFont =
       "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap";
     let font =
@@ -189,7 +185,7 @@ export default class VisitRequestBlockListView extends React.Component<
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
+    
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
@@ -632,12 +628,7 @@ export default class VisitRequestBlockListView extends React.Component<
                 inputFeild={inputFeild.visitorRemarks}
               />
             </div>
-            {/* <div className="d-flex justify-content-start py-2 mb-4">
-            <input type="checkbox" />
-            <label className="ps-2">
-              <a href="#">I agree to Terms & Conditions</a>
-            </label>
-          </div> */}
+           
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -648,15 +639,7 @@ export default class VisitRequestBlockListView extends React.Component<
               >
                 Cancel
               </button>
-              {/* {filledBy === "Receptionist Task View" ? (
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="submit"
-              >
-                Send for Approval
-              </button>
-            ) : ( */}
+              
               <button
                 className="px-4 py-2 text-white"
                 style={{ backgroundColor: "#223771" }}
@@ -667,7 +650,7 @@ export default class VisitRequestBlockListView extends React.Component<
               >
                 Submit
               </button>
-              {/* )} */}
+             
             </div>
           </form>
         </div>
