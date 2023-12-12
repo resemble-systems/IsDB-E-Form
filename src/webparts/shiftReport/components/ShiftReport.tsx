@@ -4,16 +4,19 @@ import CommunityLayout from "../../../common-components/communityLayout/index";
 import { Select } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
+import { Web } from "sp-pnp-js";
 import {
   ISPHttpClientOptions,
   MSGraphClientV3,
   SPHttpClient,
+  SPHttpClientResponse,
 } from "@microsoft/sp-http";
 import {
   PeoplePicker,
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import type { IShiftReportProps } from "./IShiftReportProps";
+import RichTextEditor from "../../../common-components/richTextEditor/RichTextEditor";
 interface IShiftReportState {
   inputFeild: any;
   language: any;
@@ -22,6 +25,21 @@ interface IShiftReportState {
   checkBox: any;
   commentsPost: any;
   buildingCommentsPost: any;
+  fileInfos: any;
+  uploadFileData: any;
+  attachments: any;
+  listId: any;
+  maintenance: any;
+  vehicleStatus:any;
+  handOverChecklist:any;
+  cleaning:any;
+  uploadContent: {
+    Date: string;
+    Title: string;
+    Location: string;
+    Description: string;
+    CreatedBy: string;
+  };
 }
 
 export default class ShiftReport extends React.Component<
@@ -41,11 +59,30 @@ export default class ShiftReport extends React.Component<
       checkBox: false,
       commentsPost: "",
       buildingCommentsPost: "",
+      fileInfos: [],
+      uploadFileData: [],
+      attachments: "",
+      listId: 0,
+      maintenance: "",
+      vehicleStatus:"",
+      handOverChecklist:"",
+      cleaning:"",
+      uploadContent: {
+        Date: "",
+        Title: "",
+        Location: "",
+        Description: "",
+        CreatedBy: "",
+      },
     };
   }
   public componentDidMount() {
     const { context } = this.props;
-
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("?itemID") != -1) {
+      this.getData(itemId);
+    }
     context.msGraphClientFactory
       .getClient("3")
       .then((graphClient: MSGraphClientV3): void => {
@@ -75,9 +112,118 @@ export default class ShiftReport extends React.Component<
       });
   }
 
-  public onSubmit = () => {
+  public getData(itemId: any) {
     const { context } = this.props;
-    const { inputFeild, people } = this.state;
+    const { inputFeild } = this.state;
+    context.spHttpClient
+      .get(
+        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+        SPHttpClient.configurations.v1
+      )
+      .then((res: SPHttpClientResponse) => {
+        return res.json();
+      })
+      .then((listItems: any) => {
+        // const PeopleData = listItems?.OnBehalfOfEmail
+        //   ? JSON.parse(listItems?.OnBehalfOfEmail)
+        //   : [];
+
+        this.setState({
+          inputFeild: {
+            ...inputFeild,
+            shift: listItems?.ShiftType,
+            date: listItems?.Title,
+          },
+          // OnBehalfOfEmail: PeopleData,
+          commentsPost: listItems?.CheckListStatus,
+          buildingCommentsPost: listItems?.BuildingFloorDetails,
+          fileInfos: listItems?.AttachmentFiles,
+        });
+        console.log("Res listItems", listItems);
+      });
+  }
+
+  public addFile = (event: { target: { name: any; files: any } }) => {
+    console.log(`Attachment ${event.target.name}`, event.target.files);
+    const { uploadFileData, fileInfos } = this.state;
+    let inputArr = event.target.files;
+    let arrLength = event.target.files?.length;
+    const targetName = event.target.name;
+    let newArr: any = [];
+    let fileData: any = [];
+    for (let i = 0; i < arrLength; i++) {
+      console.log(`In for loop ${i} times`);
+      var file = inputArr[i];
+      const fileName = inputArr[i].name;
+      console.log("fileName", fileName);
+      const regex = /\.(jpg|jpeg|png|gif|pdf|pptx|ppt|doc|docs|svg)$/i;
+      if (!regex.test(fileName)) {
+        alert("Please select an image file (jpg, jpeg, png, gif).");
+      } else {
+        var reader = new FileReader();
+        reader.onload = (function (file) {
+          return function (e: any) {
+            fileData.push({
+              name: file.name,
+              content: e.target?.result,
+              attachmentTarget: targetName,
+            });
+          };
+        })(file);
+        reader.readAsArrayBuffer(file);
+        console.log("fileData Attachment", fileData);
+        newArr = [...newArr, inputArr[i]];
+      }
+    }
+    this.setState({
+      fileInfos: [...fileInfos, ...newArr],
+      uploadFileData: [...uploadFileData, fileData],
+    });
+  };
+
+  private async upload(id: any) {
+    const { uploadFileData } = this.state;
+    let postArray = uploadFileData.reduce((a: any, b: any) => a.concat(b), []);
+    console.log("attachment post successfull", this.props);
+    let web = new Web(this.props.context.pageContext.web.absoluteUrl);
+    web.lists
+
+      .getByTitle("Shift-Report")
+      .items.getById(id)
+      .attachmentFiles.addMultiple(postArray);
+    console.log("attachment post successfull");
+    this.setState({
+      fileInfos: [],
+      uploadFileData: [],
+    });
+    // window.history.go(-1);
+  }
+
+  private deleteFiles(files: any) {
+    let { listId } = this.state;
+    if (window.location.href.indexOf("?itemID") != -1) {
+      console.log("attachment delete successfull", this.props, listId);
+      let web = new Web(this.props.context.pageContext.web.absoluteUrl);
+      web.lists
+        .getByTitle("Shift-Report")
+        .items.getById(listId)
+        .attachmentFiles.getByName(files)
+        .delete();
+    }
+  }
+
+  public onSubmit = async () => {
+    const { context } = this.props;
+    const {
+      inputFeild,
+      people,
+      buildingCommentsPost,
+      maintenance,
+      commentsPost,
+      handOverChecklist,
+      vehicleStatus,
+      cleaning
+    } = this.state;
 
     if (people.length < 1) {
       alert("User Name cannot be blank!");
@@ -95,12 +241,28 @@ export default class ShiftReport extends React.Component<
           ? {
               headers,
               body: JSON.stringify({
-                Title: inputFeild.date,
+                Title: new Date(inputFeild.date).toString(),
+                OnBehalfOfEmail: JSON.stringify(peopleArr),
+                ShiftType: inputFeild.shift,
+                CheckListStatus: commentsPost,
+                BuildingFloorDetails: buildingCommentsPost,
+                MaintenanceWork: maintenance,
+                CleaningWork:cleaning,
+                VehiclesStatus:vehicleStatus,
+                HandOver:handOverChecklist,
               }),
             }
           : {
               body: JSON.stringify({
-                Title: inputFeild.requestType,
+                Title: new Date(inputFeild.date).toString(),
+                OnBehalfOfEmail: JSON.stringify(peopleArr),
+                ShiftType: inputFeild.shift,
+                CheckListStatus: commentsPost,
+                BuildingFloorDetails: buildingCommentsPost,
+                MaintenanceWork: maintenance,
+                CleaningWork:cleaning,
+                VehiclesStatus:vehicleStatus,
+                HandOver:handOverChecklist,
               }),
             };
       let data = window.location.href.split("=");
@@ -110,17 +272,19 @@ export default class ShiftReport extends React.Component<
           ? `/_api/web/lists/GetByTitle('Shift-Report')/items('${itemId}')`
           : "/_api/web/lists/GetByTitle('Shift-Report')/items";
 
-      context.spHttpClient
-        .post(
-          `${context.pageContext.web.absoluteUrl}${url}`,
-          SPHttpClient.configurations.v1,
-          spHttpClintOptions
-        )
-        .then((res) => {
-          console.log("RES POST", res);
-          alert(`You have successfully submitted`);
-          // window.history.go(-1);
-        });
+      const Response = await context.spHttpClient.post(
+        `${context.pageContext.web.absoluteUrl}${url}`,
+        SPHttpClient.configurations.v1,
+        spHttpClintOptions
+      );
+      if (Response.ok) {
+        const ResponseData = await Response.json();
+        console.log("ResponseData", ResponseData);
+        this.upload(ResponseData.ID);
+        alert(`You have successfully submitted`);
+      } else {
+        console.log("Response", Response);
+      }
     }
   };
   public onChangePeoplePickerItems = (items: any) => {
@@ -159,6 +323,11 @@ export default class ShiftReport extends React.Component<
       checkBox,
       commentsPost,
       buildingCommentsPost,
+      fileInfos,
+      maintenance,
+      vehicleStatus,
+      handOverChecklist,
+      cleaning,
     } = this.state;
     const { context } = this.props;
 
@@ -203,7 +372,7 @@ export default class ShiftReport extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Shift Report Information
+              {language === "En" ? "Shift Report Information" : "معلومات تقرير التحول"}
             </div>
 
             <div className="row mb-2">
@@ -219,7 +388,7 @@ export default class ShiftReport extends React.Component<
                   }}
                 >
                   <label className="ps-2 py-2" htmlFor="onBehalfOf">
-                    {language === "En" ? "On behalf of" : "باسم"}
+                    {language === "En" ? "On behalf of" : "نيابة عن"}
                     <span className="text-danger">*</span>
                   </label>
                   <input
@@ -260,8 +429,8 @@ export default class ShiftReport extends React.Component<
 
             <div className="row">
               <InputFeild
-                type="date"
-                label={language === "En" ? "Date" : "نوع الطلب "}
+                type="datetime-local"
+                label={language === "En" ? "Date" : "تاريخ"}
                 name="date"
                 state={inputFeild}
                 inputFeild={inputFeild.date}
@@ -269,7 +438,7 @@ export default class ShiftReport extends React.Component<
               />
               <InputFeild
                 type="select"
-                label={language === "En" ? "Shift" : "كيان الموظف"}
+                label={language === "En" ? "Shift" : "التحول"}
                 name="shift"
                 options={["First Shift", "Second Shift", "Third Shift"]}
                 state={inputFeild}
@@ -289,13 +458,13 @@ export default class ShiftReport extends React.Component<
                 }}
               >
                 <label className="ps-2 py-2" htmlFor="commentsPost">
-                  {language === "En" ? "Checklist Comments" : "التعليقات"}
+                  {language === "En" ? "Checklist Comments" : "تعليقات قائمة التحقق"}
                 </label>
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
                 rows={3}
-                placeholder="Add a comment..."
+                placeholder={language === "En" ?"Add a comment...":"أضف تعليقا..."}
                 required
                 value={commentsPost}
                 onChange={(e) =>
@@ -314,13 +483,13 @@ export default class ShiftReport extends React.Component<
                 }}
               >
                 <label className="ps-2 py-2" htmlFor="buildingCommentsPost">
-                  {language === "En" ? "Building Floors Comments" : "التعليقات"}
+                  {language === "En" ? "Building Floors Comments" : "تعليقات طوابق المبنى"}
                 </label>
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
                 rows={3}
-                placeholder="Add a comment..."
+                placeholder={language === "En" ?"Add a comment...":"أضف تعليقا..."}
                 required
                 value={buildingCommentsPost}
                 onChange={(e) =>
@@ -333,14 +502,188 @@ export default class ShiftReport extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              {language === "En" ? "About Information" : "المرفقات"}
+              {language === "En" ? "About Information" : "حول المعلومات"}
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "1em",
+                  fontFamily: "Open Sans",
+                  fontWeight: "600",
+                  width: "24.5%",
+                  backgroundColor: "#F0F0F0",
+                  marginBottom: "8px",
+                }}
+              >
+                <label className="ps-2 py-2" htmlFor="buildingCommentsPost">
+                  {language === "En" ? "Maintenance" : "صيانة"}
+                </label>
+              </div>
+              <RichTextEditor
+                handleSubmit={""}
+                handleChange={(content: any) => {
+                  this.setState({
+                    maintenance: content,
+                  });
+                }}
+                uploadContent={maintenance}
+                placeholder={language === "En" ?"Enter the data":"أدخل البيانات"}
+              />
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "1em",
+                  fontFamily: "Open Sans",
+                  fontWeight: "600",
+                  width: "24.5%",
+                  backgroundColor: "#F0F0F0",
+                  marginBottom: "8px",
+                  marginTop:"8px"
+                }}
+              >
+                <label className="ps-2 py-2" htmlFor="buildingCommentsPost">
+                  {language === "En" ? "Cleaning Activity" : "نشاط التنظيف"}
+                </label>
+              </div>
+              <RichTextEditor
+                handleSubmit={""}
+                handleChange={(content: any) => {
+                  this.setState({
+                    cleaning: content,
+                  });
+                }}
+                uploadContent={cleaning}
+                placeholder={language === "En" ?"Enter the data":"أدخل البيانات"}
+              />
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "1em",
+                  fontFamily: "Open Sans",
+                  fontWeight: "600",
+                  width: "24.5%",
+                  backgroundColor: "#F0F0F0",
+                  marginBottom: "8px",
+                  marginTop:"8px"
+                }}
+              >
+                <label className="ps-2 py-2" htmlFor="buildingCommentsPost">
+                  {language === "En" ? "Vehicle Status" : "حالة المركبة"}
+                </label>
+              </div>
+              <RichTextEditor
+                handleSubmit={""}
+                handleChange={(content: any) => {
+                  this.setState({
+                    vehicleStatus: content,
+                  });
+                }}
+                uploadContent={vehicleStatus}
+                placeholder={language === "En" ?"Enter the data":"أدخل البيانات"}
+              />
+            </div>
+
+            <div>
+              <div
+                style={{
+                  fontSize: "1em",
+                  fontFamily: "Open Sans",
+                  fontWeight: "600",
+                  width: "24.5%",
+                  backgroundColor: "#F0F0F0",
+                  marginBottom: "8px",
+                  marginTop:"8px"
+                }}
+              >
+                <label className="ps-2 py-2" htmlFor="buildingCommentsPost">
+                  {language === "En" ? "Handover Checklist" : "قائمة التحقق من التسليم"}
+                </label>
+              </div>
+              <RichTextEditor
+                handleSubmit={""}
+                handleChange={(content: any) => {
+                  this.setState({
+                    handOverChecklist: content,
+                  });
+                }}
+                uploadContent={handOverChecklist}
+                placeholder={language === "En" ?"Enter the data":"أدخل البيانات"}
+              />
             </div>
 
             <div
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
-              style={{ backgroundColor: "#223771" }}
+              style={{ backgroundColor: "#223771", marginTop:"8px" }}
             >
-             {language === "En" ? "Attachments" : "المرفقات"}
+              {language === "En" ? "Attachments" : "المرفقات"}
+            </div>
+
+            <div>
+              <div className={`d-flex align-items-center`}>
+                <button className={`newsAttachmentButton`} type="button">
+                  <img
+                    src={require("../../../common-assets/attachment.svg")}
+                    alt=""
+                    height="20px"
+                    width="20px"
+                    className={`img1`}
+                  />
+                  <label className={`px-2 newsAttachment`} htmlFor="doc">
+                    {language === "En" ? "Attach Files" : ""}
+                  </label>
+                  <input
+                    type="file"
+                    id="doc"
+                    multiple={true}
+                    accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    style={{ display: "none" }}
+                    onChange={this.addFile}
+                  ></input>
+                </button>
+                <div className={`ms-3 title`}>
+                  {`${fileInfos?.length == 0 ? `No` : fileInfos?.length} ${
+                    fileInfos?.length == 1 ? `File` : `Files`
+                  } Chosen`}
+                </div>
+              </div>
+              <div className="pt-3">
+                {fileInfos?.length > 0 &&
+                  fileInfos.map((file: any, i: any) => (
+                    <div
+                      className={`p-2 mb-3 d-flex justify-content-between align-items-center fileInfo`}
+                    >
+                      <div className={`fileName`}>
+                        {file?.FileName || file?.name}
+                      </div>
+                      <div
+                        style={{ cursor: "pointer" }}
+                        className="text-danger"
+                        onClick={() => {
+                          const { uploadFileData } = this.state;
+                          let postArray = uploadFileData.reduce(
+                            (a: any, b: any) => a.concat(b),
+                            []
+                          );
+                          fileInfos.splice(i, 1);
+                          postArray.splice(i, 1);
+
+                          this.deleteFiles(file?.FileName || file?.name);
+                          this.setState({
+                            fileInfos,
+                            uploadFileData: postArray,
+                          });
+                        }}
+                      >
+                        X
+                      </div>
+                    </div>
+                  ))}
+              </div>
             </div>
 
             <div className="d-flex justify-content-end mb-2 gap-3">

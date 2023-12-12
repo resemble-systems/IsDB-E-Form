@@ -6,7 +6,7 @@ import { Table, Row, Col, Button, Dropdown, DatePicker } from "antd";
 import "../components/index.css";
 import type { ColumnsType } from "antd/es/table";
 import { navData } from "./navdata";
-import * as moment from "moment";
+import moment from "moment";
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import HeaderComponent from "../../../common-components/header/HeaderComponent";
 import * as XLSX from "xlsx";

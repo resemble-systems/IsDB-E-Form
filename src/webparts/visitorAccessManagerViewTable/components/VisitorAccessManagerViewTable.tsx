@@ -3,7 +3,7 @@ import styles from "./VisitorAccessManagerViewTable.module.scss";
 import type { IVisitorAccessManagerViewTableProps } from "./IVisitorAccessManagerViewTableProps";
 import { Col, Row, Table, Button, DatePicker, Dropdown } from "antd";
 import "../components/index.css";
-import * as moment from "moment";
+import moment from "moment";
 import { navData } from "./navdata";
 import type { ColumnsType } from "antd/es/table";
 import HeaderComponent from "../../../common-components/header/HeaderComponent";

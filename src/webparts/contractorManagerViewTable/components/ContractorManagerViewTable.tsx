@@ -3,7 +3,7 @@ import styles from "./ContractorManagerViewTable.module.scss";
 import type { IContractorManagerViewTableProps } from "./IContractorManagerViewTableProps";
 import { Table, Row, Col, Button, Dropdown, DatePicker } from "antd";
 import "../components/index.css";
-import * as moment from "moment";
+import moment from "moment";
 import { navData } from "./navdata";
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import HeaderComponent from "../../../common-components/header/HeaderComponent";

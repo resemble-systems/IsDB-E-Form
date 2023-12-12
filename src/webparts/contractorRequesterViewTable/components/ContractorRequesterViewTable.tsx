@@ -7,7 +7,7 @@ import { navData } from "./navdata";
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import HeaderComponent from "../../../common-components/header/HeaderComponent";
 import * as XLSX from "xlsx";
-import * as moment from "moment";
+import moment from "moment";
 
 interface IContractorRequesterViewTableState {
   searchData: string;

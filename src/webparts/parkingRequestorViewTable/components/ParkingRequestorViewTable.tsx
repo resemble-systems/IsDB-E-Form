@@ -1,7 +1,7 @@
 import * as React from "react";
 import styles from "./ParkingRequestorViewTable.module.scss";
 import type { IParkingRequestorViewTableProps } from "./IParkingRequestorViewTableProps";
-import * as moment from "moment";
+import moment from "moment";
 import { Table, Row, Col, Button, Dropdown, DatePicker } from "antd";
 import "../components/index.css";
 import type { ColumnsType } from "antd/es/table";

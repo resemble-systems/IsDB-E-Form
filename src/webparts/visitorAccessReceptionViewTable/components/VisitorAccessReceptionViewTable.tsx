@@ -5,7 +5,7 @@ import type { IVisitorAccessReceptionViewTableProps } from "./IVisitorAccessRece
 import { Col, Row, Table, Button, DatePicker, Dropdown } from "antd";
 import "../components/index.css";
 import type { ColumnsType } from "antd/es/table";
-import * as moment from "moment";
+import moment from "moment";
 import { navData } from "./navdata";
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import HeaderComponent from "../../../common-components/header/HeaderComponent";
