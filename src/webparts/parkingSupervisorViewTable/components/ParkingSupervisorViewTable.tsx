@@ -56,7 +56,7 @@ export default class ParkingSupervisorViewTable extends React.Component<
     },
     {
       title: "Staff Name",
-      dataIndex: "VisitorName",
+      dataIndex: "Title",
     },
     {
       title: "Request Type",
@@ -90,12 +90,13 @@ export default class ParkingSupervisorViewTable extends React.Component<
       .then((listItems: any) => {
         console.log("Parking-Request", listItems);
         let dataFilter = listItems.value.filter((e: any) => {
+          console.log("value", e)
           if (this.state.activeNav === "My Tasks") {
             return e.PendingWith == "SSIMS Reviewer";
-          } else if (this.state.activeNav === "Home") {
-            return e.PendingWith != ".";
-          } else if (this.state.activeNav === "Waiting List") {
+          } else if(this.state.activeNav === "Waiting List") {
             return e.Status == "Waiting List";
+          } else {
+            return e;
           }
         });
         const sortedItems: any = dataFilter.sort(
@@ -136,6 +137,7 @@ export default class ParkingSupervisorViewTable extends React.Component<
       );
       this.setState({
         tableData: filteredData,
+        searchData: trimmedSearchData,
       });
     }
   }
@@ -243,7 +245,7 @@ export default class ParkingSupervisorViewTable extends React.Component<
           <div className="pb-5">
             <div className="">
               <HeaderComponent
-                currentPageTitle={"Visitor Access End User Table"}
+                currentPageTitle={"Parking Supervisor View Table"}
                 context={context}
               />
             </div>
@@ -255,6 +257,9 @@ export default class ParkingSupervisorViewTable extends React.Component<
                 <button
                   className="px-3 py-2 text-white"
                   style={{ backgroundColor: "#3B9642" }}
+                  onClick={() => {
+                    window.location.href = `${this.props.context.pageContext.site.absoluteUrl}/SitePages/parking-request-form.aspx`;
+                  }}
                 >
                   <span className="pe-1" style={{ fontWeight: 700 }}>
                     <i className="fas fa-plus me-1"></i>
@@ -375,7 +380,6 @@ export default class ParkingSupervisorViewTable extends React.Component<
               <div className="visitorHeading">
                 Parking Requests (Supervisor View)
               </div>
-              <div style={{ cursor: "pointer" }}>See all</div>
             </div>
 
             <div className="px-4">

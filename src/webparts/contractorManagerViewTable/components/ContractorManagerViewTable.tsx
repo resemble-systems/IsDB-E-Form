@@ -68,7 +68,7 @@ export default class ContractorManagerViewTable extends React.Component<
     {
       title: "Request date",
       dataIndex: "Created",
-      render: (t:any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
+      render: (t: any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
     },
     {
       title: "Status",
@@ -99,7 +99,7 @@ export default class ContractorManagerViewTable extends React.Component<
     {
       title: "Request date",
       dataIndex: "Created",
-      render: (t:any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
+      render: (t: any) => <div>{!t ? "" : moment(t).format("DD/MM/YYYY")}</div>,
     },
     {
       title: "Status",
@@ -149,59 +149,34 @@ export default class ContractorManagerViewTable extends React.Component<
       });
   };
   public componentDidUpdate(prevProps: any, prevState: any) {
-    const { searchData, intialTableData, activeNav } = this.state;
+    const { searchData, intialTableData } = this.state;
     const trimmedSearchData = searchData.trim();
 
     if (prevState.searchData !== trimmedSearchData) {
       const filteredData = intialTableData.filter((data: any) => {
-        {
-          (activeNav == "Home" &&
-            data.Title?.toLowerCase().includes(
-              trimmedSearchData?.toLowerCase()
-            )) ||
-            data.Status?.toLowerCase().includes(
-              trimmedSearchData?.toLowerCase()
-            ) ||
-            data.idType
-              ?.toLowerCase()
-              .includes(trimmedSearchData?.toLowerCase()) ||
-            data.requestType
-              ?.toLowerCase()
-              .includes(trimmedSearchData?.toLowerCase()) ||
-            data.CreatedBy?.toLowerCase().includes(
-              trimmedSearchData?.toLowerCase()
-            ) ||
-            moment(data.Created).format("DD/MM/YYYY, h:mm:ss")?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
-            data.Id?.toString()
-              .toLowerCase()
-              .includes(trimmedSearchData?.toLowerCase());
-        }
-        
-        {
-          (activeNav == "My Tasks" &&
-            data.Title?.toLowerCase().includes(
-              trimmedSearchData?.toLowerCase()
-            )) ||
-            data.Status?.toLowerCase().includes(
-              trimmedSearchData?.toLowerCase()
-            ) ||
-            data.PendingWith?.toLowerCase().includes(
-              trimmedSearchData?.toLowerCase()
-            ) ||
-            data.idType
-              ?.toLowerCase()
-              .includes(trimmedSearchData?.toLowerCase()) ||
-            data.requestType
-              ?.toLowerCase()
-              .includes(trimmedSearchData?.toLowerCase()) ||
-            data.CreatedBy?.toLowerCase().includes(
-              trimmedSearchData?.toLowerCase()
-            ) ||
-            moment(data.Created).format("DD/MM/YYYY, h:mm:ss")?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
-            data.Id?.toString()
-              .toLowerCase()
-              .includes(trimmedSearchData?.toLowerCase());
-        }
+        data.Title?.toLowerCase().includes(trimmedSearchData?.toLowerCase()) ||
+          data.Status?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.PendingWith?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          data.idType
+            ?.toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          data.requestType
+            ?.toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          data.CreatedBy?.toLowerCase().includes(
+            trimmedSearchData?.toLowerCase()
+          ) ||
+          moment(data.Created)
+            .format("DD/MM/YYYY, h:mm:ss")
+            ?.toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase()) ||
+          data.Id?.toString()
+            .toLowerCase()
+            .includes(trimmedSearchData?.toLowerCase());
       });
       this.setState({
         tableData: filteredData,
@@ -314,7 +289,9 @@ export default class ContractorManagerViewTable extends React.Component<
           <div className="pb-5">
             <div className="">
               <HeaderComponent
-                currentPageTitle={"Contractor/Trainee Request Manager View Table"}
+                currentPageTitle={
+                  "Contractor/Trainee Request Manager View Table"
+                }
                 context={context}
               />
             </div>
@@ -404,7 +381,7 @@ export default class ContractorManagerViewTable extends React.Component<
                             className={`w-100 my-2 border border-2 ${
                               styles.newsFilterDatePicker
                             } ${endDateError && "border-danger"}`}
-                            onChange={(dateString) => {
+                            onChange={(dateString: any) => {
                               let temp: any = dateString;
                               if (
                                 filterStartDate.$d.getTime() < temp.$d.getTime()

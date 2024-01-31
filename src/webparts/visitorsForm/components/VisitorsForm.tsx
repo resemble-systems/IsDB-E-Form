@@ -1,12 +1,9 @@
 import * as React from "react";
 import styles from "./VisitorsForm.module.sass";
-// import "../../../../../../node_modules/bootstrap/dist/css/bootstrap.min.css";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-// import { WebPartContext } from "@microsoft/sp-webpart-base";
 import InputFeild from "./InputFeild";
 import "./index.css";
 import type { IVisitorsFormProps } from "./IVisitorsFormProps";
-// import { escape } from '@microsoft/sp-lodash-subset';
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import { Select } from "antd";
 import {
@@ -60,10 +57,10 @@ export default class VisitorsForm extends React.Component<
         visitorName: "",
         visitorMobileNumber: "",
         visitorEmailId: "",
-        visitorNationality: "",
+        visitorNationality: "India",
         visitorOrgType: "",
         visitorRelatedOrg: "",
-        visitorPurposeOfVisit: "",
+        visitorPurposeOfVisit: "BuisnessVisit",
         visitorVisitTime: "",
         visitorNotify: "",
         visitorRemarks: "",
@@ -124,17 +121,61 @@ export default class VisitorsForm extends React.Component<
               visitorOrgType: listItems?.Visitororgtype,
               visitorRelatedOrg: listItems?.Visitorrelatedorganization,
               visitorPurposeOfVisit: listItems?.Visitorpurposeofvisit,
-              visitorVisitTime: listItems?.Visitorvisithour,
+              visitorVisitTime: new Date(listItems?.Visitorvisithour),
               visitorNotify: listItems?.Visitornotify,
               visitorRemarks: listItems?.Visitorremarks,
             },
-            // attachmentJson: listItems.AttachmentJSON
-            //   ? JSON.parse(listItems.attachmentJson)
-            //   : [],
+            visitorPhoto: listItems.AttachmentJSON
+              ? JSON.parse(listItems.AttachmentJSON)
+                  ?.filter((data: any) => data.targetName === "visitorPhoto")
+                  ?.map((data: any) => {
+                    return {
+                      ...data,
+                      ID: listItems.ID,
+                    };
+                  })
+              : [],
+            visitorIdProof: listItems.AttachmentJSON
+              ? JSON.parse(listItems.AttachmentJSON)
+                  ?.filter((data: any) => data.targetName === "visitorIdProof")
+                  .map((data: any) => {
+                    return {
+                      ...data,
+                      ID: listItems.ID,
+                    };
+                  })
+              : [],
           });
+
           console.log(
             "attachmentsssss",
-            listItems.AttachmentJSON ? JSON.parse(listItems.attachmentJson) : []
+            listItems.AttachmentJSON ? JSON.parse(listItems.AttachmentJSON) : []
+          );
+          console.log(
+            "attachmentsssssvisitorIdProof",
+            listItems.AttachmentJSON
+              ? JSON.parse(listItems.AttachmentJSON)
+                  ?.filter((data: any) => data.targetName === "visitorIdProof")
+                  .map((data: any) => {
+                    return {
+                      ...data,
+                      ID: listItems.ID,
+                    };
+                  })
+              : []
+          );
+          console.log(
+            "attachmentsssssvisitorPhoto",
+            listItems.AttachmentJSON
+              ? JSON.parse(listItems.AttachmentJSON)
+                  ?.filter((data: any) => data.targetName === "visitorPhoto")
+                  ?.map((data: any) => {
+                    return {
+                      ...data,
+                      ID: listItems.ID,
+                    };
+                  })
+              : []
           );
         });
     }
@@ -142,88 +183,135 @@ export default class VisitorsForm extends React.Component<
 
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments } = this.state;
-
-    const headers: any = {
-      "X-HTTP-Method": "POST",
-      "If-Match": "*",
-    };
-    const spHttpClintOptions: ISPHttpClientOptions = {
-      headers,
-      body: JSON.stringify({
-        Title: inputFeild.staffName,
-        Grade: inputFeild.grade,
-        Staff_id: inputFeild.staffId,
-        Department: inputFeild.Department,
-        OfficeLocation: inputFeild.officeLocation,
-        Officephone: inputFeild.officeNumber,
-        Mobilenumber: inputFeild.mobileNumber,
-        Immediatesupervisor: inputFeild.immediateSupervisor,
-        Onbehalfof: inputFeild.onBehalfOf,
-        Visitedemployee: inputFeild.visitedEmployeeName,
-        Visitedemployeeid: inputFeild.visitedEmployeeID,
-        Visitedentity: inputFeild.visitedEmployeeEntity,
-        Visitedemployeephone: inputFeild.visitedEmployeePhone,
-        Visitedemployeestaffgrade: inputFeild.visitedEmployeeGrade,
-        Visitorname: inputFeild.visitorName,
-        Visitormobileno: inputFeild.visitorMobileNumber,
-        Visitoremailaddress: inputFeild.visitorEmailId,
-        Visitornationality: inputFeild.visitorNationality,
-        Visitororgtype: inputFeild.visitorOrgType,
-        Visitorrelatedorganization: inputFeild.visitorRelatedOrg,
-        Visitorpurposeofvisit: inputFeild.visitorPurposeOfVisit,
-        Visitorvisithour: new Date(inputFeild.visitorVisitTime).toString(),
-        Visitornotify: inputFeild.visitorNotify,
-        Visitorremarks: inputFeild.visitorRemarks,
-        Filledby: context.pageContext.user.displayName,
-        Filledbytype: "Employee",
-        Consecutive: this.state.consecutive.toString(),
-        Sheduledtime: this.state.sheduledTime.toString(),
-        AttachmentJSON: JSON.stringify(this.state.attachmentJson),
-      }),
-    };
-    const postResponse = await context.spHttpClient.post(
-      `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items`,
-      SPHttpClient.configurations.v1,
-      spHttpClintOptions
+    const { inputFeild, postAttachments, visitorPhoto, visitorIdProof } =
+      this.state;
+    const visitorname = this.state.inputFeild.visitorName;
+    console.log(
+      "inputFeild.visitorRelatedOrg",
+      inputFeild.visitorRelatedOrg,
+      inputFeild.visitorName,
+      visitorname
     );
-    if (postResponse.ok) {
-      const postData = await postResponse.json();
-      console.log("visitor Created", postData);
-      this.upload(postData.ID, postAttachments);
-    } else {
-      alert("visitor form Failed.");
-      console.log("Post Failed", postResponse);
-    }
 
-    this.setState({
-      inputFeild: {
-        staffName: "",
-        grade: "",
-        staffId: "",
-        Department: "",
-        officeLocation: "",
-        officeNumber: "",
-        mobileNumber: "",
-        immediateSupervisor: "",
-        onBehalfOf: "",
-        visitedEmployeeName: "",
-        visitedEmployeeID: "",
-        visitedEmployeeEntity: "",
-        visitedEmployeePhone: "",
-        visitedEmployeeGrade: "",
-        visitorName: "",
-        visitorMobileNumber: "",
-        visitorEmailId: "",
-        visitorNationality: "",
-        visitorOrgType: "",
-        visitorRelatedOrg: "",
-        visitorPurposeOfVisit: "",
-        visitorVisitTime: "",
-        visitorNotify: "",
-        visitorRemarks: "",
-      },
-    });
+    const checkEmail = (Email: string) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValidEmail = emailRegex.test(Email);
+      return !isValidEmail;
+    };
+
+    const checkMobileNo = (Number: any) => {
+      // const mobileNumberRegex = /^\+?[1-9]\d{1,14}$/;
+      const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/;
+      const isValidNumber = !mobileNumberRegex.test(Number);
+      console.log(isValidNumber,mobileNumberRegex,"mobile numbers testing");
+      return isValidNumber;
+    };
+
+    const visitTime = this.state.inputFeild.visitorVisitTime;
+
+    if ( !visitorname || visitorname?.length < 3 || visitorname?.length > 30) {
+      alert(
+        "Visitor Name cannot be blank, should have more than 2 characters and less than 30 characters!"
+      );
+    } else if (checkEmail(inputFeild.visitorEmailId)) {
+      alert("Invalid Email Address!");
+    } else if (checkMobileNo(inputFeild.visitorMobileNumber)) {
+      alert("Invalid Mobile Number!");
+    } else if (!inputFeild.visitorRelatedOrg || 
+      inputFeild.visitorRelatedOrg?.length < 3 ||
+      inputFeild.visitorRelatedOrg?.length > 30
+    ) {
+      alert(
+        "Related Org/Company cannot be blank, should have more than 2 characters and less than 30 characters!"
+      );
+    } else if (!visitTime) {
+      alert("Please enter the Anticipated visit time!");
+    } else if (!visitorIdProof) {
+      alert("Please Attach the IdProof!");
+    } else if (!visitorPhoto) {
+      alert("Please Attach the Photo!");
+    } else {
+      const headers: any = {
+        "X-HTTP-Method": "POST",
+        "If-Match": "*",
+      };
+      const spHttpClintOptions: ISPHttpClientOptions = {
+        headers,
+        body: JSON.stringify({
+          Title: inputFeild.staffName,
+          Grade: inputFeild.grade,
+          Staff_id: inputFeild.staffId,
+          Department: inputFeild.Department,
+          OfficeLocation: inputFeild.officeLocation,
+          Officephone: inputFeild.officeNumber,
+          Mobilenumber: inputFeild.mobileNumber,
+          Immediatesupervisor: inputFeild.immediateSupervisor,
+          Onbehalfof: inputFeild.onBehalfOf,
+          Visitedemployee: inputFeild.visitedEmployeeName,
+          Visitedemployeeid: inputFeild.visitedEmployeeID,
+          Visitedentity: inputFeild.visitedEmployeeEntity,
+          Visitedemployeephone: inputFeild.visitedEmployeePhone,
+          Visitedemployeestaffgrade: inputFeild.visitedEmployeeGrade,
+          Visitorname: inputFeild.visitorName,
+          Visitormobileno: inputFeild.visitorMobileNumber,
+          Visitoremailaddress: inputFeild.visitorEmailId,
+          Visitornationality: inputFeild.visitorNationality,
+          Visitororgtype: inputFeild.visitorOrgType,
+          Visitorrelatedorganization: inputFeild.visitorRelatedOrg,
+          Visitorpurposeofvisit: inputFeild.visitorPurposeOfVisit,
+          Visitorvisithour: new Date(inputFeild.visitorVisitTime).toString(),
+          Visitornotify: inputFeild.visitorNotify,
+          Visitorremarks: inputFeild.visitorRemarks,
+          Filledby: context.pageContext.user.displayName,
+          Filledbytype: "Employee",
+          Consecutive: this.state.consecutive.toString(),
+          Sheduledtime: this.state.sheduledTime.toString(),
+          AttachmentJSON: JSON.stringify(this.state.attachmentJson),
+        }),
+      };
+      const postResponse = await context.spHttpClient.post(
+        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items`,
+        SPHttpClient.configurations.v1,
+        spHttpClintOptions
+      );
+      if (postResponse.ok) {
+        const postData = await postResponse.json();
+        console.log("visitor Created", postData);
+        this.upload(postData.ID, postAttachments);
+      } else {
+        alert("visitor form Failed.");
+        console.log("Post Failed", postResponse);
+      }
+
+      this.setState({
+        inputFeild: {
+          staffName: "",
+          grade: "",
+          staffId: "",
+          Department: "",
+          officeLocation: "",
+          officeNumber: "",
+          mobileNumber: "",
+          immediateSupervisor: "",
+          onBehalfOf: "",
+          visitedEmployeeName: "",
+          visitedEmployeeID: "",
+          visitedEmployeeEntity: "",
+          visitedEmployeePhone: "",
+          visitedEmployeeGrade: "",
+          visitorName: "",
+          visitorMobileNumber: "",
+          visitorEmailId: "",
+          visitorNationality: "",
+          visitorOrgType: "",
+          visitorRelatedOrg: "",
+          visitorPurposeOfVisit: "",
+          visitorVisitTime: "",
+          visitorNotify: "",
+          visitorRemarks: "",
+        },
+      });
+    }
   };
 
   public componentDidUpdate(
@@ -262,23 +350,14 @@ export default class VisitorsForm extends React.Component<
           }
         }
       );
+
       this.setState({
         attachmentJson: attachmentPostJson,
       });
     }
-    // if (prevState.attachmentJson !== this.state.attachmentJson) {
-    //   const visitorIdProof = this.state.attachmentJson?.filter(
-    //     (data:any) => data.targetName === "visitorIdProof"
-    //   );
-    //   const visitorPhoto = this.state.attachmentJson?.filter(
-    //     (data:any) => data.targetName === "visitorPhoto"
-    //   );
-    //   console.log("visitorIdProof....visitorPhoto",visitorPhoto,visitorIdProof)
-    //   this.setState({
-    //     visitorIdProof: visitorIdProof,
-    //     visitorPhoto: visitorPhoto,
-    //   });
-    // }
+    if (prevState.visitorPhoto !== this.state.visitorPhoto) {
+      console.log("updateed data", this.state.visitorPhoto);
+    }
   }
   public async upload(ID: number, Attachment: any) {
     console.log("In Attachment Post", Attachment);
@@ -303,6 +382,7 @@ export default class VisitorsForm extends React.Component<
       .items.getById(ID)
       .attachmentFiles.addMultiple(uniqueAttachmentData);
     console.log("Attachment Post Status", postResponse);
+    alert("You have successfully submitted!");
     window.history.go(-1);
   }
   public getDetails() {
@@ -424,8 +504,6 @@ export default class VisitorsForm extends React.Component<
   public render(): React.ReactElement<IVisitorsFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
-    // let bootstarp5JS =
-    //   "https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js";
     let sansFont =
       "https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@200;300;400;600;700;900&display=swap";
     let font =
@@ -433,7 +511,6 @@ export default class VisitorsForm extends React.Component<
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
@@ -452,11 +529,7 @@ export default class VisitorsForm extends React.Component<
       attachmentJson,
     } = this.state;
     const { context } = this.props;
-    const handleSubmit = (event: { preventDefault: () => void }) => {
-      event.preventDefault();
-      console.log("Form Data", event);
-      console.log("Form Submit", inputFeild, visitorIdProof, visitorPhoto);
-    };
+
     const handleSearch = (newValue: string) => {
       let nameSearch = newValue;
 
@@ -472,6 +545,7 @@ export default class VisitorsForm extends React.Component<
 
       this.setState({ nameSelected: newValue });
     };
+
     const handleFileChange = (event: { target: { name: any; files: any } }) => {
       console.log(`Attachment ${event.target.name}`, event.target.files);
       let inputArr = event.target.files;
@@ -527,6 +601,7 @@ export default class VisitorsForm extends React.Component<
     };
 
     console.log("Attachments", postAttachments);
+    console.log("visitorPhoto", visitorPhoto, visitorIdProof);
     console.log(
       "Target Name",
       visitorPhotoJSON,
@@ -570,12 +645,14 @@ export default class VisitorsForm extends React.Component<
               }}
             ></Select>
           </div>
-          <form onSubmit={handleSubmit}>
+          <form>
             <div
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Requestor Information
+              {language === "En"
+                ? " Requestor Information"
+                : "معلومات مقدم الطلب"}
             </div>
             <div className="row">
               <InputFeild
@@ -729,7 +806,9 @@ export default class VisitorsForm extends React.Component<
                   className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
                   style={{ backgroundColor: "#223771" }}
                 >
-                  Visited Employee Information
+                  {language === "En"
+                    ? "Visited Employee Information"
+                    : "معلومات الموظف الذي تمت زيارته"}
                 </div>
 
                 <div className="row">
@@ -805,14 +884,19 @@ export default class VisitorsForm extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Visitor Information
+              {language === "En" ? "Visitor Information" : "معلومات للزوار"}
             </div>
             <div className="row">
               <InputFeild
                 self={this}
                 type="text"
                 autoComplete={autoComplete}
-                label={language === "En" ? "Visitor Name" : "اسم الزائر"}
+                label={
+                  <>
+                    {language === "En" ? "Visitor Name" : "اسم الزائر"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="visitorName"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorName}
@@ -822,7 +906,10 @@ export default class VisitorsForm extends React.Component<
                 autoComplete={autoComplete}
                 type="text"
                 label={
-                  language === "En" ? "Mobile Number" : "رقم الهاتف المحمول"
+                  <>
+                    {language === "En" ? "Mobile Number" : "رقم الهاتف المحمول"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorMobileNumber"
                 state={inputFeild}
@@ -834,7 +921,12 @@ export default class VisitorsForm extends React.Component<
                 self={this}
                 autoComplete="new-password"
                 type="text"
-                label={language === "En" ? "Email ID" : "عنوان الايميل"}
+                label={
+                  <>
+                    {language === "En" ? "Email ID" : "عنوان الايميل"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="visitorEmailId"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorEmailId}
@@ -851,48 +943,51 @@ export default class VisitorsForm extends React.Component<
               />
             </div>
             <div className="row">
-              {/* <InputFeild
-                type="select"
-                label={language === "En" ? "Organization Type" : "نوع المنظمة"}
-                name="visitorOrgType"
-                options={["India", "UAE", "Dubai", "Saudi"]}
+              <InputFeild
+                type="text"
+                autoComplete={autoComplete}
+                label={
+                  <>
+                    {language === "En"
+                      ? "Related Org/Company"
+                      : "المؤسسة/الشركة ذات الصلة"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
+                name="visitorRelatedOrg"
                 state={inputFeild}
-                inputFeild={inputFeild.visitorOrgType}
+                inputFeild={inputFeild.visitorRelatedOrg}
                 self={this}
-              /> */}
+              />
+
               <InputFeild
                 type="datetime-local"
                 autoComplete={autoComplete}
                 label={
-                  language === "En"
-                    ? "Anticipated Visit Time"
-                    : "وقت الزيارة المتوقع"
+                  <>
+                    {language === "En"
+                      ? "Anticipated Visit Time"
+                      : "وقت الزيارة المتوقع"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorVisitTime"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorVisitTime}
                 self={this}
               />
-              <InputFeild
-                type="text"
-                autoComplete={autoComplete}
-                label={
-                  language === "En"
-                    ? "Related Org/Company"
-                    : "المؤسسة/الشركة ذات الصلة"
-                }
-                name="visitorRelatedOrg"
-                // options={["India", "UAE", "Dubai", "Saudi"]}
-                state={inputFeild}
-                inputFeild={inputFeild.visitorRelatedOrg}
-                self={this}
-              />
             </div>
             <div className="row">
               <InputFeild
                 autoComplete={autoComplete}
-                type="customradio"
-                label={language === "En" ? "Purpose of Visit" : "غرض الزيارة"}
+                type="select"
+                options={["PersonalVisit", "BuisnessVisit"]}
+                label={
+                  <>
+                    {language === "En" ? "Purpose of Visit" : "غرض الزيارة"}
+                    {/* <span className="text-danger">*</span> */}
+                  </>
+                }
                 name="visitorPurposeOfVisit"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorPurposeOfVisit}
@@ -904,7 +999,12 @@ export default class VisitorsForm extends React.Component<
                 type="file"
                 autoComplete={autoComplete}
                 label={
-                  language === "En" ? "Attach ID Proof" : "إرفاق إثبات الهوية"
+                  <>
+                    {language === "En"
+                      ? "Attach ID Proof"
+                      : "إرفاق إثبات الهوية"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorIdProof"
                 self={this}
@@ -913,7 +1013,7 @@ export default class VisitorsForm extends React.Component<
                 handleFileChange={handleFileChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {visitorIdProof && (
+                {visitorIdProof?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -922,7 +1022,7 @@ export default class VisitorsForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {visitorIdProof[0]?.name}
+                      {visitorIdProof[0]?.name || visitorIdProof[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -942,9 +1042,12 @@ export default class VisitorsForm extends React.Component<
                 autoComplete={autoComplete}
                 type="file"
                 label={
-                  language === "En"
-                    ? "Attach Visitor Photograph"
-                    : "إرفاق صورة الزائر"
+                  <>
+                    {language === "En"
+                      ? "Attach Visitor Photograph"
+                      : "إرفاق صورة الزائر"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorPhoto"
                 state={visitorPhoto}
@@ -952,8 +1055,9 @@ export default class VisitorsForm extends React.Component<
                 self={this}
                 handleFileChange={handleFileChange}
               />
+
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {visitorPhoto && (
+                {visitorPhoto?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -962,7 +1066,7 @@ export default class VisitorsForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {visitorPhoto[0]?.name}
+                      {visitorPhoto[0]?.name || visitorPhoto[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -983,7 +1087,7 @@ export default class VisitorsForm extends React.Component<
                 autoComplete={autoComplete}
                 label={
                   language === "En"
-                    ? "Notify the requestor by SMS"
+                    ? "Notify the visited Employee by SMS"
                     : "إشعار مقدم الطلب عن طريقالرسائل القصيرة"
                 }
                 name="visitorNotify"
@@ -1003,34 +1107,28 @@ export default class VisitorsForm extends React.Component<
                 inputFeild={inputFeild.visitorRemarks}
               />
             </div>
-            {/* <div className="d-flex justify-content-start py-2 mb-4">
-              <input type="checkbox" />
-              <label className="ps-2">
-                <a href="#">I agree to Terms & Conditions</a>
-              </label>
-            </div> */}
+
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
                 style={{ backgroundColor: "#E5E5E5" }}
+                type="button"
                 onClick={() => {
                   window.history.go(-1);
                 }}
               >
-                Cancel
+                {language === "En" ? "Cancel" : "إلغاء الأمر"}
               </button>
-
               <button
                 className="px-4 py-2 text-white"
                 style={{ backgroundColor: "#223771" }}
-                type="submit"
+                type="button"
                 onClick={() => {
                   this.onSubmit();
                 }}
               >
-                Submit
+                {language === "En" ? "Submit" : "إرسال"}
               </button>
-              {/* )} */}
             </div>
           </form>
         </div>

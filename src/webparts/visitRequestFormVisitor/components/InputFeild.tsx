@@ -2,7 +2,7 @@ import * as React from "react";
 import "./index.css";
 
 interface IInputFeildProps {
-  label: string;
+  label: any;
   inputFeild?: any;
   type: string;
   name: string;
@@ -11,7 +11,8 @@ interface IInputFeildProps {
   options?: any;
   fileData?: any;
   handleFileChange?: any;
-  disabled?:boolean
+  handleEmailChange?: any;
+  disabled?: boolean;
 }
 
 export default class InputFeild extends React.Component<IInputFeildProps, {}> {
@@ -27,12 +28,19 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
       options,
       /*  fileData, */
       handleFileChange,
+      // handleEmailChange,
     } = this.props;
 
     const handleChange = (event: { target: { name: any; value: any } }) => {
-      self.setState({
-        inputFeild: { ...state, [event.target.name]: event.target.value },
-      });
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          inputFeild: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (
@@ -47,21 +55,21 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           style={{ backgroundColor: "#F0F0F0" }}
         >
           {label}
-          <span className="text-danger ms-2">*</span>
+          {/* <span className="text-danger ms-2">*</span> */}
         </label>
 
-        {type === "date" || type === "text" ? (
+        {type === "datetime-local" || type === "text" ? (
           <input
             className="w-50 ps-3"
             type={type}
-            disabled = {disabled}
+            disabled={disabled}
             id={label}
             name={name}
             value={inputFeild}
             onChange={handleChange}
             style={{
               color:
-                type === "date" && inputFeild === ""
+                type === "datetime-local" && inputFeild === ""
                   ? "transparent"
                   : "inherit",
             }}
@@ -71,7 +79,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="w-50 ps-2"
             id={label}
             name={name}
-            defaultValue={options[0]}
+            // defaultValue={options[0]}
             style={{
               border: "none",
               whiteSpace: "nowrap",
@@ -135,7 +143,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <label htmlFor="No">No</label>
             </div>
           </div>
-         ) : type === "customradio" ? (
+        ) : type === "customradio" ? (
           <div className="d-flex gap-5 ps-3">
             <div className="d-flex gap-1 align-items-center">
               <input
@@ -147,7 +155,10 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 checked
                 onClick={() => {
                   self.setState({
-                    inputFeild: { ...state, visitorPurposeOfVisit: "BuisnessVisit" },
+                    inputFeild: {
+                      ...state,
+                      visitorPurposeOfVisit: "BuisnessVisit",
+                    },
                   });
                 }}
               />
@@ -162,14 +173,17 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 value={inputFeild}
                 onClick={() => {
                   self.setState({
-                    inputFeild: { ...state, visitorPurposeOfVisit: "PersonalVisit" },
+                    inputFeild: {
+                      ...state,
+                      visitorPurposeOfVisit: "PersonalVisit",
+                    },
                   });
                 }}
               />
               <label htmlFor="PersonalVisit">Personal Visit</label>
             </div>
           </div>
-        ) : (  
+        ) : (
           <>Input Type Missing</>
         )}
       </div>

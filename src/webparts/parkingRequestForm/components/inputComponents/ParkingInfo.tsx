@@ -7,7 +7,8 @@ interface IParkingInfoProps {
   name: any;
   state: any;
   self: any;
-  options: any;
+  options?: any;
+  disabled: boolean;
 }
 
 export default class ParkingInfo extends React.Component<
@@ -15,12 +16,19 @@ export default class ParkingInfo extends React.Component<
   {}
 > {
   public render(): React.ReactElement<IParkingInfoProps> {
-    const { label, parkingInfo, type, name, state, self, options } = this.props;
+    const { label, parkingInfo, type, name, state, self, options, disabled } =
+      this.props;
 
-    const handleChange = (event: { target: { name: any; value: any; }; }) => {
-      self.setState({
-        parkingInfo: { ...state, [event.target.name]: event.target.value },
-      });
+    const handleChange = (event: { target: { name: any; value: any } }) => {
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          parkingInfo: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (
@@ -31,13 +39,14 @@ export default class ParkingInfo extends React.Component<
           style={{ backgroundColor: "#F0F0F0" }}
         >
           {label}
-          <span className="text-danger ms-2">*</span>
+          {/* <span className="text-danger ms-2">*</span> */}
         </label>
 
         {type === "date" ? (
           <input
             className="w-50 ps-3"
             type={type}
+            disabled={disabled}
             id={label}
             name={name}
             value={parkingInfo}
@@ -45,16 +54,16 @@ export default class ParkingInfo extends React.Component<
             style={{
               color:
                 type === "date" && parkingInfo === ""
-                  ? "transparent"
+                  ? "inherit"
                   : "inherit",
             }}
           />
-        ) : (
+        ) : type === "select" ? (
           <select
             className="w-50 ps-2"
             id={label}
+            disabled={disabled}
             name={name}
-            defaultValue={options[0]}
             style={{
               border: "none",
               whiteSpace: "nowrap",
@@ -63,12 +72,19 @@ export default class ParkingInfo extends React.Component<
             }}
             onChange={handleChange}
           >
-            {options?.map((data: string | number | readonly string[] | undefined, index: React.Key | null | undefined) => (
-              <option value={data} key={index}>
-                {data}
-              </option>
-            ))}
+            {options?.map(
+              (
+                data: string | number | readonly string[] | undefined,
+                index: React.Key | null | undefined
+              ) => (
+                <option value={data} key={index}>
+                  {data}
+                </option>
+              )
+            )}
           </select>
+        ) : (
+          <>Input Type Missing</>
         )}
       </div>
     );

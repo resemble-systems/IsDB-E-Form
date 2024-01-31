@@ -1,12 +1,13 @@
 import * as React from "react";
 
 interface IRequestInfoProps {
-  type: any;
+  type?: any;
   label: any;
   name: any;
   self: any;
   requestorInfo: any;
   state: any;
+  disabled?: boolean;
 }
 
 export default class RequestInfo extends React.Component<
@@ -14,11 +15,18 @@ export default class RequestInfo extends React.Component<
   {}
 > {
   public render(): React.ReactElement<IRequestInfoProps> {
-    const { type, label, name, self, requestorInfo, state } = this.props;
-    const handleChange = (event: { target: { name: any; value: any; }; }) => {
-      self.setState({
-        requestorInfo: { ...state, [event.target.name]: event.target.value },
-      });
+    const { type, label, name, self, disabled, requestorInfo, state } =
+      this.props;
+    const handleChange = (event: { target: { name: any; value: any } }) => {
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          requestorInfo: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (
@@ -30,20 +38,25 @@ export default class RequestInfo extends React.Component<
         >
           {label}
         </label>
+        {type === "date" || type === "text"  ? ( 
         <input
           className="w-50 ps-3"
           type={type}
           id={label}
           name={name}
+          disabled={disabled}
           value={requestorInfo}
           onChange={handleChange}
           style={{
             color:
               type === "date" && requestorInfo === ""
-                ? "transparent"
+                ? "inherit"
                 : "inherit",
           }}
         />
+        ):(
+          <>Input Type Missing</>
+        )}
       </div>
     );
   }

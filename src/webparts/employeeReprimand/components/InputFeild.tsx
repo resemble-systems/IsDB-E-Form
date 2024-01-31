@@ -31,9 +31,15 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
     } = this.props;
 
     const handleChange = (event: { target: { name: any; value: any } }) => {
-      self.setState({
-        inputFeild: { ...state, [event.target.name]: event.target.value },
-      });
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          inputFeild: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (

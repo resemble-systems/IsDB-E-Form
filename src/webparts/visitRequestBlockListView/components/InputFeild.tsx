@@ -2,19 +2,21 @@ import * as React from "react";
 import "./index.css";
 
 interface IInputFeildProps {
-  label: string;
+  label: any;
   inputFeild?: any;
   type: string;
+  disabled?: boolean;
   name: string;
   state: any;
   self: any;
   options?: any;
   fileData?: any;
   handleFileChange?: any;
-  autocomplete:any;
+  autoComplete: any;
 }
 
 export default class InputFeild extends React.Component<IInputFeildProps, {}> {
+  static staffName: any;
   public render(): React.ReactElement<IInputFeildProps> {
     const {
       label,
@@ -22,17 +24,25 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
       type,
       name,
       state,
+      disabled,
+      autoComplete,
       self,
       options,
-      
-      /*  fileData, */
+
       handleFileChange,
     } = this.props;
 
     const handleChange = (event: { target: { name: any; value: any } }) => {
-      self.setState({
-        inputFeild: { ...state, [event.target.name]: event.target.value },
-      });
+      console.log("Time and Date", { [event.target.name]: event.target.value });
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          inputFeild: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (
@@ -47,21 +57,22 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           style={{ backgroundColor: "#F0F0F0" }}
         >
           {label}
-          <span className="text-danger ms-2">*</span>
+          {/* <span className="text-danger ms-2">*</span> */}
         </label>
 
-        {type === "date" || type === "text" ? (
+        {type === "datetime-local" || type === "text" ? (
           <input
             className="w-50 ps-3"
             type={type}
             id={label}
             name={name}
-         
             value={inputFeild}
             onChange={handleChange}
+            disabled={disabled}
+            autoComplete={autoComplete}
             style={{
               color:
-                type === "date" && inputFeild === ""
+                type === "datetime-local" && inputFeild === ""
                   ? "transparent"
                   : "inherit",
             }}
@@ -71,7 +82,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="w-50 ps-2"
             id={label}
             name={name}
-            defaultValue={options[0]}
+            // defaultValue={options[0]}
             style={{
               border: "none",
               whiteSpace: "nowrap",
@@ -133,6 +144,46 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 }}
               />
               <label htmlFor="No">No</label>
+            </div>
+          </div>
+        ) : type === "customradio" ? (
+          <div className="d-flex gap-5 ps-3">
+            <div className="d-flex gap-1 align-items-center">
+              <input
+                className=""
+                type={"radio"}
+                id={"BuisnessVisit"}
+                name={name}
+                value={inputFeild}
+                checked
+                onClick={() => {
+                  self.setState({
+                    inputFeild: {
+                      ...state,
+                      visitorPurposeOfVisit: "BuisnessVisit",
+                    },
+                  });
+                }}
+              />
+              <label htmlFor="BuisnessVisit">Buisness Visit</label>
+            </div>
+            <div className="d-flex gap-1  align-items-center">
+              <input
+                className=""
+                type={"radio"}
+                id={"PersonalVisit"}
+                name={name}
+                value={inputFeild}
+                onClick={() => {
+                  self.setState({
+                    inputFeild: {
+                      ...state,
+                      visitorPurposeOfVisit: "PersonalVisit",
+                    },
+                  });
+                }}
+              />
+              <label htmlFor="PersonalVisit">Personal Visit</label>
             </div>
           </div>
         ) : (

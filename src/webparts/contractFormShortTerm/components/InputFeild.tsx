@@ -2,7 +2,7 @@ import * as React from "react";
 import "./index.css";
 
 interface IInputFeildProps {
-  label: string;
+  label: any;
   inputFeild?: any;
   type: string;
   name: string;
@@ -31,9 +31,15 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
     } = this.props;
 
     const handleChange = (event: { target: { name: any; value: any } }) => {
-      self.setState({
-        inputFeild: { ...state, [event.target.name]: event.target.value },
-      });
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          inputFeild: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (
@@ -48,7 +54,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           style={{ backgroundColor: "#F0F0F0" }}
         >
           {label}
-          <span className="text-danger ms-2">*</span>
+          {/* <span className="text-danger ms-2">*</span> */}
         </label>
 
         {type === "date" || type === "text" ? (

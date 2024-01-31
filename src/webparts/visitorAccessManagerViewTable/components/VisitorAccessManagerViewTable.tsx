@@ -125,7 +125,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
       dataIndex: "Title",
     },
     {
-      title: "Visit Company",
+      title: "Visitor Company",
       dataIndex: "Visitorrelatedorganization",
     },
     {
@@ -391,7 +391,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
           <div className="pb-5">
             <div className="">
               <HeaderComponent
-                currentPageTitle={"Visitor Access Manager Table"}
+                currentPageTitle={"Visitor Access Management"}
                 context={context}
               />
             </div>

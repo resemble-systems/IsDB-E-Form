@@ -2,7 +2,7 @@ import * as React from "react";
 import "./index.css";
 
 interface IInputFeildProps {
-  label: string;
+  label: any;
   inputFeild?: any;
   type: string;
   disabled?: boolean;
@@ -12,7 +12,7 @@ interface IInputFeildProps {
   options?: any;
   fileData?: any;
   handleFileChange?: any;
-  autoComplete: any
+  autoComplete: any;
 }
 
 export default class InputFeild extends React.Component<IInputFeildProps, {}> {
@@ -33,9 +33,15 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
     } = this.props;
 
     const handleChange = (event: { target: { name: any; value: any } }) => {
-      self.setState({
-        inputFeild: { ...state, [event.target.name]: event.target.value },
-      });
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          inputFeild: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (
@@ -75,7 +81,6 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="w-50 ps-2"
             id={label}
             name={name}
-            defaultValue={options[0]}
             style={{
               border: "none",
               whiteSpace: "nowrap",

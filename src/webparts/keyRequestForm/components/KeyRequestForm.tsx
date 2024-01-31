@@ -143,10 +143,7 @@ export default class KeyRequestForm extends React.Component<
         return res.json();
       })
       .then((listItems: any) => {
-        const PeopleData = listItems?.OnBehalfOfEmail
-          ? JSON.parse(listItems?.OnBehalfOfEmail)
-          : [];
-         
+        console.log("listItems", listItems);
         this.setState({
           inputFeild: {
             ...inputFeild,
@@ -154,14 +151,15 @@ export default class KeyRequestForm extends React.Component<
             entity: listItems?.EmployeeEntity,
             floor: listItems?.Floor,
             number: listItems?.officeNumber,
-            doorCheckBox: listItems?.Door === "true",
-            deskCheckBox: listItems?.officeDesk === "true",
-            cabinetCheckBox: listItems?.cabinet === "true",
-            safeCheckBox: listItems?.officeSafe === "true",
-            drawerCheckBox: listItems?.drawer === "true",
             DDMenu: listItems?.DDMenu,
-            OnBehalfOfEmail: PeopleData,
           },
+          doorCheckBox: listItems?.Door == "true" ? true : false,
+          deskCheckBox: listItems?.officeDesk == "true" ? true : false,
+          cabinetCheckBox: listItems?.cabinet == "true" ? true : false,
+          safeCheckBox: listItems?.officeSafe == "true" ? true : false,
+          drawerCheckBox: listItems?.drawer == "true" ? true : false,
+
+          // OnBehalfOfEmail: PeopleData,
         });
         console.log("Res listItems", listItems);
       });
@@ -186,72 +184,76 @@ export default class KeyRequestForm extends React.Component<
     } else {
       let peopleArr = people;
       console.log("people on submit", peopleArr, people);
-      // peopleArr?.map((post: any) => {
-      //   console.log("post on submit", post);
-      //   const existingUser = alreadyExist?.filter(
-      //     (data: any) =>
-      //       data.Email?.toLowerCase() === post.secondaryText?.toLowerCase()
-      //   );
-      //   if (existingUser?.length > 0) {
-      //     alert(`${post.text} is already a member.`);
-      //   } else {
-      const headers: any = {
-        "X-HTTP-Method": "MERGE",
-        "If-Match": "*",
-        "Content-Type": "application/json;odata=nometadata",
-      };
+      peopleArr?.map((post: any) => {
+        console.log("post on submit", post);
+        //   const existingUser = alreadyExist?.filter(
+        //     (data: any) =>
+        //       data.Email?.toLowerCase() === post.secondaryText?.toLowerCase()
+        //   );
+        //   if (existingUser?.length > 0) {
+        //     alert(`${post.text} is already a member.`);
+        //   } else {
+        const headers: any = {
+          "X-HTTP-Method": "MERGE",
+          "If-Match": "*",
+          "Content-Type": "application/json;odata=nometadata",
+        };
 
-      const spHttpClintOptions: ISPHttpClientOptions =
-        window.location.href.indexOf("?itemID") != -1
-          ? {
-              headers,
-              body: JSON.stringify({
-                Title: inputFeild.requestType,
-                EmployeeEntity: inputFeild.entity,
-                Floor: inputFeild.floor,
-                officeNumber: inputFeild.number,
-                Door: doorCheckBox.toString(),
-                officeDesk: deskCheckBox.toString(),
-                cabinet: cabinetCheckBox.toString(),
-                officeSafe: safeCheckBox.toString(),
-                drawer: drawerCheckBox.toString(),
-                DDMenu: inputFeild.DDMenu,
-                OnBehalfOfEmail: JSON.stringify(peopleArr),
-              }),
-            }
-          : {
-              body: JSON.stringify({
-                Title: inputFeild.requestType,
-                EmployeeEntity: inputFeild.entity,
-                Floor: inputFeild.floor,
-                officeNumber: inputFeild.number,
-                Door: doorCheckBox.toString(),
-                officeDesk: deskCheckBox.toString(),
-                cabinet: cabinetCheckBox.toString(),
-                officeSafe: safeCheckBox.toString(),
-                drawer: drawerCheckBox.toString(),
-                DDMenu: inputFeild.DDMenu,
-                OnBehalfOfEmail: JSON.stringify(peopleArr),
-              }),
-            };
-      let data = window.location.href.split("=");
-      let itemId: any = data[data.length - 1];
-      let url =
-        window.location.href.indexOf("?itemID") != -1
-          ? `/_api/web/lists/GetByTitle('Key-Request')/items('${itemId}')`
-          : "/_api/web/lists/GetByTitle('Key-Request')/items";
+        const spHttpClintOptions: ISPHttpClientOptions =
+          window.location.href.indexOf("?itemID") != -1
+            ? {
+                headers,
+                body: JSON.stringify({
+                  Title: inputFeild.requestType,
+                  EmployeeEntity: inputFeild.entity,
+                  Floor: inputFeild.floor,
+                  officeNumber: inputFeild.number,
+                  Door: doorCheckBox.toString(),
+                  officeDesk: deskCheckBox.toString(),
+                  cabinet: cabinetCheckBox.toString(),
+                  officeSafe: safeCheckBox.toString(),
+                  drawer: drawerCheckBox.toString(),
+                  DDMenu: inputFeild.DDMenu,
+                  OnBehalfOfName: JSON.stringify(peopleArr),
+                  OnBehalfOfEmail: JSON.stringify(post.secondaryText),
+                }),
+              }
+            : {
+                body: JSON.stringify({
+                  Title: inputFeild.requestType,
+                  EmployeeEntity: inputFeild.entity,
+                  Floor: inputFeild.floor,
+                  officeNumber: inputFeild.number,
+                  Door: doorCheckBox.toString(),
+                  officeDesk: deskCheckBox.toString(),
+                  cabinet: cabinetCheckBox.toString(),
+                  officeSafe: safeCheckBox.toString(),
+                  drawer: drawerCheckBox.toString(),
+                  DDMenu: inputFeild.DDMenu,
+                  OnBehalfOfName: JSON.stringify(peopleArr),
+                  OnBehalfOfEmail: JSON.stringify(post.secondaryText),
+                }),
+              };
 
-      context.spHttpClient
-        .post(
-          `${context.pageContext.web.absoluteUrl}${url}`,
-          SPHttpClient.configurations.v1,
-          spHttpClintOptions
-        )
-        .then((res) => {
-          console.log("RES POST", res);
-          alert(`You have successfully submitted`);
-          // window.history.go(-1);
-        });
+        let data = window.location.href.split("=");
+        let itemId: any = data[data.length - 1];
+        let url =
+          window.location.href.indexOf("?itemID") != -1
+            ? `/_api/web/lists/GetByTitle('Key-Request')/items('${itemId}')`
+            : "/_api/web/lists/GetByTitle('Key-Request')/items";
+
+        context.spHttpClient
+          .post(
+            `${context.pageContext.web.absoluteUrl}${url}`,
+            SPHttpClient.configurations.v1,
+            spHttpClintOptions
+          )
+          .then((res) => {
+            console.log("RES POST", res);
+            alert(`You have successfully submitted`);
+            // window.history.go(-1);
+          });
+      });
     }
   };
   public onChangePeoplePickerItems = (items: any) => {
@@ -298,7 +300,7 @@ export default class KeyRequestForm extends React.Component<
       conditionCheckBox,
     } = this.state;
     const { context } = this.props;
-    console.log(inputFeild.doorCheckBox,"doorcheckbox value")
+    console.log(inputFeild.doorCheckBox, "doorcheckbox value");
     return (
       <CommunityLayout
         self={this}
@@ -363,7 +365,7 @@ export default class KeyRequestForm extends React.Component<
                 inputFeild={inputFeild.entity}
                 self={this}
               />
-            </div>
+            </div> 
 
             <div className="row">
               <InputFeild
@@ -428,7 +430,7 @@ export default class KeyRequestForm extends React.Component<
                 <PeoplePicker
                   context={context as any}
                   // titleText={language === "En" ? "Name" : "اسم"}
-                  personSelectionLimit={10}
+                  personSelectionLimit={1}
                   showtooltip={true}
                   required={true}
                   onChange={(i: any) => {

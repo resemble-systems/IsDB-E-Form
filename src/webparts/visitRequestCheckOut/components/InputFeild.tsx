@@ -2,7 +2,7 @@ import * as React from "react";
 import "./index.css";
 
 interface IInputFeildProps {
-  label: string;
+  label: any;
   inputFeild?: any;
   type: string;
   name: string;
@@ -47,10 +47,10 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           style={{ backgroundColor: "#F0F0F0" }}
         >
           {label}
-          <span className="text-danger ms-2">*</span>
+          {/* <span className="text-danger ms-2">*</span> */}
         </label>
 
-        {type === "date" || type === "text" ? (
+        {type === "datetime-local" || type === "text" ? (
           <input
             className="w-50 ps-3"
             type={type}
@@ -61,7 +61,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             onChange={handleChange}
             style={{
               color:
-                type === "date" && inputFeild === ""
+                type === "datetime-local" && inputFeild === ""
                   ? "transparent"
                   : "inherit",
             }}

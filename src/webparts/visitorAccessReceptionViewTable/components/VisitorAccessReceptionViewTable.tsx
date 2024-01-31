@@ -364,7 +364,7 @@ export default class VisitorAccessReceptionViewTable extends React.Component<
           <div className="pb-5">
             <div className="">
               <HeaderComponent
-                currentPageTitle={"Visitor Access Receptionist Table"}
+                currentPageTitle={"Visitor Access Management"}
                 context={context}
               />
             </div>
@@ -498,7 +498,7 @@ export default class VisitorAccessReceptionViewTable extends React.Component<
 
             <div className="d-flex justify-content-between align-items-center p-3 px-4">
               <div className="visitorHeading">
-                Visit Access Management(Receptionist)
+                Visit Access Management(Reception view)
               </div>
             </div>
 

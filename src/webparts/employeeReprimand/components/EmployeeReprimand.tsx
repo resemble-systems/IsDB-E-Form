@@ -32,7 +32,9 @@ interface IEmployeeReprimandState {
   outOfHoursCheckBox: any;
   drivingCheckBox: any;
   people: any;
+  violatorPeople: any;
   peopleData: any;
+  violatorPeopleData: any;
   conditionCheckBox: any;
   alreadyExist: any;
   commentsPost: any;
@@ -40,6 +42,8 @@ interface IEmployeeReprimandState {
   uploadFileData: any;
   attachments: any;
   listId: any;
+  warningCount: any;
+  redirection: boolean;
 }
 export default class EmployeeReprimand extends React.Component<
   IEmployeeReprimandProps,
@@ -71,7 +75,9 @@ export default class EmployeeReprimand extends React.Component<
       outOfHoursCheckBox: false,
       drivingCheckBox: false,
       people: [],
+      violatorPeople: [],
       peopleData: [],
+      violatorPeopleData: [],
       conditionCheckBox: false,
       alreadyExist: "",
       commentsPost: "",
@@ -79,77 +85,128 @@ export default class EmployeeReprimand extends React.Component<
       uploadFileData: [],
       attachments: "",
       listId: 0,
+      redirection: false,
+      warningCount: 0,
     };
   }
 
   public componentDidMount() {
-    const { context } = this.props;
-    context.spHttpClient
-      .get(
-        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Request-Goods')/items`,
-        SPHttpClient.configurations.v1
-      )
-      .then((res: SPHttpClientResponse) => {
-        return res.json();
-      })
-      .then((listItems: any) => {
-        let requestTypeData = listItems.value?.map((data: any) => {
-          return data.Title;
-        });
-        this.setState({
-          requestTypeData: requestTypeData,
-        });
-        console.log("requestTypeData", requestTypeData);
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("#view") != -1) {
+      let itemIdn = itemId.split("#");
+      itemId = itemIdn[0];
+      this.setState({
+        redirection: true,
       });
-    context.spHttpClient
-      .get(
-        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Visited-Entity')/items`,
-        SPHttpClient.configurations.v1
-      )
-      .then((res: SPHttpClientResponse) => {
-        return res.json();
-      })
-      .then((listItems: any) => {
-        let filterData = listItems.value?.map((data: any) => {
-          return data.Title;
-        });
-        this.setState({
-          entityData: filterData,
-        });
-        console.log("filterData", filterData);
-      });
-    context.msGraphClientFactory
-      .getClient("3")
-      .then((graphClient: MSGraphClientV3): void => {
-        graphClient
-          .api(`/me/people`)
-          .select("*")
-          .top(999)
-          .get((error: any, members: any, rawResponse?: any) => {
-            console.log("Members in graph", members);
-            if (error) {
-              console.log("User members Error Msg:", error);
-              return;
-            }
-
-            let mappedData = members?.value?.map((data: any) => {
-              return {
-                ...data,
-                secondaryText: data.userPrincipalName,
-              };
-            });
-            console.log("members========>>>>>>>>", mappedData, members.value);
-
-            this.setState({
-              peopleData: mappedData,
-            });
+    }
+    if (window.location.href.indexOf("?itemID") != -1) {
+      console.log("CDM Banner inside if");
+      const { context } = this.props;
+      const { inputFeild } = this.state;
+      context.spHttpClient
+        .get(
+          `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Employee-Reprimand')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+          SPHttpClient.configurations.v1
+        )
+        .then((res: SPHttpClientResponse) => {
+          return res.json();
+        })
+        .then((listItems: any) => {
+          this.setState({
+            inputFeild: {
+              ...inputFeild,
+              position: listItems?.Title,
+              violator: listItems?.Violator,
+              otherViolation: listItems?.OtherViolation,
+              id: listItems?.VisitorID,
+              department: listItems?.Department,
+            },
+            commentsPost: listItems?.Comments,
+            candleCheckBox: listItems?.CandleCheckBox == "true" ? true : false,
+            smokeCheckBox: listItems?.SmokingCheckBox == "true" ? true : false,
+            wrongParkCheckBox:
+              listItems?.WrongParkCheckBox == "true" ? true : false,
+            speedCheckBox: listItems?.SpeedCheckBox == "true" ? true : false,
+            leakageCheckBox:
+              listItems?.LeakageCheckBox == "true" ? true : false,
+            leaveEngineCheckBox:
+              listItems?.LeaveEngineCheckBox == "true" ? true : false,
+            outOfHoursCheckBox:
+              listItems?.OutOfHoursCheckBox == "true" ? true : false,
+            fileInfos: listItems?.AttachmentFiles,
           });
-      });
+          console.log("Res listItems", listItems);
+        });
+
+      context.spHttpClient
+        .get(
+          `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Request-Goods')/items`,
+          SPHttpClient.configurations.v1
+        )
+        .then((res: SPHttpClientResponse) => {
+          return res.json();
+        })
+        .then((listItems: any) => {
+          let requestTypeData = listItems.value?.map((data: any) => {
+            return data.Title;
+          });
+          this.setState({
+            requestTypeData: requestTypeData,
+          });
+          console.log("requestTypeData", requestTypeData);
+        });
+      context.spHttpClient
+        .get(
+          `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Visited-Entity')/items`,
+          SPHttpClient.configurations.v1
+        )
+        .then((res: SPHttpClientResponse) => {
+          return res.json();
+        })
+        .then((listItems: any) => {
+          let filterData = listItems.value?.map((data: any) => {
+            return data.Title;
+          });
+          this.setState({
+            entityData: filterData,
+          });
+          console.log("filterData", filterData);
+        });
+      context.msGraphClientFactory
+        .getClient("3")
+        .then((graphClient: MSGraphClientV3): void => {
+          graphClient
+            .api(`/me/people`)
+            .select("*")
+            .top(999)
+            .get((error: any, members: any, rawResponse?: any) => {
+              console.log("Members in graph", members);
+              if (error) {
+                console.log("User members Error Msg:", error);
+                return;
+              }
+
+              let mappedData = members?.value?.map((data: any) => {
+                return {
+                  ...data,
+                  secondaryText: data.userPrincipalName,
+                };
+              });
+              console.log("members========>>>>>>>>", mappedData, members.value);
+
+              this.setState({
+                peopleData: mappedData,
+                violatorPeopleData: mappedData,
+              });
+            });
+        });
+    }
   }
 
   public addFile = (event: { target: { name: any; files: any } }) => {
     console.log(`Attachment ${event.target.name}`, event.target.files);
-    const { uploadFileData,fileInfos } = this.state;
+    const { uploadFileData, fileInfos } = this.state;
     let inputArr = event.target.files;
     let arrLength = event.target.files?.length;
     const targetName = event.target.name;
@@ -220,19 +277,16 @@ export default class EmployeeReprimand extends React.Component<
     const {
       inputFeild,
       conditionCheckBox,
-      // alreadyExist,
+      violatorPeople,
       people,
-      // commentsPost,
-      // candleCheckBox,
-      // smokeCheckBox,
-      // wrongParkCheckBox,
-      // speedCheckBox,
-      // leakageCheckBox,
-      // leaveEngineCheckBox,
-      // outOfHoursCheckBox,
-      // drivingCheckBox,
-      // attachments,
-      // fileInfos,
+      commentsPost,
+      candleCheckBox,
+      smokeCheckBox,
+      wrongParkCheckBox,
+      speedCheckBox,
+      leakageCheckBox,
+      leaveEngineCheckBox,
+      outOfHoursCheckBox,
     } = this.state;
 
     if (conditionCheckBox == false) {
@@ -242,67 +296,59 @@ export default class EmployeeReprimand extends React.Component<
     } else {
       let peopleArr = people;
       console.log("people on submit", peopleArr, people);
-      // peopleArr.map((post: any) => {
+      // peopleArr?.map(async (post: any) => {
       //   console.log("post on submit", post);
-      //   const existingUser = alreadyExist?.filter(
-      //     (data: any) =>
-      //       data.Email.toLowerCase() === post.secondaryText.toLowerCase()
-      //   );
-      //   if (existingUser?.length > 0) {
-      //     alert(`${post.text} is already a member.`);
-      //   } else {
-        const headers: any = {
-          "X-HTTP-Method": "MERGE",
-          "If-Match": "*",
-          "Content-Type": "application/json;odata=nometadata",
-        };
+
+      const headers: any = {
+        "X-HTTP-Method": "POST",
+        "If-Match": "*",
+      };
 
       const spHttpClintOptions: ISPHttpClientOptions =
         window.location.href.indexOf("?itemID") != -1
           ? {
               headers,
               body: JSON.stringify({
-                Title: inputFeild.requestType,
-                // VisitedEntity: inputFeild.entity,
-                // Department: inputFeild.department,
-                // Violator: inputFeild.violator,
-                // VisitorID: inputFeild.id.toString(),
-                // OtherViolation: inputFeild.otherViolation,
-                // Comments: commentsPost,
-                // CandleCheckBox: candleCheckBox.toString(),
-                // SmokingCheckBox: smokeCheckBox.toString(),
-                // WrongParkCheckBox: wrongParkCheckBox.toString(),
-                // SpeedCheckBox: speedCheckBox.toString(),
-                // LeakageCheckBox: leakageCheckBox.toString(),
-                // LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
-                // OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
-                // DriveCheckBox: drivingCheckBox.toString(),
-                // OnBehalfOfEmail: JSON.stringify(peopleArr),
-                
+                Title: inputFeild.position,
+                Violator: violatorPeople[0].secondaryText,
+                OtherViolation: inputFeild.otherViolation,
+                VisitorID: inputFeild.id,
+                Department: inputFeild.department,
+                OnBehalfOfName: JSON.stringify(peopleArr),
+                OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
+                Comments: commentsPost,
+                CandleCheckBox: candleCheckBox.toString(),
+                SmokingCheckBox: smokeCheckBox.toString(),
+                WrongParkCheckBox: wrongParkCheckBox.toString(),
+                SpeedCheckBox: speedCheckBox.toString(),
+                LeakageCheckBox: leakageCheckBox.toString(),
+                LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
+                OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
+                WarningCount: this.state.warningCount,
               }),
             }
           : {
               body: JSON.stringify({
-                Title: inputFeild.requestType,
-                // VisitedEntity: inputFeild.entity,
-                // Department: inputFeild.department,
-                // Violator: inputFeild.violator,
-                // VisitorID: inputFeild.id.toString(),
-                // OtherViolation: inputFeild.otherViolation,
-                // Comments: commentsPost,
-                // CandleCheckBox: candleCheckBox.toString(),
-                // SmokingCheckBox: smokeCheckBox.toString(),
-                // WrongParkCheckBox: wrongParkCheckBox.toString(),
-                // SpeedCheckBox: speedCheckBox.toString(),
-                // LeakageCheckBox: leakageCheckBox.toString(),
-                // LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
-                // OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
-                // DriveCheckBox: drivingCheckBox.toString(),
-                // OnBehalfOfEmail: JSON.stringify(peopleArr),
-               
+                Title: inputFeild.position,
+                Violator: violatorPeople[0].secondaryText,
+                OtherViolation: inputFeild.otherViolation,
+                VisitorID: inputFeild.id,
+                Department: inputFeild.department,
+                OnBehalfOfName: JSON.stringify(peopleArr),
+                OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
+                Comments: commentsPost,
+                CandleCheckBox: candleCheckBox.toString(),
+                SmokingCheckBox: smokeCheckBox.toString(),
+                WrongParkCheckBox: wrongParkCheckBox.toString(),
+                SpeedCheckBox: speedCheckBox.toString(),
+                LeakageCheckBox: leakageCheckBox.toString(),
+                LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
+                OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
+                WarningCount: this.state.warningCount,
               }),
             };
-            console.log("spHttpClintOptions",spHttpClintOptions)
+
+      console.log("spHttpClintOptions", spHttpClintOptions);
 
       let data = window.location.href.split("=");
       let itemId = data[data.length - 1];
@@ -322,15 +368,50 @@ export default class EmployeeReprimand extends React.Component<
         console.log("ResponseData", ResponseData);
         this.upload(ResponseData.ID);
         alert(`You have successfully submitted`);
+        () => {
+          context.spHttpClient
+            .get(
+              `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Employee-Reprimand')/items?$select=Violator&$filter=Violator eq '${inputFeild.violator}'`,
+              SPHttpClient.configurations.v1
+            )
+            .then((res: SPHttpClientResponse) => {
+              console.log("violation listItems Success");
+              return res.json();
+            })
+            .then((listItems: any) => {
+              console.log("violation Res listItems", listItems.value);
+            });
+        };
       } else {
         console.log("Response", Response);
       }
+      // });
     }
   };
-  public onChangePeoplePickerItems = (items: any) => {
+
+  public onChangePeoplePickerItems = async (items: any) => {
     const { peopleData } = this.state;
+
     console.log("item in peoplepicker", items);
-    let finalData = peopleData.filter((curr: any) =>
+    let finalData = peopleData?.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log("items", items[0].secondaryText);
+    this.setState({
+      people: finalData,
+    });
+  };
+
+  public onChangePeoplePickerViolator = async (items: any) => {
+    const { violatorPeopleData } = this.state;
+    const { context } = this.props;
+    console.log("item in peoplepicker", items, violatorPeopleData);
+    let finalData = violatorPeopleData.filter((curr: any) =>
       items.find(
         (findData: any) => curr.userPrincipalName === findData.secondaryText
       )
@@ -340,10 +421,28 @@ export default class EmployeeReprimand extends React.Component<
     }
     console.log("onChangePeoplePickerItems", finalData, items);
 
-    this.setState({
-      people: finalData,
-    });
+    try {
+      const apiUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Employee-Reprimand')/items?$select=Violator&$filter=Violator eq '${items[0].secondaryText}'`;
+      const res: SPHttpClientResponse = await context.spHttpClient.get(
+        apiUrl,
+        SPHttpClient.configurations.v1
+      );
+      if (!res.ok) {
+        throw new Error("HTTP request failed with status" + res.status);
+      }
+      const listItems = await res.json();
+      const violtorCount = listItems.value?.length + 1;
+      console.log("count", violtorCount);
+      this.setState({
+        violatorPeople: finalData,
+        warningCount: violtorCount,
+      });
+    } catch (error) {
+      console.error("Error in Get Violator", error);
+    }
+    console.log("onChangePeoplePickerItems", finalData, items);
   };
+
   public render(): React.ReactElement<IEmployeeReprimandProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -365,6 +464,7 @@ export default class EmployeeReprimand extends React.Component<
       wrongParkCheckBox,
       speedCheckBox,
       leakageCheckBox,
+      redirection,
       leaveEngineCheckBox,
       outOfHoursCheckBox,
       drivingCheckBox,
@@ -437,10 +537,11 @@ export default class EmployeeReprimand extends React.Component<
                     <span className="text-danger">*</span>
                   </label>
                 </div>
-                <div>
+                <div className={"custom-people-picker"}>
                   <PeoplePicker
                     context={context as any}
-                    personSelectionLimit={10}
+                    disabled={redirection}
+                    personSelectionLimit={1}
                     showtooltip={true}
                     required={true}
                     onChange={(i: any) => {
@@ -450,6 +551,54 @@ export default class EmployeeReprimand extends React.Component<
                     principalTypes={[PrincipalType.User]}
                     resolveDelay={1000}
                     ensureUser={true}
+
+                    // styles={{ peoplePicker: { border: 'none' } }}
+                  />
+                </div>
+              </div>
+            </div>
+            <div className="row">
+              <div className="d-flex justify-content-start py-2 ps-2">
+                <InputFeild
+                  self={this}
+                  type="text"
+                  disabled={redirection}
+                  label={language === "En" ? "Department" : "قسم"}
+                  name="department"
+                  state={inputFeild}
+                  inputFeild={inputFeild.department}
+                />
+                <div
+                  className="d-flex justify-content-between"
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
+                    {language === "En" ? "Violator" : "منتهك"}
+                    {/* <span className="text-danger">*</span> */}
+                  </label>
+                </div>
+                <div className={"custom-people-picker"}>
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={redirection}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerViolator(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
+
+                    // styles={{ peoplePicker: { border: 'none' } }}
                   />
                 </div>
               </div>
@@ -458,24 +607,7 @@ export default class EmployeeReprimand extends React.Component<
               <InputFeild
                 self={this}
                 type="text"
-                label={language === "En" ? "Department" : "قسم"}
-                name="department"
-                state={inputFeild}
-                inputFeild={inputFeild.department}
-              />
-              <InputFeild
-                type="text"
-                label={language === "En" ? "Violator" : "منتهك"}
-                name="violator"
-                state={inputFeild}
-                inputFeild={inputFeild.violator}
-                self={this}
-              />
-            </div>
-            <div className="row">
-              <InputFeild
-                self={this}
-                type="text"
+                disabled={redirection}
                 label={language === "En" ? "ID" : "معرف"}
                 name="id"
                 state={inputFeild}
@@ -483,6 +615,7 @@ export default class EmployeeReprimand extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={redirection}
                 label={language === "En" ? "Position" : "موضع"}
                 name="position"
                 state={inputFeild}
@@ -500,6 +633,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={redirection}
                 label={language === "En" ? "Other Violation" : "انتهاكات أخرى"}
                 name="otherViolation"
                 state={inputFeild}
@@ -524,8 +658,11 @@ export default class EmployeeReprimand extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
-                placeholder="Add a comment..."
+                placeholder={
+                  language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                }
                 required
                 value={commentsPost}
                 onChange={(e) =>
@@ -537,6 +674,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={candleCheckBox}
                 onChange={(event) => {
@@ -555,6 +693,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={smokeCheckBox}
                 onChange={(event) => {
@@ -571,6 +710,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkBox"
                 checked={wrongParkCheckBox}
                 onChange={(event) => {
@@ -587,6 +727,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={speedCheckBox}
                 onChange={(event) => {
@@ -605,6 +746,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={leakageCheckBox}
                 onChange={(event) => {
@@ -621,6 +763,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={leaveEngineCheckBox}
                 onChange={(event) => {
@@ -639,6 +782,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={outOfHoursCheckBox}
                 onChange={(event) => {
@@ -656,6 +800,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={drivingCheckBox}
                 onChange={(event) => {
@@ -689,10 +834,11 @@ export default class EmployeeReprimand extends React.Component<
                     className={`img1`}
                   />
                   <label className={`px-2 newsAttachment`} htmlFor="doc">
-                    {language === "En" ? "Attach Files" : ""}
+                    {language === "En" ? "Attach Files" : "إرفاق الملفات"}
                   </label>
                   <input
                     type="file"
+                    disabled={redirection}
                     id="doc"
                     multiple={true}
                     accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
@@ -744,6 +890,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
+                disabled={redirection}
                 type="checkbox"
                 checked={conditionCheckBox}
                 onChange={(event) => {
@@ -766,6 +913,7 @@ export default class EmployeeReprimand extends React.Component<
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
+                disabled={redirection}
                 style={{ backgroundColor: "#E5E5E5" }}
                 type="button"
                 onClick={() => {
@@ -776,6 +924,7 @@ export default class EmployeeReprimand extends React.Component<
               </button>
               <button
                 className="px-4 py-2 text-white"
+                disabled={redirection}
                 style={{ backgroundColor: "#223771" }}
                 type="button"
                 onClick={() => {

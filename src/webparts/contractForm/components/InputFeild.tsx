@@ -2,7 +2,7 @@ import * as React from "react";
 import "./index.css";
 
 interface IInputFeildProps {
-  label: string;
+  label: any;
   inputFeild?: any;
   type: string;
   name: string;
@@ -12,6 +12,8 @@ interface IInputFeildProps {
   fileData?: any;
   handleFileChange?: any;
   disabled?: boolean;
+  // pattern?: any;
+  // inputMode?: any;
 }
 
 export default class InputFeild extends React.Component<IInputFeildProps, {}> {
@@ -25,14 +27,22 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
       self,
       options,
       disabled,
-      /*  fileData, */
+      // pattern,
+      // inputMode,
       handleFileChange,
     } = this.props;
 
+    
     const handleChange = (event: { target: { name: any; value: any } }) => {
-      self.setState({
-        inputFeild: { ...state, [event.target.name]: event.target.value },
-      });
+      const regex = /^\s+/;
+      if (regex.test(event.target.value)) {
+        self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
+        alert("Enter valid String");
+      } else {
+        self.setState({
+          inputFeild: { ...state, [event.target.name]: event.target.value },
+        });
+      }
     };
 
     return (
@@ -64,6 +74,19 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 type === "date" && inputFeild === ""
                   ? "transparent"
                   : "inherit",
+            }}
+          />
+        ) : type === "number" ? (
+          <input
+            className="w-50 ps-3"
+            type={type}
+            id={label}
+            name={name}
+            disabled={disabled}
+            value={inputFeild}
+            onChange={handleChange}
+            style={{
+              color: "transparent",
             }}
           />
         ) : type === "select" ? (
@@ -98,7 +121,6 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             id={label}
             name={name}
             multiple={false}
-            /* value={fileData} */
             onChange={handleFileChange}
             style={{ color: "transparent", cursor: "pointer" }}
           />

@@ -141,3 +141,6 @@ input[type=file]::file-selector-button {
   font-size: 16px;
   outline: none !important;
 }
+.custom-people-picker .sp-peoplepicker-topLevel {
+  border: none !important;
+}

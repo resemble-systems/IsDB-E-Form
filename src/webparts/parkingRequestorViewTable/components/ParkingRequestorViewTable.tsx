@@ -4,7 +4,7 @@ import type { IParkingRequestorViewTableProps } from "./IParkingRequestorViewTab
 import moment from "moment";
 import { Table, Row, Col, Button, Dropdown, DatePicker } from "antd";
 import "../components/index.css";
-import type { ColumnsType } from "antd/es/table";
+// import type { ColumnsType } from "antd/es/table";
 import { navData } from "./navdata";
 
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
@@ -50,13 +50,13 @@ export default class VisitorAccessEndUserTable extends React.Component<
       tableDummyData: [],
     };
   }
-  public columns: ColumnsType<DataType> = [
+  public columns: any = [
     {
       title: "Req ID",
       dataIndex: "Id",
     },
     {
-      title: "Task Name",
+      title: "Staff Name",
       dataIndex: "Title",
     },
     {
@@ -244,7 +244,7 @@ export default class VisitorAccessEndUserTable extends React.Component<
           <div className="pb-5">
             <div className="">
               <HeaderComponent
-                currentPageTitle={"Visitor Access End User Table"}
+                currentPageTitle={"Parking Requestor View Table"}
                 context={context}
               />
             </div>

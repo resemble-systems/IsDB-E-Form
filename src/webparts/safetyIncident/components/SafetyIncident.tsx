@@ -2,7 +2,7 @@ import * as React from "react";
 import type { ISafetyIncidentProps } from "./ISafetyIncidentProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Select } from "antd";
+import { Row, Col, Select } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -10,6 +10,7 @@ import {
   SPHttpClient,
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
+import { Web } from "sp-pnp-js";
 
 interface ISafetyIncidentState {
   inputFeild: any;
@@ -29,6 +30,11 @@ interface ISafetyIncidentState {
   where: any;
   who: any;
   how: any;
+  fileInfos: any;
+  uploadFileData: any;
+  attachments: any;
+  listId: any;
+  redirection:boolean;
 }
 export default class SafetyIncident extends React.Component<
   ISafetyIncidentProps,
@@ -58,10 +64,57 @@ export default class SafetyIncident extends React.Component<
       people: [],
       peopleData: [],
       alreadyExist: "",
+      fileInfos: [],
+      uploadFileData: [],
+      attachments: "",
+      listId: 0,
+      redirection:false
     };
   }
   public componentDidMount() {
-    const { context } = this.props;
+   
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("#view") != -1) {
+      let itemIdn = itemId.split("#");
+      itemId = itemIdn[0];
+      this.setState({
+        redirection: true,
+      });
+    }
+
+    if (window.location.href.indexOf("?itemID") != -1) {
+      console.log("CDM Banner inside if");
+      const { context } = this.props;
+      const { inputFeild } = this.state;
+      context.spHttpClient
+      .get(
+        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Safety-Incident')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+        SPHttpClient.configurations.v1
+      )
+      .then((res: SPHttpClientResponse) => {
+        return res.json();
+      })
+      .then((listItems: any) => {
+        this.setState({
+          inputFeild: {
+            ...inputFeild,
+            requestType: listItems?.Title,
+            entity: listItems?.Entity,
+            area: listItems?.Area,
+          },
+          descriptionPost: listItems?.Description,
+          commentsPost: listItems?.Comments,
+          what: listItems?.What,
+          when: listItems?.When,
+          who: listItems?.Who,
+          where: listItems?.Where,
+          how: listItems?.How,
+          why: listItems?.Why,
+          fileInfos: listItems?.AttachmentFiles,
+        });
+        console.log("Res listItems", listItems);
+      });
 
     context.spHttpClient
       .get(
@@ -98,7 +151,78 @@ export default class SafetyIncident extends React.Component<
         console.log("filterData", filterData);
       });
   }
-  public onSubmit = () => {
+}
+
+  public addFile = (event: { target: { name: any; files: any } }) => {
+    console.log(`Attachment ${event.target.name}`, event.target.files);
+    const { uploadFileData, fileInfos } = this.state;
+    let inputArr = event.target.files;
+    let arrLength = event.target.files?.length;
+    const targetName = event.target.name;
+    let newArr: any = [];
+    let fileData: any = [];
+    for (let i = 0; i < arrLength; i++) {
+      console.log(`In for loop ${i} times`);
+      var file = inputArr[i];
+      const fileName = inputArr[i].name;
+      console.log("fileName", fileName);
+      const regex = /\.(jpg|jpeg|png|gif|pdf|pptx|ppt|doc|docs|svg)$/i;
+      if (!regex.test(fileName)) {
+        alert("Please select an image file (jpg, jpeg, png, gif).");
+      } else {
+        var reader = new FileReader();
+        reader.onload = (function (file) {
+          return function (e: any) {
+            fileData.push({
+              name: file.name,
+              content: e.target?.result,
+              attachmentTarget: targetName,
+            });
+          };
+        })(file);
+        reader.readAsArrayBuffer(file);
+        console.log("fileData Attachment", fileData);
+        newArr = [...newArr, inputArr[i]];
+      }
+    }
+    this.setState({
+      fileInfos: [...fileInfos, ...newArr],
+      uploadFileData: [...uploadFileData, fileData],
+    });
+  };
+
+  private async upload(id: any) {
+    const { uploadFileData } = this.state;
+    let postArray = uploadFileData.reduce((a: any, b: any) => a.concat(b), []);
+    console.log("attachment post successfull", this.props);
+    let web = new Web(this.props.context.pageContext.web.absoluteUrl);
+    web.lists
+
+      .getByTitle("Safety-Incident")
+      .items.getById(id)
+      .attachmentFiles.addMultiple(postArray);
+    console.log("attachment post successfull");
+    this.setState({
+      fileInfos: [],
+      uploadFileData: [],
+    });
+    window.history.go(-1);
+  }
+
+  private deleteFiles(files: any) {
+    let { listId } = this.state;
+    if (window.location.href.indexOf("?itemID") != -1) {
+      console.log("attachment delete successfull", this.props, listId);
+      let web = new Web(this.props.context.pageContext.web.absoluteUrl);
+      web.lists
+        .getByTitle("Safety-Incident")
+        .items.getById(listId)
+        .attachmentFiles.getByName(files)
+        .delete();
+    }
+  }
+
+  public onSubmit = async () => {
     const { context } = this.props;
     const {
       inputFeild,
@@ -110,6 +234,7 @@ export default class SafetyIncident extends React.Component<
       how,
       descriptionPost,
       commentsPost,
+      
     } = this.state;
 
     const headers: any = {
@@ -117,35 +242,61 @@ export default class SafetyIncident extends React.Component<
       "If-Match": "*",
     };
 
-    const spHttpClintOptions: ISPHttpClientOptions = {
-      headers,
-      body: JSON.stringify({
-        Title: inputFeild.requestType,
-        Entity: inputFeild.entity,
-        Area: inputFeild.area,
-        Description: descriptionPost,
-        Comments: commentsPost,
-        What: what,
-        When: when,
-        Who: who,
-        Where: where,
-        How: how,
-        Why: why,
-      }),
-    };
+    const spHttpClintOptions: ISPHttpClientOptions =
+      window.location.href.indexOf("?itemID") != -1
+        ? {
+            headers,
+            body: JSON.stringify({
+              Title: inputFeild.requestType,
+              Entity: inputFeild.entity,
+              Area: inputFeild.area,
+              Description: descriptionPost,
+              Comments: commentsPost,
+              What: what,
+              When: when,
+              Who: who,
+              Where: where,
+              How: how,
+              Why: why,
+            }),
+          }
+        : {
+            body: JSON.stringify({
+              Title: inputFeild.requestType,
+              Entity: inputFeild.entity,
+              Area: inputFeild.area,
+              Description: descriptionPost,
+              Comments: commentsPost,
+              What: what,
+              When: when,
+              Who: who,
+              Where: where,
+              How: how,
+              Why: why,
+            }),
+          };
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
 
-    context.spHttpClient
-      .post(
-        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('Safety-Incident')/items`,
-        SPHttpClient.configurations.v1,
-        spHttpClintOptions
-      )
-      .then((res: any) => {
-        console.log("RES POST", res);
-        alert(`You have successfully submitted`);
-        window.history.go(-1);
-      });
+    let url =
+      window.location.href.indexOf("?itemID") != -1
+        ? `/_api/web/lists/GetByTitle('Safety-Incident')/items('${itemId}')`
+        : "/_api/web/lists/GetByTitle('Safety-Incident')/items";
+    const Response = await context.spHttpClient.post(
+      `${context.pageContext.web.absoluteUrl}${url}`,
+      SPHttpClient.configurations.v1,
+      spHttpClintOptions
+    );
+    if (Response.ok) {
+      const ResponseData = await Response.json();
+      console.log("ResponseData", ResponseData);
+      this.upload(ResponseData.ID);
+      alert(`You have successfully submitted`);
+    } else {
+      console.log("Response", Response);
+    }
   };
+
   public render(): React.ReactElement<ISafetyIncidentProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -172,6 +323,8 @@ export default class SafetyIncident extends React.Component<
       how,
       who,
       when,
+      fileInfos,
+      redirection
     } = this.state;
     const { context } = this.props;
 
@@ -216,11 +369,12 @@ export default class SafetyIncident extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Incident Information
+              {language === "En" ? "Incident Information" : "معلومات الحادث"}
             </div>
             <div className="row">
               <InputFeild
                 type="select"
+                disabled={redirection}
                 label={language === "En" ? "Incident Type " : "نوع الحادث"}
                 name="requestType"
                 options={requestTypeData}
@@ -230,6 +384,7 @@ export default class SafetyIncident extends React.Component<
               />
               <InputFeild
                 type="select"
+                disabled={redirection}
                 label={language === "En" ? "Entity " : "كيان "}
                 name="entity"
                 options={entityData}
@@ -242,6 +397,7 @@ export default class SafetyIncident extends React.Component<
             <div className="row">
               <InputFeild
                 type="select"
+                disabled={redirection}
                 label={language === "En" ? "Area" : "منطقة"}
                 name="Area"
                 options={["Area-1", "Area-2", "Area-3", "Area-4", "Area-5"]}
@@ -266,6 +422,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a Incident Description..."
                 required
@@ -291,6 +448,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a comment..."
                 required
@@ -304,7 +462,9 @@ export default class SafetyIncident extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Initial Incident Investigation
+              {language === "En"
+                ? "Initial Incident Investigation"
+                : "التحقيق الأولي في الحادث"}
             </div>
 
             <div>
@@ -323,6 +483,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a comments..."
                 required
@@ -347,6 +508,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a comments..."
                 required
@@ -371,6 +533,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a comments..."
                 required
@@ -395,6 +558,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a comments..."
                 required
@@ -419,6 +583,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a comments..."
                 required
@@ -443,6 +608,7 @@ export default class SafetyIncident extends React.Component<
               </div>
               <textarea
                 className="form-control mb-2 mt-2"
+                disabled={redirection}
                 rows={3}
                 placeholder="Add a comments..."
                 required
@@ -455,25 +621,81 @@ export default class SafetyIncident extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Attachments
+              {language === "En" ? "Attachments" : "المرفقات"}
             </div>
-           
-            <div>
-            <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                //  this.upLoad();
-                }}
-              >
-                {language === "En" ? "AttachFiles" : "إرسال"}
-              </button>
-            </div>
+            <Row>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                {" "}
+                <div>
+                  <div className={`d-flex align-items-center`}>
+                    <button className={`newsAttachmentButton`} type="button">
+                      <img
+                        src={require("../../../common-assets/attachment.svg")}
+                        alt=""
+                        height="20px"
+                        width="20px"
+                        className={`img1`}
+                      />
+                      <label className={`px-2 newsAttachment`} htmlFor="doc">
+                        {language === "En" ? "Attach Files" : "إرفاق الملفات"}
+                      </label>
+                      <input
+                        type="file"
+                        disabled={redirection}
+                        id="doc"
+                        multiple={true}
+                        accept="image/*,.pdf,.doc,.docx,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        style={{ display: "none" }}
+                        onChange={this.addFile}
+                      ></input>
+                    </button>
+                    <div className={`ms-3 title`}>
+                      {`${fileInfos?.length == 0 ? `No` : fileInfos?.length} ${
+                        fileInfos?.length == 1 ? `File` : `Files`
+                      } Chosen`}
+                    </div>
+                  </div>
+                  <div className="pt-3">
+                    {fileInfos?.length > 0 &&
+                      fileInfos.map((file: any, i: any) => (
+                        <div
+                          className={`p-2 mb-3 d-flex justify-content-between align-items-center fileInfo`}
+                        >
+                          <div className={`fileName`}>
+                            {file?.FileName || file?.name}
+                          </div>
+                          <div
+                            style={{ cursor: "pointer" }}
+                            className="text-danger"
+                            onClick={() => {
+                              const { uploadFileData } = this.state;
+                              let postArray = uploadFileData.reduce(
+                                (a: any, b: any) => a.concat(b),
+                                []
+                              );
+                              fileInfos.splice(i, 1);
+                              postArray.splice(i, 1);
+
+                              this.deleteFiles(file?.FileName || file?.name);
+                              this.setState({
+                                fileInfos,
+                                uploadFileData: postArray,
+                              });
+                            }}
+                          >
+                            X
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                </div>
+              </Col>
+            </Row>
 
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
+                disabled={redirection}
                 style={{ backgroundColor: "#E5E5E5" }}
                 type="button"
                 onClick={() => {
@@ -484,6 +706,7 @@ export default class SafetyIncident extends React.Component<
               </button>
               <button
                 className="px-4 py-2 text-white"
+                disabled={redirection}
                 style={{ backgroundColor: "#223771" }}
                 type="button"
                 onClick={() => {

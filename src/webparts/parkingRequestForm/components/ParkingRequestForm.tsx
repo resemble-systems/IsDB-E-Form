@@ -7,7 +7,11 @@ import { MSGraphClientV3 } from "@microsoft/sp-http";
 import RequestorInfo from "./inputComponents/RequestInfo";
 import VehicleInfo from "./inputComponents/VehicleInfo";
 import ParkingInfo from "./inputComponents/ParkingInfo";
-import { SPHttpClient, ISPHttpClientOptions } from "@microsoft/sp-http";
+import {
+  SPHttpClient,
+  ISPHttpClientOptions,
+  SPHttpClientResponse,
+} from "@microsoft/sp-http";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { Web } from "sp-pnp-js";
 
@@ -21,9 +25,11 @@ interface IParkingRequestFormState {
   attachDriverID: any;
   postAttachments: any;
   attachmentJson: any;
-  requestorIdProofJSON: any;
-  requestorPhotoJSON: any;
-  requestorContractJSON: any;
+  staffIdProofJSON: any;
+  carRegistrationJSON: any;
+  driverIdProofJSON: any;
+  conditionCheckBox: any;
+  disable: boolean;
 }
 
 export default class ParkingRequestForm extends React.Component<
@@ -61,7 +67,6 @@ export default class ParkingRequestForm extends React.Component<
         plateNumber: "",
         color: "",
         modelYear: "",
-
         comments: "",
       },
       language: "En",
@@ -70,14 +75,43 @@ export default class ParkingRequestForm extends React.Component<
       attachDriverID: "",
       postAttachments: [],
       attachmentJson: [],
-      requestorIdProofJSON: {},
-      requestorPhotoJSON: {},
-      requestorContractJSON: {},
+      staffIdProofJSON: {},
+      carRegistrationJSON: {},
+      driverIdProofJSON: {},
+      conditionCheckBox: false,
+      disable: false,
     };
   }
 
   public componentDidMount() {
+    // const { context } = this.props;
+    this.getApprovers();
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+
+    if (window.location.href.indexOf("?itemID") != -1) {
+      console.log("call the edit function....");
+      this.getData(itemId);
+      this.setState({
+        disable: true,
+      });
+    }
+
     this.getDetails();
+  }
+  public getApprovers() {
+    const { context } = this.props;
+    context.spHttpClient
+      .get(
+        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('E-Form-approvers')/items`,
+        SPHttpClient.configurations.v1
+      )
+      .then((res: SPHttpClientResponse) => {
+        return res.json();
+      })
+      .then((listItems: any) => {
+        console.log("listitems", listItems);
+      });
   }
   public getDetails() {
     const { context } = this.props;
@@ -111,104 +145,238 @@ export default class ParkingRequestForm extends React.Component<
           });
       });
   }
+
+  public getData(itemId: any) {
+    const { context } = this.props;
+    // const {  parkingInfo, vehicleInfo } = this.state;
+    console.log("Get data=====>");
+    context.spHttpClient
+      .get(
+        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Parking-Request')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+        SPHttpClient.configurations.v1
+      )
+      .then((res: SPHttpClientResponse) => {
+        return res.json();
+      })
+      .then((listItems: any) => {
+        this.setState({
+          requestorInfo: {
+            // ...requestorInfo,
+            staffName: listItems?.Title,
+            grade: listItems?.grade,
+            staffId: listItems?.staffId,
+            gender: listItems?.Gender,
+            Department: listItems?.department,
+            hiringDate: listItems?.hiringDate,
+            jobCategory: listItems?.jobCategory,
+            staffExtension: listItems?.staffExtension,
+            mobileNumber: listItems?.mobileNumber,
+            relatedEntity: listItems?.relatedEntity,
+          },
+          parkingInfo: {
+            // ...parkingInfo,
+            requestType: listItems?.requestType,
+            requestedBuilding: listItems?.requestedBuilding,
+            parkingType: listItems?.parkingType,
+            parkingArea: listItems?.parkingArea,
+            validityFrom: listItems?.validityFrom,
+            validityTo: listItems?.validityTo,
+          },
+          vehicleInfo: {
+            // ...vehicleInfo,
+            carName: listItems?.carName,
+            plateNumber: listItems?.plateNumber,
+            color: listItems?.color,
+            modelYear: listItems?.modelYear,
+            comments: listItems?.comments,
+          },
+          attachStaffID: listItems.AttachmentJSON
+            ? JSON.parse(listItems.AttachmentJSON)
+                ?.filter((data: any) => data.targetName === "attachStaffID")
+                ?.map((data: any) => {
+                  return {
+                    ...data,
+                    ID: listItems.ID,
+                  };
+                })
+            : [],
+          attachCarRegistration: listItems.AttachmentJSON
+            ? JSON.parse(listItems.AttachmentJSON)
+                ?.filter(
+                  (data: any) => data.targetName === "attachCarRegistration"
+                )
+                ?.map((data: any) => {
+                  return {
+                    ...data,
+                    ID: listItems.ID,
+                  };
+                })
+            : [],
+          attachDriverID: listItems.AttachmentJSON
+            ? JSON.parse(listItems.AttachmentJSON)
+                ?.filter((data: any) => data.targetName === "attachDriverID")
+                ?.map((data: any) => {
+                  return {
+                    ...data,
+                    ID: listItems.ID,
+                  };
+                })
+            : [],
+        });
+        console.log("Res listItems", listItems);
+      });
+  }
+
   public onSubmit = async () => {
     const { context } = this.props;
-    const { requestorInfo, parkingInfo, vehicleInfo } = this.state;
-    const headers: any = {
-      "X-HTTP-Method": "POST",
-      "If-Match": "*",
+    const {
+      requestorInfo,
+      attachDriverID,
+      attachCarRegistration,
+      parkingInfo,
+      vehicleInfo,
+      conditionCheckBox,
+      postAttachments,
+    } = this.state;
+    const plateNumber = (number: any) => {
+      const regex = /^[A-Za-z]{3}\d{4}$/;
+      const isValidNumber = regex.test(number);
+      console.log("isValidNumber", isValidNumber);
+      return !isValidNumber;
     };
-    const spHttpClintOptions: ISPHttpClientOptions = {
-      headers,
-      body: JSON.stringify({
-        Title: requestorInfo.staffName,
-        Grade: requestorInfo.grade,
-        Staff_id: requestorInfo.staffId,
-        Gender: requestorInfo.gender,
-        Department: requestorInfo.Department,
-        HiringDate: requestorInfo.hiringDate,
-        JobCategory: requestorInfo.jobCategory,
-        StaffExtension: requestorInfo.staffExtension,
-        Mobilenumber: requestorInfo.mobileNumber,
-        RelatedEntity: requestorInfo.relatedEntity,
-        RequestType: parkingInfo.requestType,
-        RequestedBuilding: parkingInfo.requestedBuilding,
-        ParkingType: parkingInfo.parkingType,
-        ParkingArea: parkingInfo.parkingArea,
-        ValidityFrom: parkingInfo.validityFrom,
-        ValidityTo: parkingInfo.validityTo,
-        CarName: vehicleInfo.carName,
-        PlateNumber: vehicleInfo.plateNumber,
-        Color: vehicleInfo.color,
-        RequestorNationalIdExpiryDate:
-          vehicleInfo.requestorNationalIdExpiryDate,
-        ModelYear: vehicleInfo.modelYear,
-        AttachStaffID: vehicleInfo.attachStaffID,
-        AttachCarRegistration: vehicleInfo.attachCarRegistration,
-        AttachDriverID: vehicleInfo.attachDriverID,
-        Comments: vehicleInfo.comments,
-        RequestorValidityTo: vehicleInfo.requestorValidityTo,
-      }),
-    };
-    console.log(parkingInfo.requestType, "requestType");
-    const postResponse = await context.spHttpClient.post(
-      `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('Parking-Request')/items`,
-      SPHttpClient.configurations.v1,
-      spHttpClintOptions
-    );
-    if (postResponse.ok) {
-      const postData = await postResponse.json();
-      console.log("visitor Created", postData);
-    } else {
-      alert("visitor form Failed.");
-      console.log("Post Failed", postResponse);
-    }
-    window.history.go(-1);
-    this.setState({
-      requestorInfo: {
-        staffName: "",
-        grade: "",
-        staffId: "",
-        Gender: "",
-        staffExtension: "",
-        hiringDate: "",
-        jobCategory: "",
-        department: "",
-        mobileNumber: "",
-        relatedEntity: "",
-      },
-      parkingInfo: {
-        requestType: "Permanent Parking",
-        requestedBuilding: "Permanent",
-        parkingType: "Public",
-        parkingArea: "Public",
-        validityFrom: "",
-        validityTo: "",
-      },
-      vehicleInfo: {
-        carName: "",
-        plateNumber: "",
-        color: "",
-        modelYear: "",
 
-        comments: "",
-      },
-      attachStaffID: "",
-      attachCarRegistration: "",
-      attachDriverID: "",
-    });
+    const validityFrom = this.state.parkingInfo.validityFrom;
+    const validityTo = this.state.parkingInfo.validityTo;
+    if (conditionCheckBox == false) {
+      alert("Please Agree the Terms and Conditions!");
+    } else if (!validityFrom) {
+      alert("Please enter the From date!");
+    } else if (!validityTo) {
+      alert("Please enter the To date!");
+    } else if (
+      validityFrom &&
+      validityTo &&
+      new Date(validityFrom) > new Date(validityTo)
+    ) {
+      alert("Validity From must be earlier than Validity To");
+    } else if (!vehicleInfo.carName) {
+      alert("Please enter the Car Name!");
+    } else if (!vehicleInfo.plateNumber) {
+      alert("Please enter the Plate Number!");
+    } else if (plateNumber(vehicleInfo.plateNumber)) {
+      alert("Invalid Plate Number!");
+    } else if (
+      !vehicleInfo.modelYear ||
+      vehicleInfo.modelYear?.length < 3 ||
+      vehicleInfo.modelYear?.length > 30
+    ) {
+      alert(
+        "Model Year cannot be blank, should have more than 2 characters and less than 30 characters!"
+      );
+    } else if (
+      !vehicleInfo.color ||
+      vehicleInfo.color?.length < 3 ||
+      vehicleInfo.color?.length > 30
+    ) {
+      alert(
+        "Color cannot be blank, should have more than 2 characters and less than 30 characters!"
+      );
+    } else if (!attachDriverID) {
+      alert("Please Attach the Driver ID!");
+    } else if (!attachCarRegistration) {
+      alert("Please Attach the Car Registration!");
+    } else {
+      const headers: any = {
+        "X-HTTP-Method": "POST",
+        "If-Match": "*",
+      };
+      const spHttpClintOptions: ISPHttpClientOptions = {
+        headers,
+        body: JSON.stringify({
+          Title: requestorInfo.staffName,
+          grade: requestorInfo.grade,
+          staffId: requestorInfo.staffId,
+          Gender: requestorInfo.gender,
+          department: requestorInfo.Department,
+          hiringDate: requestorInfo.hiringDate,
+          jobCategory: requestorInfo.jobCategory,
+          staffExtension: requestorInfo.staffExtension,
+          mobileNumber: requestorInfo.mobileNumber,
+          relatedEntity: requestorInfo.relatedEntity,
+          requestType: parkingInfo.requestType,
+          requestedBuilding: parkingInfo.requestedBuilding,
+          parkingType: parkingInfo.parkingType,
+          parkingArea: parkingInfo.parkingArea,
+          validityFrom: parkingInfo.validityFrom,
+          validityTo: parkingInfo.validityTo,
+          carName: vehicleInfo.carName,
+          plateNumber: vehicleInfo.plateNumber,
+          color: vehicleInfo.color,
+          RequestorNationalIdExpiryDate:
+            vehicleInfo.requestorNationalIdExpiryDate,
+          modelYear: vehicleInfo.modelYear,
+          comments: vehicleInfo.comments,
+          AttachmentJSON: JSON.stringify(this.state.attachmentJson),
+          RequestorValidityTo: vehicleInfo.requestorValidityTo,
+        }),
+      };
+      console.log(parkingInfo.requestType, "requestType");
+      const postResponse = await context.spHttpClient.post(
+        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('Parking-Request')/items`,
+        SPHttpClient.configurations.v1,
+        spHttpClintOptions
+      );
+      if (postResponse.ok) {
+        const postData = await postResponse.json();
+        console.log("visitor Created", postData);
+        this.upload(postData.ID, postAttachments);
+      } else {
+        alert("visitor form Failed.");
+        console.log("Post Failed", postResponse);
+      }
+      // window.history.go(-1);
+      // this.setState({
+      //   requestorInfo: {
+      //     staffName: "",
+      //     grade: "",
+      //     staffId: "",
+      //     Gender: "",
+      //     staffExtension: "",
+      //     hiringDate: "",
+      //     jobCategory: "",
+      //     department: "",
+      //     mobileNumber: "",
+      //     relatedEntity: "",
+      //   },
+      //   parkingInfo: {
+      //     requestType: "Permanent Parking",
+      //     requestedBuilding: "Permanent",
+      //     parkingType: "Public",
+      //     parkingArea: "Public",
+      //     validityFrom: "",
+      //     validityTo: "",
+      //   },
+      //   vehicleInfo: {
+      //     carName: "",
+      //     plateNumber: "",
+      //     color: "",
+      //     modelYear: "",
+      //     comments: "",
+      //   },
+      // });
+    }
   };
   public componentDidUpdate(
     prevProps: Readonly<IParkingRequestFormProps>,
     prevState: Readonly<IParkingRequestFormState>
   ): void {
-    const { requestorContractJSON, requestorIdProofJSON, requestorPhotoJSON } =
+    const { staffIdProofJSON, carRegistrationJSON, driverIdProofJSON } =
       this.state;
     if (prevState.postAttachments !== this.state.postAttachments) {
       const attachmentPostJson = [
-        requestorPhotoJSON,
-        requestorIdProofJSON,
-        requestorContractJSON,
+        staffIdProofJSON,
+        carRegistrationJSON,
+        driverIdProofJSON,
       ]?.filter((data: any) => {
         if (Object.keys(data)?.length > 0) {
           return data;
@@ -243,7 +411,10 @@ export default class ParkingRequestForm extends React.Component<
       .items.getById(ID)
       .attachmentFiles.addMultiple(uniqueAttachmentData);
     console.log("Attachment Post Status", postResponse);
+    alert("You have successfully submitted!");
+    window.history.go(-1);
   }
+
   public render(): React.ReactElement<IParkingRequestFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -265,22 +436,31 @@ export default class ParkingRequestForm extends React.Component<
       requestorInfo,
       language,
       postAttachments,
-      requestorContractJSON,
-      requestorIdProofJSON,
-      requestorPhotoJSON,
+      staffIdProofJSON,
+      carRegistrationJSON,
+      driverIdProofJSON,
       attachDriverID,
       attachCarRegistration,
       attachStaffID,
-
+      conditionCheckBox,
       attachmentJson,
+      disable,
     } = this.state;
-    const { context, self } = this.props;
+    const { context } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
       event.preventDefault();
       console.log("Form Data", event);
-      console.log("Form Submit", vehicleInfo, parkingInfo, requestorInfo);
+      console.log(
+        "Form Submit",
+        vehicleInfo,
+        attachStaffID,
+        attachDriverID,
+        attachCarRegistration,
+        parkingInfo,
+        requestorInfo
+      );
     };
-    const handleChange = (event: { target: { name: any; files: any } }) => {
+    const handleFileChange = (event: { target: { name: any; files: any } }) => {
       console.log(`Attachment ${event.target.name}`, event.target.files);
       let inputArr = event.target.files;
       let arrLength = event.target.files?.length;
@@ -298,7 +478,7 @@ export default class ParkingRequestForm extends React.Component<
           if (targetName === "attachStaffID") {
             this.setState({
               attachStaffID: event.target.files,
-              requestorIdProofJSON: {
+              staffIdProofJSON: {
                 targetName: targetName,
                 fileName: fileName,
               },
@@ -306,7 +486,7 @@ export default class ParkingRequestForm extends React.Component<
           } else if (targetName === "attachCarRegistration") {
             this.setState({
               attachCarRegistration: event.target.files,
-              requestorPhotoJSON: {
+              carRegistrationJSON: {
                 targetName: targetName,
                 fileName: fileName,
               },
@@ -314,7 +494,7 @@ export default class ParkingRequestForm extends React.Component<
           } else if (targetName === "attachDriverID") {
             this.setState({
               attachDriverID: event.target.files,
-              requestorContractJSON: {
+              driverIdProofJSON: {
                 targetName: targetName,
                 fileName: fileName,
               },
@@ -345,9 +525,9 @@ export default class ParkingRequestForm extends React.Component<
     console.log("Attachments", postAttachments);
     console.log(
       "Target Name",
-      requestorIdProofJSON,
-      requestorContractJSON,
-      requestorPhotoJSON,
+      staffIdProofJSON,
+      carRegistrationJSON,
+      driverIdProofJSON,
       attachmentJson
     );
     return (
@@ -392,11 +572,14 @@ export default class ParkingRequestForm extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Requestor Information
+              {language === "En"
+                ? "Requestor Information"
+                : "معلومات مقدم الطلب"}
             </div>
             <div className="row">
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
                 state={requestorInfo}
@@ -405,6 +588,7 @@ export default class ParkingRequestForm extends React.Component<
               />
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={requestorInfo}
@@ -415,6 +599,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={requestorInfo}
@@ -423,6 +608,7 @@ export default class ParkingRequestForm extends React.Component<
               />
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Gender" : "جنس"}
                 name="Gender"
                 state={requestorInfo}
@@ -433,6 +619,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Staff Extension" : "تمديد الموظفين"}
                 name="staffExtension"
                 state={requestorInfo}
@@ -441,6 +628,7 @@ export default class ParkingRequestForm extends React.Component<
               />
               <RequestorInfo
                 type="date"
+                disabled={true}
                 label={language === "En" ? "Hiring Date" : "تاريخ التوظيف"}
                 name="hiringDate"
                 state={requestorInfo}
@@ -451,6 +639,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Job Category" : "فئة الوظيفة"}
                 name="jobCategory"
                 state={requestorInfo}
@@ -459,6 +648,7 @@ export default class ParkingRequestForm extends React.Component<
               />
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Department" : "قسم "}
                 name="department"
                 state={requestorInfo}
@@ -469,6 +659,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row mb-4">
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Mobile Number " : "رقم الموبايل "}
                 name="mobileNumber"
                 state={requestorInfo}
@@ -477,6 +668,7 @@ export default class ParkingRequestForm extends React.Component<
               />
               <RequestorInfo
                 type="text"
+                disabled={true}
                 label={language === "En" ? "Related Entity" : "كيان ذو صلة"}
                 name="relatedEntity"
                 state={requestorInfo}
@@ -488,11 +680,20 @@ export default class ParkingRequestForm extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Parking Information
+              {language === "En"
+                ? "Parking Information"
+                : "معلومات وقوف السيارات"}
             </div>
             <div className="row">
               <ParkingInfo
-                label={language === "En" ? "Request Type " : "نوع الطلب "}
+                type="select"
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Request Type " : "نوع الطلب "}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="requestType"
                 options={[
                   "Permanent Entry Permission",
@@ -503,7 +704,14 @@ export default class ParkingRequestForm extends React.Component<
                 self={this}
               />
               <ParkingInfo
-                label={language === "En" ? "Request Building " : "طلب بناء"}
+                type="select"
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Request Building " : "طلب بناء"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="requestedBuilding"
                 options={["Permanent Parking", "Temporary Parking"]}
                 state={parkingInfo}
@@ -513,7 +721,14 @@ export default class ParkingRequestForm extends React.Component<
             </div>
             <div className="row">
               <ParkingInfo
-                label={language === "En" ? "Parking Type" : "نوع موقف السيارات"}
+                type="select"
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Parking Type" : "نوع موقف السيارات"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="parkingType"
                 options={["Public", "Reserved"]}
                 state={parkingInfo}
@@ -521,8 +736,13 @@ export default class ParkingRequestForm extends React.Component<
                 self={this}
               />
               <ParkingInfo
+                type="select"
+                disabled={disable}
                 label={
-                  language === "En" ? "Parking Area" : "منطقة وقوف السيارات"
+                  <>
+                    {language === "En" ? "Parking Area" : "منطقة وقوف السيارات"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="parkingArea"
                 options={["Public", "Reserved"]}
@@ -534,28 +754,28 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row mb-4">
               <ParkingInfo
                 type="date"
-                label={language === "En" ? "Validity From" : "الصلاحية من"}
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Validity From" : "الصلاحية من"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="validityFrom"
-                options={[
-                  "Permanent Entry Permis..",
-                  "Temporary Entry Permission",
-                  "Permanent Parking",
-                  "Temporary Parking",
-                ]}
                 state={parkingInfo}
                 parkingInfo={parkingInfo.validityFrom}
                 self={this}
               />
               <ParkingInfo
                 type="date"
-                label={language === "En" ? "Validity To" : "الصلاحية إلى"}
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Validity To" : "الصلاحية إلى"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="validityTo"
-                options={[
-                  "Permanent Entry Permis..",
-                  "Temporary Entry Permission",
-                  "Permanent Parking",
-                  "Temporary Parking",
-                ]}
                 state={parkingInfo}
                 parkingInfo={parkingInfo.validityTo}
                 self={this}
@@ -565,12 +785,18 @@ export default class ParkingRequestForm extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Vehicle Information
+              {language === "En" ? "Vehicle Information" : "معلومات السيارة"}
             </div>
             <div className="row">
               <VehicleInfo
                 type="text"
-                label={language === "En" ? "Car Name" : "اسم السيارة"}
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Car Name" : "اسم السيارة"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="carName"
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.carName}
@@ -578,7 +804,13 @@ export default class ParkingRequestForm extends React.Component<
               />
               <VehicleInfo
                 type="text"
-                label={language === "En" ? "Plate Number" : "رقم اللوحة"}
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Plate Number" : "رقم اللوحة"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="plateNumber"
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.plateNumber}
@@ -588,7 +820,13 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <VehicleInfo
                 type="text"
-                label={language === "En" ? "Color" : "لون"}
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Color" : "لون"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="color"
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.color}
@@ -596,7 +834,13 @@ export default class ParkingRequestForm extends React.Component<
               />
               <VehicleInfo
                 type="text"
-                label={language === "En" ? "Model Year" : "سنة الموديل"}
+                disabled={disable}
+                label={
+                  <>
+                    {language === "En" ? "Model Year" : "سنة الموديل"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="modelYear"
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.modelYear}
@@ -605,7 +849,8 @@ export default class ParkingRequestForm extends React.Component<
             </div>
             <div className="row">
               <VehicleInfo
-                type="text"
+                type="file"
+                disabled={disable}
                 label={
                   language === "En" ? "Attach Staff ID" : "إرفاق هوية الموظف"
                 }
@@ -613,10 +858,11 @@ export default class ParkingRequestForm extends React.Component<
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.attachStaffID}
                 self={this}
-                handleFileChange={handleChange}
+                fileData={attachStaffID}
+                handleFileChange={handleFileChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {attachStaffID && (
+                {attachStaffID?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -625,7 +871,7 @@ export default class ParkingRequestForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {attachStaffID[0]?.name}
+                      {attachStaffID[0]?.name || attachStaffID[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -642,20 +888,25 @@ export default class ParkingRequestForm extends React.Component<
             </div>
             <div className="row">
               <VehicleInfo
-                type="text"
+                disabled={disable}
+                type="file"
                 label={
-                  language === "En"
-                    ? "Attach Car Registration"
-                    : "إرفاق تسجيل السيارة"
+                  <>
+                    {language === "En"
+                      ? "Attach Car Registration"
+                      : "إرفاق تسجيل السيارة"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="attachCarRegistration"
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.attachCarRegistration}
                 self={this}
-                handleFileChange={handleChange}
+                fileData={attachCarRegistration}
+                handleFileChange={handleFileChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {attachCarRegistration && (
+                {attachCarRegistration?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -664,7 +915,8 @@ export default class ParkingRequestForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {attachCarRegistration[0]?.name}
+                      {attachCarRegistration[0]?.name ||
+                        attachCarRegistration[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -681,18 +933,25 @@ export default class ParkingRequestForm extends React.Component<
             </div>
             <div className="row">
               <VehicleInfo
-                type="text"
+                disabled={disable}
+                type="file"
                 label={
-                  language === "En" ? "Attach Driver ID" : "إرفاق معرف السائق"
+                  <>
+                    {language === "En"
+                      ? "Attach Driver ID"
+                      : "إرفاق معرف السائق"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="attachDriverID"
                 state={vehicleInfo}
                 vehicleInfo={vehicleInfo.attachDriverID}
                 self={this}
-                handleFileChange={handleChange}
-              />{" "}
+                fileData={attachDriverID}
+                handleFileChange={handleFileChange}
+              />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {attachDriverID && (
+                {attachDriverID?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -701,7 +960,7 @@ export default class ParkingRequestForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {attachDriverID[0]?.name}
+                      {attachDriverID[0]?.name || attachDriverID[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -718,6 +977,7 @@ export default class ParkingRequestForm extends React.Component<
             </div>
             <div className="row">
               <VehicleInfo
+                disabled={disable}
                 type="textArea"
                 label={language === "En" ? "Comments" : "التعليقات"}
                 name="comments"
@@ -726,32 +986,46 @@ export default class ParkingRequestForm extends React.Component<
                 self={this}
               />
             </div>
-            <div className="d-flex justify-content-start py-2 mb-4">
-              <input type="checkbox" />
-              <label className="ps-2">
-                <a href="#">I agree to Terms & Conditions</a>
+            <div className="d-flex justify-content-start ps-2 mb-2">
+              <input
+                className="form-check"
+                type="checkbox"
+                checked={conditionCheckBox}
+                onChange={(event) => {
+                  this.setState({
+                    conditionCheckBox: event.target.checked,
+                  });
+                }}
+              />
+              <label className={`ps-3`}>
+                <a href="#">
+                  {language === "En"
+                    ? "I agree to Terms & Conditions"
+                    : "أوافق على الشروط والأحكام"}
+                </a>
+                <span className="text-danger">*</span>
               </label>
             </div>
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
                 style={{ backgroundColor: "#E5E5E5" }}
+                type="button"
                 onClick={() => {
-                  self.setState({ isHomeActive: true });
                   window.history.go(-1);
                 }}
               >
-                Cancel
+                {language === "En" ? "Cancel" : "إلغاء الأمر"}
               </button>
               <button
                 className="px-4 py-2 text-white"
                 style={{ backgroundColor: "#223771" }}
-                type="submit"
+                type="button"
                 onClick={() => {
                   this.onSubmit();
                 }}
               >
-                Submit
+                {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
           </form>

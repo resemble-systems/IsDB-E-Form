@@ -2,7 +2,6 @@ import * as React from "react";
 import styles from "./VisitRequestFormReceptionist.module.sass";
 import type { IVisitRequestFormReceptionistProps } from "./IVisitRequestFormReceptionistProps";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import { Select } from "antd";
 import InputFeild from "./InputFeild";
@@ -13,6 +12,7 @@ import {
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
+import { Web } from "sp-pnp-js";
 
 interface IVisitRequestFormReceptionistState {
   inputFeild: any;
@@ -25,6 +25,12 @@ interface IVisitRequestFormReceptionistState {
   checkBox: any;
   nameSelected: any;
   nameOptions: any;
+  postAttachments: any;
+  attachmentJson: any;
+  visitorIdProofJSON: any;
+  visitorPhotoJSON: any;
+
+  autoComplete: any;
 }
 
 export default class VisitorsForm extends React.Component<
@@ -72,6 +78,11 @@ export default class VisitorsForm extends React.Component<
       checkBox: false,
       nameSelected: "",
       nameOptions: [],
+      postAttachments: [],
+      attachmentJson: [],
+      visitorIdProofJSON: {},
+      visitorPhotoJSON: {},
+      autoComplete: "off",
     };
   }
   public componentDidMount() {
@@ -118,6 +129,26 @@ export default class VisitorsForm extends React.Component<
               visitorNotify: listItems?.Visitornotify,
               visitorRemarks: listItems?.Visitorremarks,
             },
+            visitorPhoto: listItems.AttachmentJSON
+              ? JSON.parse(listItems.AttachmentJSON)
+                  ?.filter((data: any) => data.targetName === "visitorPhoto")
+                  ?.map((data: any) => {
+                    return {
+                      ...data,
+                      ID: listItems.ID,
+                    };
+                  })
+              : [],
+            visitorIdProof: listItems.AttachmentJSON
+              ? JSON.parse(listItems.AttachmentJSON)
+                  ?.filter((data: any) => data.targetName === "visitorIdProof")
+                  .map((data: any) => {
+                    return {
+                      ...data,
+                      ID: listItems.ID,
+                    };
+                  })
+              : [],
           });
         });
     }
@@ -125,7 +156,48 @@ export default class VisitorsForm extends React.Component<
 
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild } = this.state;
+    const { inputFeild, postAttachments,visitorPhoto,visitorIdProof } = this.state;
+
+    const checkEmail = (Email: string) => {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      const isValidEmail = emailRegex.test(Email);
+      return !isValidEmail;
+    };
+
+    const checkMobileNo = (Number: any) => {
+      // const mobileNumberRegex = /^\+?[1-9]\d{1,14}$/;
+      const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/
+      const isValidNumber = !mobileNumberRegex.test(Number);
+      return !isValidNumber;
+    };
+    
+    const visitTime = this.state.inputFeild.visitorVisitTime;
+
+    if (
+      inputFeild.visitorName.length < 3 ||
+      inputFeild.visitorName.length > 30
+    ) {
+      alert(
+        "Visitor Name cannot be blank, should have more than 2 characters and less than 30 characters!"
+      );
+    } else if (checkEmail(inputFeild.visitorEmailId)) {
+      alert("Invalid Email Address!");
+    } else if (checkMobileNo(inputFeild.visitorMobileNumber)) {
+      alert("Invalid Mobile Number!");
+    } else if (
+      inputFeild.visitorRelatedOrg.length < 3 ||
+      inputFeild.visitorRelatedOrg.length > 30
+    ) {
+      alert(
+        "Related Org/Company cannot be blank, should have more than 2 characters and less than 30 characters!"
+      );
+    } else if (!visitTime) {
+      alert("Please enter the Anticipated visit time1");
+    } else if (!visitorIdProof) {
+      alert("Please Attach the IdProof!");
+    } else if (!visitorPhoto) {
+      alert("Please Attach the Photo!");
+    } else {
     const headers: any = {
       "X-HTTP-Method": "POST",
       "If-Match": "*",
@@ -161,6 +233,7 @@ export default class VisitorsForm extends React.Component<
         Filledbytype: "Receptionist",
         Consecutive: this.state.consecutive.toString(),
         Sheduledtime: this.state.sheduledTime.toString(),
+        AttachmentJSON: JSON.stringify(this.state.attachmentJson),
       }),
     };
     const postResponse = await context.spHttpClient.post(
@@ -171,6 +244,7 @@ export default class VisitorsForm extends React.Component<
     if (postResponse.ok) {
       const postData = await postResponse.json();
       console.log("visitor Created", postData);
+      this.upload(postData.ID, postAttachments);
     } else {
       alert("visitor form Failed.");
       console.log("Post Failed", postResponse);
@@ -204,6 +278,7 @@ export default class VisitorsForm extends React.Component<
         visitorRemarks: "",
       },
     });
+  }
   };
 
   public componentDidUpdate(
@@ -233,6 +308,48 @@ export default class VisitorsForm extends React.Component<
         });
       }
     }
+    const { visitorIdProofJSON, visitorPhotoJSON } = this.state;
+    if (prevState.postAttachments !== this.state.postAttachments) {
+      const attachmentPostJson = [visitorIdProofJSON, visitorPhotoJSON]?.filter(
+        (data: any) => {
+          if (Object.keys(data)?.length > 0) {
+            return data;
+          }
+        }
+      );
+
+      this.setState({
+        attachmentJson: attachmentPostJson,
+      });
+    }
+    if (prevState.visitorPhoto !== this.state.visitorPhoto) {
+      console.log("updateed data", this.state.visitorPhoto);
+    }
+  }
+  public async upload(ID: number, Attachment: any) {
+    console.log("In Attachment Post", Attachment);
+    const postAttachment = [
+      ...Attachment.visitorPhoto,
+      ...Attachment.visitorIdProof,
+    ];
+    console.log("postAttachment", postAttachment);
+    const uniqueAttachmentData = postAttachment?.reduce(
+      (acc: any, curr: any) => {
+        if (!acc.find((item: { name: string }) => item.name === curr.name)) {
+          acc.push(curr);
+        }
+        return acc;
+      },
+      []
+    );
+    console.log("uniqueAttachmentData", uniqueAttachmentData);
+    let web = new Web(this.props.context.pageContext.web.absoluteUrl);
+    const postResponse = await web.lists
+      .getByTitle("VisitorRequestForm")
+      .items.getById(ID)
+      .attachmentFiles.addMultiple(uniqueAttachmentData);
+    console.log("Attachment Post Status", postResponse);
+    window.history.go(-1);
   }
 
   public getDetails() {
@@ -373,13 +490,12 @@ export default class VisitorsForm extends React.Component<
       checkBox,
       nameOptions,
       nameSelected,
+      visitorIdProofJSON,
+      visitorPhotoJSON,
+      postAttachments,
+      attachmentJson,
     } = this.state;
-    const { context, self } = this.props;
-    const handleSubmit = (event: { preventDefault: () => void }) => {
-      event.preventDefault();
-      console.log("Form Data", event);
-      console.log("Form Submit", inputFeild, visitorIdProof, visitorPhoto);
-    };
+    const { context } = this.props;
     const handleSearch = (newValue: string) => {
       let nameSearch = newValue;
 
@@ -395,6 +511,69 @@ export default class VisitorsForm extends React.Component<
 
       this.setState({ nameSelected: newValue });
     };
+
+    const handleFileChange = (event: { target: { name: any; files: any } }) => {
+      console.log(`Attachment ${event.target.name}`, event.target.files);
+      let inputArr = event.target.files;
+      let arrLength = event.target.files?.length;
+      const targetName = event.target.name;
+      let fileData: any = [];
+      for (let i = 0; i < arrLength; i++) {
+        console.log(`In for loop ${i} times`);
+        var file = inputArr[i];
+        const fileName = inputArr[i].name;
+        console.log("fileName", fileName);
+        const regex = /\.(pdf|PDF)$/i;
+        if (!regex.test(fileName)) {
+          alert("Please select an PDF File.");
+        } else {
+          if (targetName === "visitorIdProof") {
+            this.setState({
+              visitorIdProof: event.target.files,
+              visitorIdProofJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
+            });
+          } else if (targetName === "visitorPhoto") {
+            this.setState({
+              visitorPhoto: event.target.files,
+              visitorPhotoJSON: {
+                targetName: targetName,
+                fileName: fileName,
+              },
+            });
+          }
+          var reader = new FileReader();
+          reader.onload = (function (file) {
+            return function (e) {
+              fileData.push({
+                name: file.name,
+                content: e.target?.result,
+                attachmentTarget: targetName,
+              });
+            };
+          })(file);
+          reader.readAsArrayBuffer(file);
+          console.log("fileData Attachment", fileData);
+          this.setState({
+            postAttachments: {
+              ...postAttachments,
+              [event.target.name]: fileData,
+            },
+          });
+        }
+      }
+    };
+
+    console.log("Attachments", postAttachments);
+    console.log("visitorPhoto", visitorPhoto, visitorIdProof);
+    console.log(
+      "Target Name",
+      visitorPhotoJSON,
+      visitorIdProofJSON,
+      attachmentJson
+    );
     return (
       <CommunityLayout
         self={this}
@@ -407,7 +586,7 @@ export default class VisitorsForm extends React.Component<
             className="d-flex justify-content-center text-white py-2 mb-2 headerText"
             style={{ backgroundColor: "#223771" }}
           >
-            Visit Request Form (if filled by employee)
+            Visit Request Form (if filled by receptionist)
           </div>
           <div
             className="d-flex justify-content-center text-danger py-2 mb-4 headerText"
@@ -432,17 +611,19 @@ export default class VisitorsForm extends React.Component<
               }}
             ></Select>
           </div>
-          <form onSubmit={handleSubmit}>
+          <form>
             <div
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Requestor Information
+              {language === "En"
+                ? " Requestor Information"
+                : "معلومات مقدم الطلب"}
             </div>
             <div className="row">
               <InputFeild
                 self={this}
-                disabled = {true}
+                disabled={true}
                 type="text"
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
@@ -451,7 +632,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled = {true}
+                disabled={true}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={inputFeild}
@@ -462,7 +643,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled = {true}
+                disabled={true}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={inputFeild}
@@ -471,7 +652,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled = {true}
+                disabled={true}
                 label={language === "En" ? "Department" : "قسم"}
                 name="Department"
                 state={inputFeild}
@@ -482,7 +663,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled = {true}
+                disabled={true}
                 label={language === "En" ? "Office Location" : "موقع المكتب"}
                 name="officeLocation"
                 state={inputFeild}
@@ -491,7 +672,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled = {true}
+                disabled={true}
                 label={language === "En" ? "Office Number" : "رقم المكتب"}
                 name="officeNumber"
                 state={inputFeild}
@@ -502,7 +683,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled = {true}
+                disabled={true}
                 label={
                   language === "En" ? "Mobile Number" : "رقم الهاتف المحمول"
                 }
@@ -513,7 +694,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled = {true}
+                disabled={true}
                 label={
                   language === "En" ? "Immediate Supervisor" : "المشرف المباشر"
                 }
@@ -583,7 +764,9 @@ export default class VisitorsForm extends React.Component<
                   className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
                   style={{ backgroundColor: "#223771" }}
                 >
-                  Visited Employee Information
+                  {language === "En"
+                    ? "Visited Employee Information"
+                    : "معلومات الموظف الذي تمت زيارته"}
                 </div>
 
                 <div className="row">
@@ -654,13 +837,18 @@ export default class VisitorsForm extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              Visitor Information
+              {language === "En" ? "Visitor Information" : "معلومات للزوار"}
             </div>
             <div className="row">
               <InputFeild
                 self={this}
                 type="text"
-                label={language === "En" ? "Visitor Name" : "اسم الزائر"}
+                label={
+                  <>
+                    {language === "En" ? "Visitor Name" : "اسم الزائر"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="visitorName"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorName}
@@ -669,7 +857,10 @@ export default class VisitorsForm extends React.Component<
                 self={this}
                 type="text"
                 label={
-                  language === "En" ? "Mobile Number" : "رقم الهاتف المحمول"
+                  <>
+                    {language === "En" ? "Mobile Number" : "رقم الهاتف المحمول"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorMobileNumber"
                 state={inputFeild}
@@ -680,7 +871,12 @@ export default class VisitorsForm extends React.Component<
               <InputFeild
                 self={this}
                 type="text"
-                label={language === "En" ? "Email ID" : "عنوان الايميل"}
+                label={
+                  <>
+                    {language === "En" ? "Email ID" : "عنوان الايميل"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="visitorEmailId"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorEmailId}
@@ -699,9 +895,12 @@ export default class VisitorsForm extends React.Component<
               <InputFeild
                 type="text"
                 label={
-                  language === "En"
-                    ? "Related Org/Company"
-                    : "المؤسسة/الشركة ذات الصلة"
+                  <>
+                    {language === "En"
+                      ? "Related Org/Company"
+                      : "المؤسسة/الشركة ذات الصلة"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorRelatedOrg"
                 state={inputFeild}
@@ -711,9 +910,12 @@ export default class VisitorsForm extends React.Component<
               <InputFeild
                 type="datetime-local"
                 label={
-                  language === "En"
-                    ? "Anticipated Visit Time"
-                    : "وقت الزيارة المتوقع"
+                  <>
+                    {language === "En"
+                      ? "Anticipated Visit Time"
+                      : "وقت الزيارة المتوقع"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorVisitTime"
                 state={inputFeild}
@@ -723,7 +925,8 @@ export default class VisitorsForm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-                type="customradio"
+                type="select"
+                options={["PersonalVisit", "BuisnessVisit"]}
                 label={language === "En" ? "Purpose of Visit" : "غرض الزيارة"}
                 name="visitorPurposeOfVisit"
                 state={inputFeild}
@@ -735,20 +938,21 @@ export default class VisitorsForm extends React.Component<
               <InputFeild
                 type="file"
                 label={
-                  language === "En" ? "Attach ID Proof" : "إرفاق إثبات الهوية"
+                  <>
+                    {language === "En"
+                      ? "Attach ID Proof"
+                      : "إرفاق إثبات الهوية"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorIdProof"
                 self={this}
                 state={visitorIdProof}
                 fileData={visitorIdProof}
-                handleFileChange={(event: any) => {
-                  this.setState({
-                    visitorIdProof: event.target.files,
-                  });
-                }}
+                handleFileChange={handleFileChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {visitorIdProof && (
+                {visitorIdProof?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -757,7 +961,7 @@ export default class VisitorsForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {visitorIdProof[0]?.name}
+                      {visitorIdProof[0]?.name || visitorIdProof[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -776,22 +980,22 @@ export default class VisitorsForm extends React.Component<
               <InputFeild
                 type="file"
                 label={
-                  language === "En"
-                    ? "Attach Visitor Photograph"
-                    : "إرفاق صورة الزائر"
+                  <>
+                    {language === "En"
+                      ? "Attach Visitor Photograph"
+                      : "إرفاق صورة الزائر"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorPhoto"
                 state={visitorPhoto}
                 fileData={visitorPhoto}
                 self={this}
-                handleFileChange={(event: any) => {
-                  this.setState({
-                    visitorPhoto: event.target.files,
-                  });
-                }}
+                handleFileChange={handleFileChange}
               />
+
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {visitorPhoto && (
+                {visitorPhoto?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -800,7 +1004,7 @@ export default class VisitorsForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {visitorPhoto[0]?.name}
+                      {visitorPhoto[0]?.name || visitorPhoto[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -820,7 +1024,7 @@ export default class VisitorsForm extends React.Component<
                 type="radio"
                 label={
                   language === "En"
-                    ? "Notify the requestor by SMS"
+                    ? "Notify the visited Employee by SMS"
                     : "إشعار مقدم الطلب عن طريقالرسائل القصيرة"
                 }
                 name="visitorNotify"
@@ -844,22 +1048,22 @@ export default class VisitorsForm extends React.Component<
               <button
                 className="px-4 py-2"
                 style={{ backgroundColor: "#E5E5E5" }}
+                type="button"
                 onClick={() => {
-                  self.setState({ isHomeActive: true });
+                  window.history.go(-1);
                 }}
               >
-                Cancel
+                {language === "En" ? "Cancel" : "إلغاء الأمر"}
               </button>
-
               <button
                 className="px-4 py-2 text-white"
                 style={{ backgroundColor: "#223771" }}
-                type="submit"
+                type="button"
                 onClick={() => {
                   this.onSubmit();
                 }}
               >
-                Submit
+                {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
           </form>
