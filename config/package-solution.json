@@ -35,6 +35,6 @@
     ]
   },
   "paths": {
-    "zippedPackage": "solution/isdb-sprint-eforms-sso.sppkg"
+    "zippedPackage": "solution/e-forms.sppkg"
   }
 }

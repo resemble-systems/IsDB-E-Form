@@ -227,8 +227,8 @@ export default class ContractForm extends React.Component<
       alert("Mobile Number cannot be blank!");
     } else if (checkMobileNo(inputFeild.requestorMobileNo)) {
       alert("Invalid Mobile Number!");
-      // } else if (!inputFeild.requestorJobTittle) {
-      //   alert("Please enter the Job title!");
+    // } else if (!inputFeild.requestorJobTittle) {
+    //   alert("Please enter the Job title!");
     } else if (
       !inputFeild.requestorRelatedEdu ||
       inputFeild.requestorRelatedEdu?.length < 3 ||
@@ -870,7 +870,8 @@ export default class ContractForm extends React.Component<
                 handleFileChange={handleChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {requestorIdProof?.length > 0 && (
+               
+                  {requestorIdProof?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -879,8 +880,7 @@ export default class ContractForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {requestorIdProof[0]?.name ||
-                        requestorIdProof[0]?.fileName}
+                      {requestorIdProof[0]?.name || requestorIdProof[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -905,10 +905,14 @@ export default class ContractForm extends React.Component<
                 state={requestorPhoto}
                 fileData={requestorPhoto}
                 self={this}
-                handleFileChange={handleChange}
+                /* handleFileChange={(event: any) => {
+                  this.setState({
+                    requestorPhoto: event.target.files,
+                  });
+                }} */ handleFileChange={handleChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {requestorPhoto?.length > 0 && (
+              {requestorPhoto?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -947,7 +951,7 @@ export default class ContractForm extends React.Component<
                 handleFileChange={handleChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {requestorContract?.length > 0 && (
+              {requestorContract?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -956,8 +960,7 @@ export default class ContractForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {requestorContract[0]?.name ||
-                        requestorContract[0]?.fileName}
+                      {requestorContract[0]?.name || requestorContract[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"

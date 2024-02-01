@@ -381,7 +381,7 @@ export default class ContractorManagerViewTable extends React.Component<
                             className={`w-100 my-2 border border-2 ${
                               styles.newsFilterDatePicker
                             } ${endDateError && "border-danger"}`}
-                            onChange={(dateString: any) => {
+                            onChange={(dateString) => {
                               let temp: any = dateString;
                               if (
                                 filterStartDate.$d.getTime() < temp.$d.getTime()

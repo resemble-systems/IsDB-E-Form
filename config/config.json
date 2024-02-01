@@ -169,6 +169,62 @@
           "manifest": "./src/webparts/printVisitForm/PrintVisitFormWebPart.manifest.json"
         }
       ]
+    },
+    "key-request-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/keyRequestForm/KeyRequestFormWebPart.js",
+          "manifest": "./src/webparts/keyRequestForm/KeyRequestFormWebPart.manifest.json"
+        }
+      ]
+    },
+    "gate-pass-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/gatePass/GatePassWebPart.js",
+          "manifest": "./src/webparts/gatePass/GatePassWebPart.manifest.json"
+        }
+      ]
+    },
+    "employee-reprimand-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/employeeReprimand/EmployeeReprimandWebPart.js",
+          "manifest": "./src/webparts/employeeReprimand/EmployeeReprimandWebPart.manifest.json"
+        }
+      ]
+    },
+    "safety-incident-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/safetyIncident/SafetyIncidentWebPart.js",
+          "manifest": "./src/webparts/safetyIncident/SafetyIncidentWebPart.manifest.json"
+        }
+      ]
+    },
+    "shift-report-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/shiftReport/ShiftReportWebPart.js",
+          "manifest": "./src/webparts/shiftReport/ShiftReportWebPart.manifest.json"
+        }
+      ]
+    },
+    "work-permit-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/workPermit/WorkPermitWebPart.js",
+          "manifest": "./src/webparts/workPermit/WorkPermitWebPart.manifest.json"
+        }
+      ]
+    },
+    "data-center-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/dataCenter/DataCenterWebPart.js",
+          "manifest": "./src/webparts/dataCenter/DataCenterWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
@@ -193,6 +249,14 @@
     "ContractorManagerViewTableWebPartStrings": "lib/webparts/contractorManagerViewTable/loc/{locale}.js",
     "ParkingRequestorViewTableWebPartStrings": "lib/webparts/parkingRequestorViewTable/loc/{locale}.js",
     "ParkingSupervisorViewTableWebPartStrings": "lib/webparts/parkingSupervisorViewTable/loc/{locale}.js",
-    "PrintVisitFormWebPartStrings": "lib/webparts/printVisitForm/loc/{locale}.js"
+    "PrintVisitFormWebPartStrings": "lib/webparts/printVisitForm/loc/{locale}.js",
+    "KeyRequestFormWebPartStrings": "lib/webparts/keyRequestForm/loc/{locale}.js",
+    "GatePassWebPartStrings": "lib/webparts/gatePass/loc/{locale}.js",
+    "EmployeeReprimandWebPartStrings": "lib/webparts/employeeReprimand/loc/{locale}.js",
+    "SafetyIncidentWebPartStrings": "lib/webparts/safetyIncident/loc/{locale}.js",
+    "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js",
+    "ShiftReportWebPartStrings": "lib/webparts/shiftReport/loc/{locale}.js",
+    "WorkPermitWebPartStrings": "lib/webparts/workPermit/loc/{locale}.js",
+    "DataCenterWebPartStrings": "lib/webparts/dataCenter/loc/{locale}.js"
   }
 }
