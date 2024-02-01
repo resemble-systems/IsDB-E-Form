@@ -574,7 +574,7 @@ export default class VisitorsForm extends React.Component<
       visitorIdProofJSON,
       attachmentJson
     );
-    return (
+    return (<>
       <CommunityLayout
         self={this}
         context={context}
@@ -1068,7 +1068,7 @@ export default class VisitorsForm extends React.Component<
             </div>
           </form>
         </div>
-      </CommunityLayout>
+      </CommunityLayout></>
     );
   }
 }
