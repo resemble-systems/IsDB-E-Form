@@ -1,5 +1,5 @@
 {
-  "name": "isdb-sprint-eforms-sso",
+  "name": "e-forms",
   "version": "0.0.1",
   "private": true,
   "engines": {
@@ -20,11 +20,14 @@
     "@microsoft/sp-office-ui-fabric-core": "1.18.0",
     "@microsoft/sp-property-pane": "1.18.0",
     "@microsoft/sp-webpart-base": "1.18.0",
+    "@pnp/spfx-controls-react": "^3.16.0",
     "antd": "^5.9.2",
     "bootstrap": "^5.3.2",
     "moment": "^2.29.4",
     "react": "17.0.1",
     "react-dom": "17.0.1",
+    "react-quill": "^2.0.0",
+    "sp-pnp-js": "^3.0.10",
     "tslib": "2.3.1",
     "xlsx": "^0.18.5"
   },
