@@ -335,7 +335,6 @@ export default class ShiftReport extends React.Component<
     const {
       inputFeild,
       language,
-      checkBox,
       commentsPost,
       buildingCommentsPost,
       fileInfos,
@@ -394,7 +393,7 @@ export default class ShiftReport extends React.Component<
             </div>
 
             <div className="row mb-2">
-              <div className="d-flex">
+              <div className="d-flex justify-content-start py-2 ps-2">
                 <div
                   className="d-flex justify-content-between"
                   style={{
@@ -409,44 +408,27 @@ export default class ShiftReport extends React.Component<
                     {language === "En" ? "On behalf of" : "نيابة عن"}
                     <span className="text-danger">*</span>
                   </label>
-                  <input
-                    style={{
-                      marginLeft: "13px",
-                      marginTop: "5px",
-                      width: "25px",
-                      height: "25px",
-                      borderRadius: "6px",
+                </div>
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
                     }}
-                    className="form-check"
-                    disabled={redirection}
-                    type="checkbox"
-                    checked={checkBox}
-                    onChange={(event) => {
-                      this.setState({
-                        checkBox: event.target.checked,
-                      });
-                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
                   />
                 </div>
               </div>
-              {checkBox && (
-                <PeoplePicker
-                  context={context as any}
-                  personSelectionLimit={1}
-                  disabled={redirection}
-                  showtooltip={true}
-                  required={true}
-                  onChange={(i: any) => {
-                    this.onChangePeoplePickerItems(i);
-                  }}
-                  showHiddenInUI={false}
-                  principalTypes={[PrincipalType.User]}
-                  resolveDelay={1000}
-                  ensureUser={true}
-                />
-              )}
             </div>
-
             <div className="row">
               <InputFeild
                 type="datetime-local"
@@ -667,7 +649,7 @@ export default class ShiftReport extends React.Component<
               />
             </div>
             <Row>
-              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+              <Col xs={24} sm={24} md={24} lg={24} xl={24}>
                 <div
                   className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
                   style={{ backgroundColor: "#223771", marginTop: "8px" }}
@@ -741,30 +723,32 @@ export default class ShiftReport extends React.Component<
                 </div>
               </Col>
             </Row>
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                disabled={redirection}
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                disabled={redirection}
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
+            {redirection == false && (
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
+                  }}
+                >
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </CommunityLayout>

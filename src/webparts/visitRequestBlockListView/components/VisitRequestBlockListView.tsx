@@ -10,6 +10,10 @@ import {
 } from "@microsoft/sp-http";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
 import { Select } from "antd";
+import {
+  PeoplePicker,
+  PrincipalType,
+} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { Web } from "sp-pnp-js";
 import "./index.css";
 
@@ -29,6 +33,9 @@ interface IVisitRequestBlockListViewState {
   visitorPhotoJSON: any;
   nameOptions: any;
   autoComplete: any;
+  peopleData: any;
+  people: any;
+  visitedEmployeeEmailID: any;
 }
 
 export default class VisitRequestBlockListView extends React.Component<
@@ -81,6 +88,9 @@ export default class VisitRequestBlockListView extends React.Component<
       nameSelected: "",
       nameOptions: [],
       autoComplete: "off",
+      peopleData: [],
+      people: [],
+      visitedEmployeeEmailID: "",
     };
   }
 
@@ -188,19 +198,19 @@ export default class VisitRequestBlockListView extends React.Component<
     const { context } = this.props;
     const { inputFeild, visitorPhoto, postAttachments, visitorIdProof } =
       this.state;
-
-    const checkEmail = (Email: string) => {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      const isValidEmail = emailRegex.test(Email);
-      return !isValidEmail;
-    };
-
-    const checkMobileNo = (Number: any) => {
-      // const mobileNumberRegex = /^\+?[1-9]\d{1,14}$/;
-      const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/;
-      const isValidNumber = !mobileNumberRegex.test(Number);
-      return !isValidNumber;
-    };
+      const checkEmail = (Email: string) => {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const isValidEmail = emailRegex.test(Email);
+        return !isValidEmail;
+      };
+  
+      const checkMobileNo = (Number: any) => {
+        // const mobileNumberRegex = /^\+?[1-9]\d{1,14}$/;
+        const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/;
+        const isValidNumber = !mobileNumberRegex.test(Number);
+        console.log(isValidNumber, mobileNumberRegex, "mobile numbers testing");
+        return isValidNumber;
+      };
 
     const visitTime = this.state.inputFeild.visitorVisitTime;
 
@@ -218,6 +228,7 @@ export default class VisitRequestBlockListView extends React.Component<
     } else if (checkMobileNo(inputFeild.visitorMobileNumber)) {
       alert("Invalid Mobile Number!");
     } else if (
+      !inputFeild.visitorRelatedOrg ||
       inputFeild.visitorRelatedOrg.length < 3 ||
       inputFeild.visitorRelatedOrg.length > 30
     ) {
@@ -375,7 +386,7 @@ export default class VisitRequestBlockListView extends React.Component<
     console.log("uniqueAttachmentData", uniqueAttachmentData);
     let web = new Web(this.props.context.pageContext.web.absoluteUrl);
     const postResponse = await web.lists
-      .getByTitle("VisitorRequestForm")
+      .getByTitle("BlackList")
       .items.getById(ID)
       .attachmentFiles.addMultiple(uniqueAttachmentData);
     console.log("Attachment Post Status", postResponse);
@@ -415,54 +426,7 @@ export default class VisitRequestBlockListView extends React.Component<
           });
       });
   }
-  public getVisitRequest() {
-    const { context } = this.props;
-    console.log("GET Data");
-
-    context.spHttpClient
-      .get(
-        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items?$select=*&$expand=AttachmentFiles`,
-        SPHttpClient.configurations.v1
-      )
-      .then((res: SPHttpClientResponse) => {
-        return res.json();
-      })
-      .then((listItems: any) => {
-        console.log("VisitorRequestForm", listItems);
-
-        const sortedItems: any = listItems.value.sort(
-          (a: any, b: any) =>
-            new Date(b.Created).getTime() - new Date(a.Created).getTime()
-        );
-        console.log("sortedItems", sortedItems);
-        let filterMyData = listItems.value.filter(
-          (e: any) =>
-            e.Filledby.toLowerCase() ===
-            context.pageContext.user.displayName.toLowerCase()
-        );
-        console.log(
-          "Context Details",
-          context.pageContext.user.displayName,
-          context
-        );
-        console.log(filterMyData, "filtered data");
-
-        const consecutiveVisit = filterMyData?.filter(
-          (data: { Visitorvisithour: string | number }) => {
-            return (
-              new Date(Date.now() - 2 * 24 * 60 * 60 * 1000) <
-              new Date(data.Visitorvisithour)
-            );
-          }
-        );
-        console.log(consecutiveVisit, "consecutiveVisit");
-        const isConsecutiveVisit = consecutiveVisit?.length >= 2;
-        console.log("isConsecutiveVisit", isConsecutiveVisit);
-        this.setState({
-          consecutive: isConsecutiveVisit,
-        });
-      });
-  }
+ 
   public getNames(nameSearch: string) {
     const { context } = this.props;
     context.msGraphClientFactory
@@ -497,6 +461,53 @@ export default class VisitRequestBlockListView extends React.Component<
       });
   }
 
+  public async getvisitordata(emailID: any) {
+    const { context } = this.props;
+    try {
+      const graphClient = await context.msGraphClientFactory.getClient("3");
+      const userResponse = await graphClient
+        .api(`/users/${emailID}`)
+        .version("v1.0")
+        .select("*")
+        .get();
+      const userDetails = userResponse;
+      console.log("USER DETAILS", userDetails);
+      return userDetails;
+    } catch (error) {
+      console.error("USER FETCH ERROR", error);
+      return [];
+    }
+  }
+  
+  public onChangePeoplePickerItems = async (items: any) => {
+    const { peopleData } = this.state;
+
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData?.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log(finalData, finalData[0].text, finalData[0].id, "finalData");
+    const emailID = finalData[0].secondaryText;
+    const userDetails = await this.getvisitordata(emailID);
+    console.log("USER DETAILS", userDetails);
+    this.setState({
+      people: finalData,
+      inputFeild: {
+        ...this.state.inputFeild,
+        visitedEmployeeID: finalData[0].id.toString(),
+        visitedEmployeeName:userDetails.displayName,
+        visitedEmployeeEntity:userDetails.jobTitle,
+        visitedEmployeePhone:userDetails.mobilePhone,
+        visitedEmployeeGrade:""
+      },
+    });
+  };
+
   public render(): React.ReactElement<IVisitRequestBlockListViewProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -518,8 +529,7 @@ export default class VisitRequestBlockListView extends React.Component<
       visitorPhoto,
       language,
       checkBox,
-      nameOptions,
-      nameSelected,
+      
       autoComplete,
       visitorIdProofJSON,
       visitorPhotoJSON,
@@ -528,21 +538,7 @@ export default class VisitRequestBlockListView extends React.Component<
     } = this.state;
     const { context } = this.props;
 
-    const handleSearch = (newValue: string) => {
-      let nameSearch = newValue;
-
-      console.log("nameSearch", nameSearch);
-
-      if (nameSearch.length >= 3) {
-        this.getNames(nameSearch);
-      }
-    };
-
-    const handleChange = (newValue: string) => {
-      console.log("newValue", newValue);
-
-      this.setState({ nameSelected: newValue });
-    };
+    
 
     const handleFileChange = (event: { target: { name: any; files: any } }) => {
       console.log(`Attachment ${event.target.name}`, event.target.files);
@@ -555,9 +551,9 @@ export default class VisitRequestBlockListView extends React.Component<
         var file = inputArr[i];
         const fileName = inputArr[i].name;
         console.log("fileName", fileName);
-        const regex = /\.(pdf|PDF)$/i;
+        const regex = /\.(pdf|PDF|jpg|jpeg|png|gif)$/i;
         if (!regex.test(fileName)) {
-          alert("Please select an PDF File.");
+          alert("Please select an Valid File.");
         } else {
           if (targetName === "visitorIdProof") {
             this.setState({
@@ -775,8 +771,28 @@ export default class VisitRequestBlockListView extends React.Component<
                     }}
                   />
                 </div>
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={!checkBox}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
 
-                <Select
+                    // styles={{ peoplePicker: { border: 'none' } }}
+                  />
+                </div>
+                {/* <Select
                   className="flex-fill"
                   id="onBehalfOf"
                   showSearch
@@ -793,7 +809,7 @@ export default class VisitRequestBlockListView extends React.Component<
 
                     label: data.label,
                   }))}
-                />
+                /> */}
               </div>
             </div>
             {checkBox && (
@@ -947,7 +963,7 @@ export default class VisitRequestBlockListView extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-                type="select"
+               type="text"
                 autoComplete="off"
                 label={
                   <>
@@ -958,14 +974,14 @@ export default class VisitRequestBlockListView extends React.Component<
                   </>
                 }
                 name="visitorRelatedOrg"
-                options={["India", "UAE", "Dubai", "Saudi"]}
+              
                 state={inputFeild}
                 inputFeild={inputFeild.visitorRelatedOrg}
                 self={this}
               />
 
               <InputFeild
-                type="date"
+              type="datetime-local"
                 label={
                   <>
                     {language === "En"
@@ -992,7 +1008,7 @@ export default class VisitRequestBlockListView extends React.Component<
                   </>
                 }
                 name="visitorPurposeOfVisit"
-                options={["India", "UAE", "Dubai", "Saudi"]}
+                options={["PersonalVisit", "BuisnessVisit"]}
                 state={inputFeild}
                 inputFeild={inputFeild.visitorPurposeOfVisit}
                 self={this}
@@ -1088,7 +1104,7 @@ export default class VisitRequestBlockListView extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
-                type="text"
+                type="textArea"
                 autoComplete={autoComplete}
                 label={language === "En" ? "Remarks " : "ملاحظات "}
                 name="visitorRemarks"

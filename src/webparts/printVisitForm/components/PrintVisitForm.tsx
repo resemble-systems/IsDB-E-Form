@@ -1,21 +1,15 @@
 import * as React from "react";
-// import styles from "./PrintVisitForm.module.scss";
 import type { IPrintVisitFormProps } from "./IPrintVisitFormProps";
-// import { escape } from '@microsoft/sp-lodash-subset';
-import InputFeild from "./InputFeild";
+import { Row, Col } from "antd";
 import "./index.css";
-// import { Select } from "antd";
+// import  pattern  from "../assets/pattern.svg";
 import CommunityLayout from "../../../common-components/communityLayout";
 import { SPComponentLoader } from "@microsoft/sp-loader";
-import { SPHttpClient,SPHttpClientResponse } from "@microsoft/sp-http";
-// import { MSGraphClientV3 } from "@microsoft/sp-http";
+import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
+import moment from "moment";
 
 interface IPrintVisitFormState {
-  inputFeild: any;
-  requestorIdProof: any;
-  requestorPhoto: any;
-  requestorContract: any;
-  visitorPhoto: any;
+  VisitListItemsbyId: any;
 }
 
 export default class PrintVisitForm extends React.Component<
@@ -24,66 +18,34 @@ export default class PrintVisitForm extends React.Component<
 > {
   public constructor(props: IPrintVisitFormProps, state: IPrintVisitFormState) {
     super(props);
-    this.state = {
-      inputFeild: {
-        staffName: "",
-        grade: "",
-        staffId: "",
-        Department: "",
-        phoneExtension: "",
-      },
-      requestorIdProof: "",
-      requestorPhoto: "",
-      requestorContract: "",
-      visitorPhoto: "",
-    };
+    this.state = { VisitListItemsbyId: [] };
   }
   public componentDidMount() {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
-    
-    if (window.location.href.indexOf("?itemID") != -1) {
-      context.spHttpClient
-        .get(
-          `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
-          SPHttpClient.configurations.v1
-        )
-        .then((res: SPHttpClientResponse) => {
-          return res.json();
-        })
-        .then((listItems: any) => {
-          console.log("listItems.value Edit News", listItems);
-          this.setState({
-            inputFeild: {
-              staffName: listItems?.Title,
-              grade: listItems?.Grade,
-              staffId: listItems?.Staff_id,
-              Department: listItems?.Department,
-              officeLocation: listItems?.OfficeLocation,
-              officeNumber: listItems?.Officephone,
-              mobileNumber: listItems?.Mobilenumber,
-              immediateSupervisor: listItems?.Immediatesupervisor,
-              onBehalfOf: listItems?.Onbehalfof,
-              visitedEmployeeName: listItems?.Visitedemployee,
-              visitedEmployeeID: listItems?.Visitedemployeeid,
-              visitedEmployeeEntity: listItems?.Visitedentity,
-              visitedEmployeePhone: listItems?.Visitedemployeephone,
-              visitedEmployeeGrade: listItems?.Visitedemployeestaffgrade,
-              visitorName: listItems?.Visitorname,
-              visitorMobileNumber: listItems?.Visitormobileno,
-              visitorEmailId: listItems?.Visitoremailaddress,
-              visitorNationality: listItems?.Visitornationality,
-              visitorOrgType: listItems?.Visitororgtype,
-              visitorRelatedOrg: listItems?.Visitorrelatedorganization,
-              visitorPurposeOfVisit: listItems?.Visitorpurposeofvisit,
-              visitorVisitTime: listItems?.Visitorvisithour,
-              visitorNotify: listItems?.Visitornotify,
-              visitorRemarks: listItems?.Visitorremarks,
-            },
-          });
+console.log(itemId," itemId")
+    context.spHttpClient
+      .get(
+        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+        SPHttpClient.configurations.v1
+      )
+      .then((res: SPHttpClientResponse) => {
+        return res.json();
+      })
+      .then((listItems: any) => {
+        console.log("listItems.value Edit News", listItems);
+
+console.log(listItems.value,"filteredData")
+        // const filteredData = listItems.filter(
+        //   (e: any) => e.Id == itemId
+        // );
+
+        // console.log(filteredData,"filteredData")
+        this.setState({
+          VisitListItemsbyId: listItems,
         });
-    }
+      });
   }
 
   public render(): React.ReactElement<IPrintVisitFormProps> {
@@ -102,25 +64,8 @@ export default class PrintVisitForm extends React.Component<
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
-    const {
-      inputFeild,
-      requestorContract,
-      requestorIdProof,
-      requestorPhoto,
-      visitorPhoto,
-    } = this.state;
-    const { context, self } = this.props;
-    const handleSubmit = (event: { preventDefault: () => void }) => {
-      event.preventDefault();
-      console.log("Form Data", event);
-      console.log(
-        "Form Submit",
-        inputFeild,
-        requestorContract,
-        requestorIdProof,
-        requestorPhoto
-      );
-    };
+    const { context } = this.props;
+
     return (
       <CommunityLayout
         self={this}
@@ -129,152 +74,97 @@ export default class PrintVisitForm extends React.Component<
         selectedTitle="Parking Request Form"
       >
         <div className="container py-4 mb-5 bg-white shadow-lg">
-          <div
-            className="d-flex justify-content-center text-white py-2 mb-2 headerText"
-            style={{ backgroundColor: "#223771" }}
-          >
-            {/* {filledBy === "Receptionist Task View" ? (
-          <> Visit Request ({filledBy})</>
-        ) : (
-          <> Trainee/Contract Form ({filledBy})</>
-        )} */}
-            Print Visit
-          </div>
-          <div
-            className="d-flex justify-content-center text-danger py-2 mb-4 headerText"
-            style={{ backgroundColor: "#C8CDDB" }}
-          >
-            Please fill out the feilds in * to proceed
-          </div>
-          <div className="d-flex justify-content-end mb-2">
-            <select className="form-select" style={{ width: "max-content" }}>
-              <option selected>Select Language</option>
-              <option value="1">English</option>
-              <option value="2">Arabic</option>
-            </select>
-          </div>
-          <form onSubmit={handleSubmit}>
-            <div
-              className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
-              style={{ backgroundColor: "#223771" }}
-            >
-              Requestor Information
-            </div>
-            <div className="row">
-              <InputFeild
-                self={this}
-                type="text"
-                label="Visit ID"
-                name="visitId"
-                state={inputFeild}
-                inputFeild={inputFeild.visitId}
-              />
-              <InputFeild
-                type="date"
-                label="Visit Date"
-                name="visitDate"
-                state={inputFeild}
-                inputFeild={inputFeild.visitDate}
-                self={this}
-              />
-            </div>
-            <div className="row">
-              <InputFeild
-                type="text"
-                label="Name"
-                name="visitorName"
-                state={inputFeild}
-                inputFeild={inputFeild.visitorName}
-                self={this}
-              />
-              <InputFeild
-                type="text"
-                label="Visited Dept"
-                name="visitedDept"
-                state={inputFeild}
-                inputFeild={inputFeild.visitedDept}
-                self={this}
-              />
-            </div>
-            <div className="row">
-              <InputFeild
-                type="text"
-                label="Visiting Employee"
-                name="visitingEmployee"
-                state={inputFeild}
-                inputFeild={inputFeild.visitingEmployee}
-                self={this}
-              />
-            </div>
-            <div className="row">
-              <InputFeild
-                type="file"
-                label="Attach Visitor Photograph"
-                name="visitorPhoto"
-                state={visitorPhoto}
-                fileData={visitorPhoto}
-                self={this}
-                handleFileChange={(event: any) => {
-                  this.setState({
-                    visitorPhoto: event.target.files,
-                  });
-                }}
-              />
-              <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-                {visitorPhoto && (
-                  <div
-                    className="d-flex justify-content-between w-100"
-                    style={{ backgroundColor: "#F0F0F0" }}
-                  >
-                    <span
-                      className="ps-2 py-2"
-                      style={{ fontSize: "1em", fontWeight: "600" }}
-                    >
-                      {visitorPhoto[0]?.name}
-                    </span>
-                    <span
-                      className="px-3 py-2 bg-danger text-white fw-bold"
-                      style={{ cursor: "pointer" }}
-                      onClick={() => {
-                        this.setState({ visitorPhoto: "" });
-                      }}
-                    >
-                      X
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                style={{ backgroundColor: "#E5E5E5" }}
-                onClick={() => {
-                  self.setState({ isHomeActive: true });
-                }}
-              >
-                Cancel
-              </button>
-              {/* {filledBy === "Receptionist Task View" ? (
-            <button
-              className="px-4 py-2 text-white"
-              style={{ backgroundColor: "#223771" }}
-              type="submit"
-            >
-              Send for Approval
-            </button>
-          ) : ( */}
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="submit"
-              >
-                Submit
-              </button>
-              {/* )} */}
-            </div>
-          </form>
+          {this.state.VisitListItemsbyId?.length > 0 &&
+            this.state.VisitListItemsbyId?.map((data: any) => (
+              <Row>
+                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                  <Row>
+                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                      <div></div>
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <div className="id-card-hook"></div>
+                      <div id="pattern" className="bg-white shadow rounded-top">
+                        <div className="d-flex flex-column align-items-center rounded">
+                          <div
+                            className="d-flex flex-column align-items-center mt-5"
+                            style={{ fontWeight: "400px" }}
+                          >
+                            <div>If found, please return </div>
+                            <div>to Islamic Development</div>{" "}
+                            <div>Bank, JEDDAH 21432</div>{" "}
+                            <div>Safety & Security</div> <div>Section</div>{" "}
+                            <div className="mb-4">Call 6466090</div>
+                            <div className="mt-4"> Exp: auto stamp 3 years</div>
+                            <div>From initial date</div>
+                          </div>
+                        </div>
+                        <div
+                          className=""
+                          style={{
+                            position: "absolute",
+                            bottom: "20px",
+                            marginLeft: "110px",
+                          }}
+                        >
+                          <img
+                            src={require("../assets/logo.png")}
+                            alt="Logo"
+                            // height={"50px"}
+                            // width={"50px"}
+                          />
+                        </div>
+                      </div>
+                    </Col>
+                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                      <div></div>
+                    </Col>
+                  </Row>
+                </Col>
+                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                  <Row>
+                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                      <div></div>
+                    </Col>
+                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                      <div className="id-card-hook"></div>
+                      <div id="pattern" className="bg-white shadow rounded-top">
+                        <div className="d-flex flex-column justify-content-center align-items-center rounded">
+                          <div className="mx-3 mt-5">
+                            <img
+                              src={require("../assets/logo.png")}
+                              alt="Logo"
+                              // height={"50px"}
+                              // width={"50px"}
+                            />
+                          </div>
+                          <img
+                            style={{ borderRadius: "50%" }}
+                            className="h-100 m-3"
+                            src={require("../assets/avatar.png")}
+                            alt="word"
+                            width={"100px"}
+                          />
+                        </div>
+                        <div className="">ID: {data.Id}</div>
+                        <div className="">
+                          Visit Date:{" "}
+                          {moment(data.Visitorvisithour).format("DD/MM/YYYY")}{" "}
+                        </div>
+                        <div className="">Visitor Name: {data.Visitorname}</div>
+                        <div className="">
+                          Employee Name: {data.Visitedemployee}
+                        </div>
+                        <div className="">Department: {data.Department}</div>
+                      </div>
+                    </Col>
+                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                      <div></div>
+                    </Col>
+                  </Row>
+                </Col>
+              </Row>
+            ))}
         </div>
       </CommunityLayout>
     );

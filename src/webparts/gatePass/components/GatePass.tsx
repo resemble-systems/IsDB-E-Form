@@ -2,7 +2,7 @@ import * as React from "react";
 import type { IGatePassProps } from "./IGatePassProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Input, InputNumber, Popconfirm, Select, Table } from "antd";
+import { Input, InputNumber, Popconfirm, Select, Table,Modal } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -11,10 +11,10 @@ import {
   SPHttpClient,
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
-/* import {
+ import {
   PeoplePicker,
   PrincipalType,
-} from "@pnp/spfx-controls-react/lib/PeoplePicker"; */
+} from "@pnp/spfx-controls-react/lib/PeoplePicker"; 
 
 interface IGatePassState {
   inputFeild: any;
@@ -33,6 +33,7 @@ interface IGatePassState {
   addDetails: any;
   nameOptions: Array<{ value: string; label: string; email: string }>;
   nameSelected: any;
+  isModalOpen:any
 }
 
 export default class GatePass extends React.Component<
@@ -66,6 +67,7 @@ export default class GatePass extends React.Component<
       nameSelected: [],
       showAdd: false,
       addDetails: { Model: "", Serial: "", Description: "", Quantity: 0 },
+      isModalOpen:false
     };
   }
 
@@ -198,8 +200,8 @@ export default class GatePass extends React.Component<
     } else {
       let peopleArr = people;
       console.log("people on submit", peopleArr, people);
-      // peopleArr?.map((post: any) => {
-      //   console.log("post on submit", post);
+       peopleArr?.map((post: any) => {
+         console.log("post on submit", post);
 
       const headers: any = {
         "X-HTTP-Method": "MERGE",
@@ -215,7 +217,8 @@ export default class GatePass extends React.Component<
                 VisitedEntity: inputFeild.entity,
                 CheckBox: checkBox.toString(),
                 TableData: JSON.stringify(tableData),
-                OnBehalfOfEmail: JSON.stringify(peopleArr),
+                OnBehalfOfName: JSON.stringify(peopleArr),
+                  OnBehalfOfEmail: JSON.stringify(post.secondaryText),
               }),
             }
           : {
@@ -224,7 +227,8 @@ export default class GatePass extends React.Component<
                 VisitedEntity: inputFeild.entity,
                 CheckBox: checkBox.toString(),
                 TableData: JSON.stringify(tableData),
-                OnBehalfOfEmail: JSON.stringify(peopleArr),
+                OnBehalfOfName: JSON.stringify(peopleArr),
+                  OnBehalfOfEmail: JSON.stringify(post.secondaryText),
               }),
             };
 
@@ -247,7 +251,7 @@ export default class GatePass extends React.Component<
           alert(`You have successfully submitted`);
           window.history.go(-1);
         });
-      // });
+      });
     }
   };
   public onChangePeoplePickerItems = (items: any) => {
@@ -293,13 +297,13 @@ export default class GatePass extends React.Component<
     } = this.state;
     const { context } = this.props;
 
-    const handleSearch = (newValue: string) => {
-      let nameSearch = newValue;
-      console.log("nameSearch", nameSearch);
-      if (nameSearch.length >= 3) {
-        this.getNames(nameSearch);
-      }
-    };
+    // const handleSearch = (newValue: string) => {
+    //   let nameSearch = newValue;
+    //   console.log("nameSearch", nameSearch);
+    //   if (nameSearch.length >= 3) {
+    //     this.getNames(nameSearch);
+    //   }
+    // };
 
     const columns = [
       {
@@ -410,27 +414,26 @@ export default class GatePass extends React.Component<
                   </label>
                 </div>
 
-                {/* <PeoplePicker
-                  styles={{
-                    root: {
-                      width: "75%",
-                      paddingLeft: "5px",
-                      paddingTop: "2px",
-                    },
-                  }}
-                  context={context as any}
-                  personSelectionLimit={10}
-                  showtooltip={true}
-                  required={true}
-                  onChange={(i: any) => {
-                    this.onChangePeoplePickerItems(i);
-                  }}
-                  showHiddenInUI={false}
-                  principalTypes={[PrincipalType.User]}
-                  resolveDelay={1000}
-                  ensureUser={true}
-                /> */}
-                <Select
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={false}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
+                  />
+                </div>
+                {/* <Select
                   className="flex-fill"
                   id="AssignedTo"
                   showSearch
@@ -465,7 +468,7 @@ export default class GatePass extends React.Component<
                       ),
                     })
                   )}
-                />
+                /> */}
               </div>
             </div>
             <div
@@ -655,7 +658,7 @@ export default class GatePass extends React.Component<
                 }}
               />
               <label className={`ps-4`}>
-                <a href="#">
+              <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
                   {" "}
                   {language === "En"
                     ? "I agree to Terms & Conditions"
@@ -686,6 +689,46 @@ export default class GatePass extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+            <Modal
+             bodyStyle={{ padding: "25px 50px 25px 50px" }}
+             width={750}
+             footer={null}
+             closable={false}
+             visible={this.state.isModalOpen}
+            ><h4 className="align-items-center">Terms And Conditions</h4>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <div className="campaign_model_footer d-flex justify-content-end align-items-center">
+                    <button
+                      className={`me-2 border-0 px-5 text-capitalize`}
+                      style={{ color: "#808080",height: "40px"}}
+                      onClick={() =>
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox: false
+                        })
+                      }
+                    >
+                      Don't agree
+                    </button>
+                    <button
+                      className={`border-0 px-5 text-white text-capitalize`}
+                      style={{ backgroundColor: "#223771",height: "40px" }}
+                      onClick={() => {
+                       
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox:true
+                        });
+                      }}
+                    >
+                      Agree
+                    </button>
+                  </div>
+            </Modal>
           </form>
         </div>
       </CommunityLayout>

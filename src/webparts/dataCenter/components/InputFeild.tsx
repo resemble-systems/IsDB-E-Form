@@ -2,7 +2,7 @@ import * as React from "react";
 import "./index.css";
 
 interface IInputFeildProps {
-  label: any;
+  label: string;
   inputFeild?: any;
   type: string;
   name: string;
@@ -11,7 +11,6 @@ interface IInputFeildProps {
   options?: any;
   fileData?: any;
   handleFileChange?: any;
-  handleEmailChange?: any;
   disabled?: boolean;
 }
 
@@ -20,15 +19,14 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
     const {
       label,
       inputFeild,
+      disabled,
       type,
       name,
       state,
-      disabled,
       self,
       options,
       /*  fileData, */
       handleFileChange,
-      // handleEmailChange,
     } = this.props;
 
     const handleChange = (event: { target: { name: any; value: any } }) => {
@@ -50,17 +48,15 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
         }`}
       >
         <label
-          className={`ps-2 py-${type === "textArea" ? "5" : "2"} ${
-            type === "file" ? "w-100" : "w-50"
-          } d-flex align-items-center`}
+          className={`ps-2 py-2 ${type === "file" ? "w-100" : "w-50"}`}
           htmlFor={label}
           style={{ backgroundColor: "#F0F0F0" }}
         >
           {label}
-          {/* <span className="text-danger ms-2">*</span> */}
+          
         </label>
 
-        {type === "datetime-local" || type === "text" ? (
+        {type === "date" || type === "text" ? (
           <input
             className="w-50 ps-3"
             type={type}
@@ -69,12 +65,12 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             name={name}
             value={inputFeild}
             onChange={handleChange}
-            // style={{
-            //   color:
-            //     type === "datetime-local" && inputFeild === ""
-            //       ? "transparent"
-            //       : "inherit",
-            // }}
+            style={{
+              color:
+                type === "date" && inputFeild === ""
+                  ? "transparent"
+                  : "inherit",
+            }}
           />
         ) : type === "select" ? (
           <select
@@ -101,18 +97,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               )
             )}
           </select>
-      ) : type === "textArea" ? (
-        <textarea
-          id={label}
-          disabled={disabled}
-          name={name}
-          // dangerouslySetInnerHTML={innerhtml}
-          value={inputFeild}
-          onChange={handleChange}
-          // required
-          className="w-50 ps-3"
-        />
-      ) : type === "file" ? (
+        ) : type === "file" ? (
           <input
             className="w-100 ps-2"
             type={type}
@@ -154,46 +139,6 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 }}
               />
               <label htmlFor="No">No</label>
-            </div>
-          </div>
-        ) : type === "customradio" ? (
-          <div className="d-flex gap-5 ps-3">
-            <div className="d-flex gap-1 align-items-center">
-              <input
-                className=""
-                type={"radio"}
-                id={"BuisnessVisit"}
-                name={name}
-                value={inputFeild}
-                checked
-                onClick={() => {
-                  self.setState({
-                    inputFeild: {
-                      ...state,
-                      visitorPurposeOfVisit: "BuisnessVisit",
-                    },
-                  });
-                }}
-              />
-              <label htmlFor="BuisnessVisit">Buisness Visit</label>
-            </div>
-            <div className="d-flex gap-1  align-items-center">
-              <input
-                className=""
-                type={"radio"}
-                id={"PersonalVisit"}
-                name={name}
-                value={inputFeild}
-                onClick={() => {
-                  self.setState({
-                    inputFeild: {
-                      ...state,
-                      visitorPurposeOfVisit: "PersonalVisit",
-                    },
-                  });
-                }}
-              />
-              <label htmlFor="PersonalVisit">Personal Visit</label>
             </div>
           </div>
         ) : (

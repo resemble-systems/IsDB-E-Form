@@ -25,6 +25,8 @@ export default class DataCenterWebPart extends BaseClientSideWebPart<IDataCenter
     const element: React.ReactElement<IDataCenterProps> = React.createElement(
       DataCenter,
       {
+        context: this.context,
+        siteUrl: this.context.pageContext.web.absoluteUrl,
         description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,

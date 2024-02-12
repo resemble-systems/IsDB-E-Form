@@ -48,8 +48,10 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           type === "file" ? "align-items-center" : " "
         }`}
       >
-        <label
-          className={`ps-2 py-2 ${type === "file" ? "w-100" : "w-50"}`}
+         <label
+          className={`ps-2 py-${type === "textArea" ? "5" : "2"} ${
+            type === "file" ? "w-100" : "w-50"
+          } d-flex align-items-center`}
           htmlFor={label}
           style={{ backgroundColor: "#F0F0F0" }}
         >
@@ -98,6 +100,17 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               )
             )}
           </select>
+        ) : type === "textArea" ? (
+          <textarea
+            id={label}
+            disabled={disabled}
+            name={name}
+            // dangerouslySetInnerHTML={innerhtml}
+            value={inputFeild}
+            onChange={handleChange}
+            // required
+            className="w-50 ps-3"
+          />
         ) : type === "file" ? (
           <input
             className="w-100 ps-2"

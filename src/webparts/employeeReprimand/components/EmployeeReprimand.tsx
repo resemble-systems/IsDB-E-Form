@@ -2,7 +2,7 @@ import * as React from "react";
 import type { IEmployeeReprimandProps } from "./IEmployeeReprimandProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Select } from "antd";
+import { Select, Modal } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -44,6 +44,7 @@ interface IEmployeeReprimandState {
   listId: any;
   warningCount: any;
   redirection: boolean;
+  isModalOpen: any;
 }
 export default class EmployeeReprimand extends React.Component<
   IEmployeeReprimandProps,
@@ -87,6 +88,7 @@ export default class EmployeeReprimand extends React.Component<
       listId: 0,
       redirection: false,
       warningCount: 0,
+      isModalOpen: false,
     };
   }
 
@@ -537,7 +539,10 @@ export default class EmployeeReprimand extends React.Component<
                     <span className="text-danger">*</span>
                   </label>
                 </div>
-                <div className={"custom-people-picker"}>
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
                   <PeoplePicker
                     context={context as any}
                     disabled={redirection}
@@ -583,7 +588,10 @@ export default class EmployeeReprimand extends React.Component<
                     {/* <span className="text-danger">*</span> */}
                   </label>
                 </div>
-                <div className={"custom-people-picker"}>
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
                   <PeoplePicker
                     context={context as any}
                     disabled={redirection}
@@ -601,6 +609,24 @@ export default class EmployeeReprimand extends React.Component<
                     // styles={{ peoplePicker: { border: 'none' } }}
                   />
                 </div>
+                {/* <div className={"custom-people-picker"}>
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={redirection}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerViolator(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
+
+                    // styles={{ peoplePicker: { border: 'none' } }}
+                  />
+                </div> */}
               </div>
             </div>
             <div className="row">
@@ -900,7 +926,7 @@ export default class EmployeeReprimand extends React.Component<
                 }}
               />
               <label className={`ps-4`}>
-                <a href="#">
+                <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
                   {" "}
                   {language === "En"
                     ? "I agree to Terms & Conditions"
@@ -934,6 +960,46 @@ export default class EmployeeReprimand extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+            <Modal
+             bodyStyle={{ padding: "25px 50px 25px 50px" }}
+             width={750}
+             footer={null}
+             closable={false}
+             visible={this.state.isModalOpen}
+            ><h4 className="align-items-center">Terms And Conditions</h4>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <div className="campaign_model_footer d-flex justify-content-end align-items-center">
+                    <button
+                      className={`me-2 border-0 px-5 text-capitalize`}
+                      style={{ color: "#808080",height: "40px"}}
+                      onClick={() =>
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox: false
+                        })
+                      }
+                    >
+                      Don't agree
+                    </button>
+                    <button
+                      className={`border-0 px-5 text-white text-capitalize`}
+                      style={{ backgroundColor: "#223771",height: "40px" }}
+                      onClick={() => {
+                       
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox:true
+                        });
+                      }}
+                    >
+                      Agree
+                    </button>
+                  </div>
+            </Modal>
           </form>
         </div>
       </CommunityLayout>

@@ -29,9 +29,6 @@ input[type="checkbox"] {
   height: 25px;
   width: 25px;
 }
-input[type="text"]:disabled {
-  background-color: transparent;
-}
 button {
   border: none;
   font-size: 1em;
@@ -84,30 +81,4 @@ input[type=file]::file-selector-button {
 }
 .ant-select-borderless .ant-select-selector{
   width:100% !important;
-}
-.id-card-hook {
-  background-color:#24396F;
-  width: 70px;
-  margin-left: 120px;
-  height: 15px;
-  border-radius: 5px 5px 0 0;
-}
-.id-card-hook:after {
-  content: '';
-  background-color: #d7d6d3;
-  width: 47px;
-  height: 6px;
-  display: block;
-  margin: 0px auto;
-  position: relative;
-  top: 6px;
-  border-radius: 4px;
-}
-#pattern {
-  height: 400px;
-  border: 2px solid green;
-  width: 310px;
-  background-image:url(../assets/pattern.svg);
-  background-repeat: no-repeat;
-  background-size: 180px;
 }

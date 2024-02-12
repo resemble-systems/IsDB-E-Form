@@ -191,7 +191,7 @@ export default class ContractFormLongTerm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments } = this.state;
+    const { inputFeild, postAttachments,requestorIdProof,requestorPhoto } = this.state;
     const validityFrom = this.state.inputFeild.requestorValidityFrom;
     const validityTo = this.state.inputFeild.requestorValidityTo;
     const nationalIDExpiryDate =
@@ -250,6 +250,11 @@ export default class ContractFormLongTerm extends React.Component<
       alert("Validity From must be earlier than Validity To");
     } else if (!nationalIDExpiryDate) {
       alert("Please enter the National ID expiry date!");
+    }else if(!requestorIdProof) {
+      alert("Please Attach the IdProof!");
+    
+    }else if(!requestorPhoto) {
+      alert("Please Attach the Photo!")
     } else {
       const headers: any = {
         "X-HTTP-Method": "POST",
@@ -436,9 +441,9 @@ export default class ContractFormLongTerm extends React.Component<
         var file = inputArr[i];
         const fileName = inputArr[i].name;
         console.log("fileName", fileName);
-        const regex = /\.(pdf|PDF)$/i;
+        const regex = /\.(pdf|PDF|jpg|jpeg|png|gif)$/i;
         if (!regex.test(fileName)) {
-          alert("Please select an PDF File.");
+          alert("Please select an Valid File.");
         } else {
           if (targetName === "requestorIdProof") {
             this.setState({
@@ -820,7 +825,7 @@ export default class ContractFormLongTerm extends React.Component<
                 type="text"
                 label={
                   <>
-                    {language === "En" ? "Related Dept. " : "قسم ذات صلة "}{" "}
+                      {language === "En" ? "Related Department " : "قسم ذات صلة"}{" "}
                     <span className="text-danger">*</span>
                   </>
                 }
@@ -860,7 +865,13 @@ export default class ContractFormLongTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="file"
-                label={language === "En" ? "Attach ID" : "إرفاق إثبات الهوية "}
+                label={
+                  <>
+                    {language === "En" ? "Attach ID" : "إرفاق إثبات الهوية "}
+
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="requestorIdProof"
                 self={this}
                 state={requestorIdProof}
@@ -896,7 +907,12 @@ export default class ContractFormLongTerm extends React.Component<
               <InputFeild
                 type="file"
                 label={
-                  language === "En" ? "Attach Photo" : "إرفاق صورة فوتوغرافية "
+                  <>
+                    {language === "En"
+                      ? "Attach Photo"
+                      : "إرفاق صورة فوتوغرافية "}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="requestorPhoto"
                 state={requestorPhoto}
@@ -985,7 +1001,7 @@ export default class ContractFormLongTerm extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
-                type="text"
+                type="textArea"
                 label={language === "En" ? "Remarks " : "ملاحظات "}
                 name="requestorRemarks"
                 state={inputFeild}

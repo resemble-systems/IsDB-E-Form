@@ -186,7 +186,7 @@ export default class ContractForm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments } = this.state;
+    const { inputFeild, postAttachments,requestorIdProof,requestorPhoto } = this.state;
 
     const validityFrom = this.state.inputFeild.requestorValidityFrom;
     const validityTo = this.state.inputFeild.requestorValidityTo;
@@ -227,8 +227,8 @@ export default class ContractForm extends React.Component<
       alert("Mobile Number cannot be blank!");
     } else if (checkMobileNo(inputFeild.requestorMobileNo)) {
       alert("Invalid Mobile Number!");
-    // } else if (!inputFeild.requestorJobTittle) {
-    //   alert("Please enter the Job title!");
+      // } else if (!inputFeild.requestorJobTittle) {
+      //   alert("Please enter the Job title!");
     } else if (
       !inputFeild.requestorRelatedEdu ||
       inputFeild.requestorRelatedEdu?.length < 3 ||
@@ -251,7 +251,12 @@ export default class ContractForm extends React.Component<
       alert("Validity From must be earlier than Validity To");
     } else if (!nationalIDExpiryDate) {
       alert("Please enter the National ID expiry date!");
-    } else {
+    }else if(!requestorIdProof) {
+      alert("Please Attach the IdProof!");
+    
+    }else if(!requestorPhoto) {
+      alert("Please Attach the Photo!")
+    }else {
       const headers: any = {
         "X-HTTP-Method": "POST",
         "If-Match": "*",
@@ -436,9 +441,9 @@ export default class ContractForm extends React.Component<
         var file = inputArr[i];
         const fileName = inputArr[i].name;
         console.log("fileName", fileName);
-        const regex = /\.(pdf|PDF)$/i;
+        const regex = /\.(pdf|PDF|jpg|jpeg|png|gif)$/i;
         if (!regex.test(fileName)) {
-          alert("Please select an PDF File.");
+          alert("Please select an Valid File.");
         } else {
           if (targetName === "requestorIdProof") {
             this.setState({
@@ -822,7 +827,7 @@ export default class ContractForm extends React.Component<
                 type="text"
                 label={
                   <>
-                    {language === "En" ? "Related Dept. " : "قسم ذات صلة "}{" "}
+                    {language === "En" ? "Related Department " : "قسم ذات صلة"}{" "}
                     <span className="text-danger">*</span>
                   </>
                 }
@@ -862,7 +867,13 @@ export default class ContractForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="file"
-                label={language === "En" ? "Attach ID" : "إرفاق إثبات الهوية "}
+                label={
+                  <>
+                    {language === "En" ? "Attach ID" : "إرفاق إثبات الهوية "}
+
+                    <span className="text-danger">*</span>
+                  </>
+                }
                 name="requestorIdProof"
                 self={this}
                 state={requestorIdProof}
@@ -870,8 +881,7 @@ export default class ContractForm extends React.Component<
                 handleFileChange={handleChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-               
-                  {requestorIdProof?.length > 0 && (
+                {requestorIdProof?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -880,7 +890,8 @@ export default class ContractForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {requestorIdProof[0]?.name || requestorIdProof[0]?.fileName}
+                      {requestorIdProof[0]?.name ||
+                        requestorIdProof[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -899,7 +910,12 @@ export default class ContractForm extends React.Component<
               <InputFeild
                 type="file"
                 label={
-                  language === "En" ? "Attach Photo" : "إرفاق صورة فوتوغرافية "
+                  <>
+                    {language === "En"
+                      ? "Attach Photo"
+                      : "إرفاق صورة فوتوغرافية "}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="requestorPhoto"
                 state={requestorPhoto}
@@ -912,7 +928,7 @@ export default class ContractForm extends React.Component<
                 }} */ handleFileChange={handleChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-              {requestorPhoto?.length > 0 && (
+                {requestorPhoto?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -951,7 +967,7 @@ export default class ContractForm extends React.Component<
                 handleFileChange={handleChange}
               />
               <div className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2">
-              {requestorContract?.length > 0 && (
+                {requestorContract?.length > 0 && (
                   <div
                     className="d-flex justify-content-between w-100"
                     style={{ backgroundColor: "#F0F0F0" }}
@@ -960,7 +976,8 @@ export default class ContractForm extends React.Component<
                       className="ps-2 py-2"
                       style={{ fontSize: "1em", fontWeight: "600" }}
                     >
-                      {requestorContract[0]?.name || requestorContract[0]?.fileName}
+                      {requestorContract[0]?.name ||
+                        requestorContract[0]?.fileName}
                     </span>
                     <span
                       className="px-3 py-2 bg-danger text-white fw-bold"
@@ -992,7 +1009,7 @@ export default class ContractForm extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
-                type="text"
+                type="textArea"
                 label={language === "En" ? "Remarks " : "ملاحظات "}
                 name="requestorRemarks"
                 state={inputFeild}

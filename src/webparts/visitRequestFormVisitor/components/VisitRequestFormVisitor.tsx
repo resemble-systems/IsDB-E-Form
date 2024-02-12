@@ -4,7 +4,7 @@ import type { IVisitRequestFormVisitorProps } from "./IVisitRequestFormVisitorPr
 import styles from "./VisitRequestFormVisitor.module.sass";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import InputFeild from "./InputFeild";
-import { Select } from "antd";
+import { Select, Modal } from "antd";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import {
   SPHttpClient,
@@ -30,6 +30,7 @@ interface IVisitRequestFormVisitorState {
   attachmentJson: any;
   visitorIdProofJSON: any;
   visitorPhotoJSON: any;
+  isModalOpen: any;
 }
 
 export default class VisitRequestFormVisitor extends React.Component<
@@ -74,6 +75,7 @@ export default class VisitRequestFormVisitor extends React.Component<
       attachmentJson: [],
       visitorIdProofJSON: {},
       visitorPhotoJSON: {},
+      isModalOpen: false,
     };
   }
   public componentDidMount() {
@@ -154,11 +156,13 @@ export default class VisitRequestFormVisitor extends React.Component<
       const isValidEmail = emailRegex.test(Email);
       return !isValidEmail;
     };
+    const visitTime = this.state.inputFeild.visitorVisitTime;
     const checkMobileNo = (Number: any) => {
+      // const mobileNumberRegex = /^\+?[1-9]\d{1,14}$/;
       const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/;
-      const isValidNumber = mobileNumberRegex.test(Number);
-      console.log("isValidNumber", isValidNumber);
-      return !isValidNumber;
+      const isValidNumber = !mobileNumberRegex.test(Number);
+      console.log(isValidNumber, mobileNumberRegex, "mobile numbers testing");
+      return isValidNumber;
     };
     console.log(
       "inputFeild.staffName.length",
@@ -186,6 +190,8 @@ export default class VisitRequestFormVisitor extends React.Component<
       alert("Invalid Email Address!");
     } else if (checkMobileNo(inputFeild.visitorMobileNumber)) {
       alert("Invalid Mobile Number!");
+    } else if (!visitTime) {
+      alert("Please enter the Anticipated visit time!");
     } else if (
       inputFeild.visitorRelatedOrg.length < 3 ||
       inputFeild.visitorRelatedOrg.length > 30
@@ -201,7 +207,7 @@ export default class VisitRequestFormVisitor extends React.Component<
       const spHttpClintOptions: ISPHttpClientOptions = {
         headers,
         body: JSON.stringify({
-          Title: inputFeild.staffName,
+          Title: context.pageContext.user.displayName,
           Grade: inputFeild.grade,
           Staff_id: inputFeild.staffId,
           Department: inputFeild.Department,
@@ -504,7 +510,7 @@ export default class VisitRequestFormVisitor extends React.Component<
         var file = inputArr[i];
         const fileName = inputArr[i].name;
         console.log("fileName", fileName);
-        const regex = /\.(pdf|PDF)$/i;
+        const regex = /\.(pdf|PDF|jpg|jpeg|png|gif)$/i;
         if (!regex.test(fileName)) {
           alert("Please select an PDF File.");
         } else {
@@ -661,9 +667,12 @@ export default class VisitRequestFormVisitor extends React.Component<
               <InputFeild
                 type="datetime-local"
                 label={
-                  language === "En"
+                  <>
+                  {language === "En"
                     ? "Anticipated Visit Time"
-                    : "وقت الزيارة المتوقع"
+                    : "وقت الزيارة المتوقع"}
+                  <span className="text-danger">*</span>
+                </>
                 }
                 name="visitorVisitTime"
                 state={inputFeild}
@@ -776,14 +785,14 @@ export default class VisitRequestFormVisitor extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
-                type="text"
+                type="textArea"
                 label={language === "En" ? "Remarks" : "ملاحظات"}
                 name="visitorRemarks"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorRemarks}
               />
             </div>
-            <div className="d-flex justify-content-start ps-2 mb-2">
+            <div className="d-flex justify-content-start ps-2 mb-2 mt-4">
               <input
                 className="form-check"
                 type="checkbox"
@@ -794,14 +803,15 @@ export default class VisitRequestFormVisitor extends React.Component<
                   });
                 }}
               />
-              <label className={`ps-3`}>
-                <a href="#">
+              <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
+                <label className={`ps-3`}>
                   {language === "En"
                     ? "I agree to Terms & Conditions"
                     : "أوافق على الشروط والأحكام"}
-                </a>
-                <span className="text-danger">*</span>
-              </label>
+
+                  <span className="text-danger">*</span>
+                </label>
+              </a>
             </div>
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
@@ -825,6 +835,46 @@ export default class VisitRequestFormVisitor extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+            <Modal
+             bodyStyle={{ padding: "25px 50px 25px 50px" }}
+             width={750}
+             footer={null}
+             closable={false}
+             visible={this.state.isModalOpen}
+            ><h4 className="align-items-center">Terms And Conditions</h4>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <div className="campaign_model_footer d-flex justify-content-end align-items-center">
+                    <button
+                      className={`me-2 border-0 px-5 text-capitalize`}
+                      style={{ color: "#808080",height: "40px"}}
+                      onClick={() =>
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox: false
+                        })
+                      }
+                    >
+                      Don't agree
+                    </button>
+                    <button
+                      className={`border-0 px-5 text-white text-capitalize`}
+                      style={{ backgroundColor: "#223771",height: "40px" }}
+                      onClick={() => {
+                       
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox:true
+                        });
+                      }}
+                    >
+                      Agree
+                    </button>
+                  </div>
+            </Modal>
           </form>
         </div>
       </CommunityLayout>

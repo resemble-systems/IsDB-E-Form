@@ -2,7 +2,7 @@ import * as React from "react";
 import type { IKeyRequestFormProps } from "./IKeyRequestFormProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Select } from "antd";
+import { Select, Modal } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -31,6 +31,7 @@ interface IKeyRequestFormState {
   peopleData: any;
   conditionCheckBox: any;
   alreadyExist: any;
+  isModalOpen: any;
 }
 export default class KeyRequestForm extends React.Component<
   IKeyRequestFormProps,
@@ -60,6 +61,7 @@ export default class KeyRequestForm extends React.Component<
       people: [],
       peopleData: [],
       alreadyExist: "",
+      isModalOpen: false,
     };
   }
   public componentDidMount() {
@@ -158,8 +160,6 @@ export default class KeyRequestForm extends React.Component<
           cabinetCheckBox: listItems?.cabinet == "true" ? true : false,
           safeCheckBox: listItems?.officeSafe == "true" ? true : false,
           drawerCheckBox: listItems?.drawer == "true" ? true : false,
-
-          // OnBehalfOfEmail: PeopleData,
         });
         console.log("Res listItems", listItems);
       });
@@ -186,13 +186,6 @@ export default class KeyRequestForm extends React.Component<
       console.log("people on submit", peopleArr, people);
       peopleArr?.map((post: any) => {
         console.log("post on submit", post);
-        //   const existingUser = alreadyExist?.filter(
-        //     (data: any) =>
-        //       data.Email?.toLowerCase() === post.secondaryText?.toLowerCase()
-        //   );
-        //   if (existingUser?.length > 0) {
-        //     alert(`${post.text} is already a member.`);
-        //   } else {
         const headers: any = {
           "X-HTTP-Method": "MERGE",
           "If-Match": "*",
@@ -273,6 +266,7 @@ export default class KeyRequestForm extends React.Component<
       people: finalData,
     });
   };
+
   public render(): React.ReactElement<IKeyRequestFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -392,7 +386,7 @@ export default class KeyRequestForm extends React.Component<
             </div>
 
             <div className="row mb-2">
-              <div className="d-flex">
+            <div className="d-flex justify-content-start py-2 ps-2">
                 <div
                   className="d-flex justify-content-between"
                   style={{
@@ -425,23 +419,25 @@ export default class KeyRequestForm extends React.Component<
                     }}
                   />
                 </div>
-              </div>
-              {checkBox && (
-                <PeoplePicker
-                  context={context as any}
-                  // titleText={language === "En" ? "Name" : "اسم"}
-                  personSelectionLimit={1}
-                  showtooltip={true}
-                  required={true}
-                  onChange={(i: any) => {
-                    this.onChangePeoplePickerItems(i);
-                  }}
-                  showHiddenInUI={false}
-                  principalTypes={[PrincipalType.User]}
-                  resolveDelay={1000}
-                  ensureUser={true}
-                />
-              )}
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={!checkBox}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
+                  />
+                </div>
             </div>
 
             {this.state.inputFeild.requestType == "Key Request" && (
@@ -562,6 +558,7 @@ export default class KeyRequestForm extends React.Component<
                     });
                   }}
                 />
+                  <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
                 <label className={`ps-3`}>
                   <a href="#">
                     {language === "En"
@@ -570,15 +567,8 @@ export default class KeyRequestForm extends React.Component<
                   </a>
                   <span className="text-danger">*</span>
                 </label>
+                </a>
               </div>
-
-              {/* <div className="d-flex justify-content-start ps-2 mb-4">
-                <input type="checkbox" />
-                <label className="ps-3">
-                  <a href="#">I agree to Terms & Conditions</a>
-                  <span className="text-danger">*</span>
-                </label>
-              </div> */}
             </div>
 
             <div className="d-flex justify-content-end mb-2 gap-3">
@@ -603,7 +593,49 @@ export default class KeyRequestForm extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+          
           </div>
+        </div>
+        <Modal
+             bodyStyle={{ padding: "25px 50px 25px 50px" }}
+             width={750}
+             footer={null}
+             closable={false}
+             visible={this.state.isModalOpen}
+            ><h4 className="align-items-center">Terms And Conditions</h4>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <p>Some contents...</p>
+              <div className="campaign_model_footer d-flex justify-content-end align-items-center">
+                    <button
+                      className={`me-2 border-0 px-5 text-capitalize`}
+                      style={{ color: "#808080",height: "40px"}}
+                      onClick={() =>
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox: false
+                        })
+                      }
+                    >
+                      Don't agree
+                    </button>
+                    <button
+                      className={`border-0 px-5 text-white text-capitalize`}
+                      style={{ backgroundColor: "#223771",height: "40px" }}
+                      onClick={() => {
+                       
+                        this.setState({
+                          isModalOpen: false,
+                          conditionCheckBox:true
+                        });
+                      }}
+                    >
+                      Agree
+                    </button>
+                  </div>
+            </Modal>
         </div>
       </CommunityLayout>
     );

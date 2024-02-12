@@ -34,7 +34,7 @@ interface ISafetyIncidentState {
   uploadFileData: any;
   attachments: any;
   listId: any;
-  redirection:boolean;
+  redirection: boolean;
 }
 export default class SafetyIncident extends React.Component<
   ISafetyIncidentProps,
@@ -68,11 +68,12 @@ export default class SafetyIncident extends React.Component<
       uploadFileData: [],
       attachments: "",
       listId: 0,
-      redirection:false
+      redirection: false,
     };
   }
   public componentDidMount() {
-   
+    this.getEntity();
+    this.getIncidentType();
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
     if (window.location.href.indexOf("#view") != -1) {
@@ -88,34 +89,38 @@ export default class SafetyIncident extends React.Component<
       const { context } = this.props;
       const { inputFeild } = this.state;
       context.spHttpClient
-      .get(
-        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Safety-Incident')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
-        SPHttpClient.configurations.v1
-      )
-      .then((res: SPHttpClientResponse) => {
-        return res.json();
-      })
-      .then((listItems: any) => {
-        this.setState({
-          inputFeild: {
-            ...inputFeild,
-            requestType: listItems?.Title,
-            entity: listItems?.Entity,
-            area: listItems?.Area,
-          },
-          descriptionPost: listItems?.Description,
-          commentsPost: listItems?.Comments,
-          what: listItems?.What,
-          when: listItems?.When,
-          who: listItems?.Who,
-          where: listItems?.Where,
-          how: listItems?.How,
-          why: listItems?.Why,
-          fileInfos: listItems?.AttachmentFiles,
+        .get(
+          `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Safety-Incident')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+          SPHttpClient.configurations.v1
+        )
+        .then((res: SPHttpClientResponse) => {
+          return res.json();
+        })
+        .then((listItems: any) => {
+          this.setState({
+            inputFeild: {
+              ...inputFeild,
+              requestType: listItems?.Title,
+              entity: listItems?.Entity,
+              area: listItems?.Area,
+            },
+            descriptionPost: listItems?.Description,
+            commentsPost: listItems?.Comments,
+            what: listItems?.What,
+            when: listItems?.When,
+            who: listItems?.Who,
+            where: listItems?.Where,
+            how: listItems?.How,
+            why: listItems?.Why,
+            fileInfos: listItems?.AttachmentFiles,
+          });
+          console.log("Res listItems", listItems);
         });
-        console.log("Res listItems", listItems);
-      });
+    }
+  }
 
+  public getIncidentType() {
+    const { context } = this.props;
     context.spHttpClient
       .get(
         `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Incident-Type')/items`,
@@ -133,6 +138,10 @@ export default class SafetyIncident extends React.Component<
         });
         console.log("requestTypeData", requestTypeData);
       });
+  }
+
+  public getEntity() {
+    const { context } = this.props;
     context.spHttpClient
       .get(
         `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Visited-Entity')/items`,
@@ -151,7 +160,6 @@ export default class SafetyIncident extends React.Component<
         console.log("filterData", filterData);
       });
   }
-}
 
   public addFile = (event: { target: { name: any; files: any } }) => {
     console.log(`Attachment ${event.target.name}`, event.target.files);
@@ -234,7 +242,6 @@ export default class SafetyIncident extends React.Component<
       how,
       descriptionPost,
       commentsPost,
-      
     } = this.state;
 
     const headers: any = {
@@ -324,7 +331,7 @@ export default class SafetyIncident extends React.Component<
       who,
       when,
       fileInfos,
-      redirection
+      redirection,
     } = this.state;
     const { context } = this.props;
 
@@ -639,6 +646,7 @@ export default class SafetyIncident extends React.Component<
                       <label className={`px-2 newsAttachment`} htmlFor="doc">
                         {language === "En" ? "Attach Files" : "إرفاق الملفات"}
                       </label>
+                     
                       <input
                         type="file"
                         disabled={redirection}
@@ -691,7 +699,7 @@ export default class SafetyIncident extends React.Component<
                 </div>
               </Col>
             </Row>
-
+            {redirection == false && (
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -716,6 +724,7 @@ export default class SafetyIncident extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+  )}
           </form>
         </div>
       </CommunityLayout>

@@ -12,6 +12,10 @@ import {
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
+import {
+  PeoplePicker,
+  PrincipalType,
+} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { Web } from "sp-pnp-js";
 
 interface IVisitRequestFormReceptionistState {
@@ -29,7 +33,9 @@ interface IVisitRequestFormReceptionistState {
   attachmentJson: any;
   visitorIdProofJSON: any;
   visitorPhotoJSON: any;
-
+  peopleData: any;
+  people: any;
+  visitedEmployeeEmailID: any;
   autoComplete: any;
 }
 
@@ -83,6 +89,9 @@ export default class VisitorsForm extends React.Component<
       visitorIdProofJSON: {},
       visitorPhotoJSON: {},
       autoComplete: "off",
+      peopleData: [],
+      people: [],
+      visitedEmployeeEmailID: "",
     };
   }
   public componentDidMount() {
@@ -166,9 +175,10 @@ export default class VisitorsForm extends React.Component<
 
     const checkMobileNo = (Number: any) => {
       // const mobileNumberRegex = /^\+?[1-9]\d{1,14}$/;
-      const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/
+      const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/;
       const isValidNumber = !mobileNumberRegex.test(Number);
-      return !isValidNumber;
+      console.log(isValidNumber, mobileNumberRegex, "mobile numbers testing");
+      return isValidNumber;
     };
     
     const visitTime = this.state.inputFeild.visitorVisitTime;
@@ -467,6 +477,54 @@ export default class VisitorsForm extends React.Component<
           });
       });
   }
+
+  public async getvisitordata(emailID: any) {
+    const { context } = this.props;
+    try {
+      const graphClient = await context.msGraphClientFactory.getClient("3");
+      const userResponse = await graphClient
+        .api(`/users/${emailID}`)
+        .version("v1.0")
+        .select("*")
+        .get();
+      const userDetails = userResponse;
+      console.log("USER DETAILS", userDetails);
+      return userDetails;
+    } catch (error) {
+      console.error("USER FETCH ERROR", error);
+      return [];
+    }
+  }
+
+  public onChangePeoplePickerItems = async (items: any) => {
+    const { peopleData } = this.state;
+
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData?.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log(finalData, finalData[0].text, finalData[0].id, "finalData");
+    const emailID = finalData[0].secondaryText;
+    const userDetails = await this.getvisitordata(emailID);
+    console.log("USER DETAILS", userDetails);
+    this.setState({
+      people: finalData,
+      inputFeild: {
+        ...this.state.inputFeild,
+        visitedEmployeeID: finalData[0].id,
+        visitedEmployeeName:userDetails.displayName,
+        visitedEmployeeEntity:userDetails.jobTitle,
+        visitedEmployeePhone:userDetails.mobilePhone,
+        visitedEmployeeGrade:""
+      },
+    });
+  };
+
   public render(): React.ReactElement<IVisitRequestFormReceptionistProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -488,29 +546,29 @@ export default class VisitorsForm extends React.Component<
       visitorPhoto,
       language,
       checkBox,
-      nameOptions,
-      nameSelected,
+      // nameOptions,
+      // nameSelected,
       visitorIdProofJSON,
       visitorPhotoJSON,
       postAttachments,
       attachmentJson,
     } = this.state;
     const { context } = this.props;
-    const handleSearch = (newValue: string) => {
-      let nameSearch = newValue;
+    // const handleSearch = (newValue: string) => {
+    //   let nameSearch = newValue;
 
-      console.log("nameSearch", nameSearch);
+    //   console.log("nameSearch", nameSearch);
 
-      if (nameSearch.length >= 3) {
-        this.getNames(nameSearch);
-      }
-    };
+    //   if (nameSearch.length >= 3) {
+    //     this.getNames(nameSearch);
+    //   }
+    // };
 
-    const handleChange = (newValue: string) => {
-      console.log("newValue", newValue);
+    // const handleChange = (newValue: string) => {
+    //   console.log("newValue", newValue);
 
-      this.setState({ nameSelected: newValue });
-    };
+    //   this.setState({ nameSelected: newValue });
+    // };
 
     const handleFileChange = (event: { target: { name: any; files: any } }) => {
       console.log(`Attachment ${event.target.name}`, event.target.files);
@@ -523,9 +581,10 @@ export default class VisitorsForm extends React.Component<
         var file = inputArr[i];
         const fileName = inputArr[i].name;
         console.log("fileName", fileName);
-        const regex = /\.(pdf|PDF)$/i;
+        // const regex = /\.(pdf|PDF)$/i;
+        const regex = /\.(pdf|PDF|jpg|jpeg|png|gif)$/i;
         if (!regex.test(fileName)) {
-          alert("Please select an PDF File.");
+          alert("Please select an Valid File.");
         } else {
           if (targetName === "visitorIdProof") {
             this.setState({
@@ -574,7 +633,7 @@ export default class VisitorsForm extends React.Component<
       visitorIdProofJSON,
       attachmentJson
     );
-    return (<>
+    return (
       <CommunityLayout
         self={this}
         context={context}
@@ -738,24 +797,27 @@ export default class VisitorsForm extends React.Component<
                   />
                 </div>
 
-                <Select
-                  className="flex-fill"
-                  id="onBehalfOf"
-                  showSearch
-                  value={nameSelected}
-                  disabled={!checkBox}
-                  defaultActiveFirstOption={false}
-                  showArrow={false}
-                  filterOption={false}
-                  onSearch={handleSearch}
-                  onChange={handleChange}
-                  notFoundContent={null}
-                  options={(nameOptions || []).map((data: any) => ({
-                    value: data.value,
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={!checkBox}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
 
-                    label: data.label,
-                  }))}
-                />
+                    // styles={{ peoplePicker: { border: 'none' } }}
+                  />
+                </div>
               </div>
             </div>
             {checkBox && (
@@ -1036,7 +1098,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
-                type="text"
+                type="textArea"
                 label={language === "En" ? "Remarks" : "ملاحظات"}
                 name="visitorRemarks"
                 state={inputFeild}
@@ -1068,7 +1130,7 @@ export default class VisitorsForm extends React.Component<
             </div>
           </form>
         </div>
-      </CommunityLayout></>
+      </CommunityLayout>
     );
   }
 }

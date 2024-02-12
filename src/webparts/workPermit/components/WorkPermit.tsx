@@ -65,32 +65,31 @@ export default class WorkPermit extends React.Component<
       const { context } = this.props;
       const { inputFeild } = this.state;
       context.spHttpClient
-      .get(
-        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Work-Permit')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
-        SPHttpClient.configurations.v1
-      )
-      .then((res: SPHttpClientResponse) => {
-        return res.json();
-      })
-      .then((listItems: any) => {
-        this.setState({
-          inputFeild: {
-            ...inputFeild,
-            name: listItems?.Title,
-            date: listItems?.RequestDate,
-            number: listItems?.ContactNumber,
-            commonDate: listItems?.CommonDate,
-            area: listItems?.Area,
-          },
-          description: listItems?.Description,
-          others: listItems?.Others == "true" ? true : false,
-          grind: listItems?.Grind == "true" ? true : false,
-          braze: listItems?.Braze == "true" ? true : false,
-          weld: listItems?.Weld == "true" ? true : false,
-          cut: listItems?.Cut == "true" ? true : false,
-        });
-        console.log("Res listItems", listItems);
-      
+        .get(
+          `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Work-Permit')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+          SPHttpClient.configurations.v1
+        )
+        .then((res: SPHttpClientResponse) => {
+          return res.json();
+        })
+        .then((listItems: any) => {
+          this.setState({
+            inputFeild: {
+              ...inputFeild,
+              name: listItems?.Title,
+              date: listItems?.RequestDate,
+              number: listItems?.ContactNumber,
+              commonDate: listItems?.CommonDate,
+              area: listItems?.Area,
+            },
+            description: listItems?.Description,
+            others: listItems?.Others == "true" ? true : false,
+            grind: listItems?.Grind == "true" ? true : false,
+            braze: listItems?.Braze == "true" ? true : false,
+            weld: listItems?.Weld == "true" ? true : false,
+            cut: listItems?.Cut == "true" ? true : false,
+          });
+          console.log("Res listItems", listItems);
         });
     }
   }
@@ -455,31 +454,32 @@ export default class WorkPermit extends React.Component<
                 {language === "En" ? "Others" : "الاخرين"}
               </label>
             </div>
-
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                disabled={redirection}
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                disabled={redirection}
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
+            {redirection == false && (
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
+                  }}
+                >
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </CommunityLayout>

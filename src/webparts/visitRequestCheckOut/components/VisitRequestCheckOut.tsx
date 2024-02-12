@@ -10,6 +10,10 @@ import {
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
+import {
+  PeoplePicker,
+  PrincipalType,
+} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { Web } from "sp-pnp-js";
 
 interface IVisitRequestCheckOutState {
@@ -28,6 +32,9 @@ interface IVisitRequestCheckOutState {
   visitorPhotoJSON: any;
   nameOptions: any;
   autoComplete: any;
+  peopleData: any;
+  people: any;
+  visitedEmployeeEmailID: any;
 }
 
 export default class VisitRequestBlockListView extends React.Component<
@@ -80,13 +87,18 @@ export default class VisitRequestBlockListView extends React.Component<
       nameSelected: "",
       nameOptions: [],
       autoComplete: "off",
+      peopleData: [],
+      people: [],
+      visitedEmployeeEmailID: "",
     };
   }
   public componentDidMount() {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
-
+    this.getDetails();
+    this.getVisitRequest();
+    // this.getnames();
     if (window.location.href.indexOf("?itemID") != -1) {
       context.spHttpClient
         .get(
@@ -151,7 +163,7 @@ export default class VisitRequestBlockListView extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-
+ 
     const headers: any = {
       "X-HTTP-Method": "MERGE",
       "If-Match": "*",
@@ -347,6 +359,54 @@ export default class VisitRequestBlockListView extends React.Component<
         });
       });
   }
+  public async getvisitordata(emailID: any) {
+    const { context } = this.props;
+    try {
+      const graphClient = await context.msGraphClientFactory.getClient("3");
+      const userResponse = await graphClient
+        .api(`/users/${emailID}`)
+        .version("v1.0")
+        .select("*")
+        .get();
+      const userDetails = userResponse;
+      console.log("USER DETAILS", userDetails);
+      return userDetails;
+    } catch (error) {
+      console.error("USER FETCH ERROR", error);
+      return [];
+    }
+  }
+
+  public onChangePeoplePickerItems = async (items: any) => {
+    const { peopleData } = this.state;
+
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData?.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log(finalData, finalData[0].text, finalData[0].id, "finalData");
+    const emailID = finalData[0].secondaryText;
+    const userDetails = await this.getvisitordata(emailID);
+    console.log("USER DETAILS", userDetails);
+    this.setState({
+      people: finalData,
+      inputFeild: {
+        ...this.state.inputFeild,
+        visitedEmployeeID: finalData[0].id.toString(),
+        visitedEmployeeName:userDetails.displayName,
+        visitedEmployeeEntity:userDetails.jobTitle,
+        visitedEmployeePhone:userDetails.mobilePhone,
+        visitedEmployeeGrade:""
+      },
+    });
+  };
+
+
   public getNames(nameSearch: string) {
     const { context } = this.props;
     context.msGraphClientFactory
@@ -401,27 +461,8 @@ export default class VisitRequestBlockListView extends React.Component<
       visitorPhoto,
       language,
       checkBox,
-      nameOptions,
-      nameSelected,
     } = this.state;
     const { context } = this.props;
-
-    const handleSearch = (newValue: string) => {
-      let nameSearch = newValue;
-
-      console.log("nameSearch", nameSearch);
-
-      if (nameSearch.length >= 3) {
-        this.getNames(nameSearch);
-      }
-    };
-
-    const handleChange = (newValue: string) => {
-      console.log("newValue", newValue);
-
-      this.setState({ nameSelected: newValue });
-    };
-
     const handleFileChange = (event: { target: { name: any; files: any } }) => {
       console.log(`Attachment ${event.target.name}`, event.target.files);
       let inputArr = event.target.files;
@@ -433,9 +474,9 @@ export default class VisitRequestBlockListView extends React.Component<
         var file = inputArr[i];
         const fileName = inputArr[i].name;
         console.log("fileName", fileName);
-        const regex = /\.(pdf|PDF)$/i;
+        const regex = /\.(pdf|PDF|jpg|jpeg|png|gif)$/i;
         if (!regex.test(fileName)) {
-          alert("Please select an PDF File.");
+          alert("Please select an Valid File.");
         } else {
           if (targetName === "visitorIdProof") {
             this.setState({
@@ -639,25 +680,27 @@ export default class VisitRequestBlockListView extends React.Component<
                     }}
                   />
                 </div>
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={!checkBox}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
 
-                <Select
-                  className="flex-fill"
-                  id="onBehalfOf"
-                  showSearch
-                  value={nameSelected}
-                  disabled={!checkBox}
-                  defaultActiveFirstOption={false}
-                  showArrow={false}
-                  filterOption={false}
-                  onSearch={handleSearch}
-                  onChange={handleChange}
-                  notFoundContent={null}
-                  options={(nameOptions || []).map((data: any) => ({
-                    value: data.value,
-
-                    label: data.label,
-                  }))}
-                />
+                    // styles={{ peoplePicker: { border: 'none' } }}
+                  />
+                </div>
               </div>
             </div>
             {checkBox && (
@@ -960,7 +1003,7 @@ export default class VisitRequestBlockListView extends React.Component<
               <InputFeild
                 disabled={true}
                 self={this}
-                type="text"
+                type="textArea"
                 label={language === "En" ? "Remarks" : "ملاحظات"}
                 name="visitorRemarks"
                 state={inputFeild}
