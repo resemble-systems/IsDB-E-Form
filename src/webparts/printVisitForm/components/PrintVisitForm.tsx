@@ -7,6 +7,7 @@ import CommunityLayout from "../../../common-components/communityLayout";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import { SPHttpClient, SPHttpClientResponse } from "@microsoft/sp-http";
 import moment from "moment";
+import QRCode from "react-qr-code";
 
 interface IPrintVisitFormState {
   VisitListItemsbyId: any;
@@ -18,16 +19,16 @@ export default class PrintVisitForm extends React.Component<
 > {
   public constructor(props: IPrintVisitFormProps, state: IPrintVisitFormState) {
     super(props);
-    this.state = { VisitListItemsbyId: [] };
+    this.state = { VisitListItemsbyId: null };
   }
   public componentDidMount() {
     const { context } = this.props;
     let data = window.location.href.split("=");
-    let itemId = data[data.length - 1];
-console.log(itemId," itemId")
+    let itemId = data[data?.length - 1];
+    console.log(itemId, " itemId");
     context.spHttpClient
       .get(
-        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')?$select=*&$expand=AttachmentFiles`,
         SPHttpClient.configurations.v1
       )
       .then((res: SPHttpClientResponse) => {
@@ -36,7 +37,7 @@ console.log(itemId," itemId")
       .then((listItems: any) => {
         console.log("listItems.value Edit News", listItems);
 
-console.log(listItems.value,"filteredData")
+        console.log(listItems.value, "filteredData");
         // const filteredData = listItems.filter(
         //   (e: any) => e.Id == itemId
         // );
@@ -59,54 +60,141 @@ console.log(listItems.value,"filteredData")
       "https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;500;600;700;800&family=Oswald:wght@200;300;400;500;600;700&family=Roboto:wght@300;400;500;600;700;800&display=swap";
     let fa =
       "https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css";
+
     SPComponentLoader.loadCss(bootstarp5CSS);
-    // SPComponentLoader.loadCss(bootstarp5JS);
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
     const { context } = this.props;
+    const { VisitListItemsbyId } = this.state;
+    // Call and pass the UrL as Params whereever necessary to generate QR CODE.
+    const qrCode = (qrData: string) => {
+      return (
+        <QRCode style={{ height: "50px", width: "50px" }} value={qrData} />
+      );
+    };
 
     return (
       <CommunityLayout
         self={this}
         context={context}
         searchShow={false}
-        selectedTitle="Parking Request Form"
+        selectedTitle="Visit Request Form"
       >
         <div className="container py-4 mb-5 bg-white shadow-lg">
-          {this.state.VisitListItemsbyId?.length > 0 &&
-            this.state.VisitListItemsbyId?.map((data: any) => (
-              <Row>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                  <Row>
-                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
-                      <div></div>
-                    </Col>
-                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                      <div className="id-card-hook"></div>
-                      <div id="pattern" className="bg-white shadow rounded-top">
-                        <div className="d-flex flex-column align-items-center rounded">
-                          <div
-                            className="d-flex flex-column align-items-center mt-5"
-                            style={{ fontWeight: "400px" }}
-                          >
-                            <div>If found, please return </div>
-                            <div>to Islamic Development</div>{" "}
-                            <div>Bank, JEDDAH 21432</div>{" "}
-                            <div>Safety & Security</div> <div>Section</div>{" "}
-                            <div className="mb-4">Call 6466090</div>
-                            <div className="mt-4"> Exp: auto stamp 3 years</div>
-                            <div>From initial date</div>
-                          </div>
-                        </div>
+          {this.state.VisitListItemsbyId && (
+            <Row>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Row>
+                  <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                    <div></div>
+                  </Col>
+                  <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                    <div className="id-card-hook"></div>
+                    <div id="pattern" className="bg-white shadow rounded-top">
+                      <div className="d-flex flex-column align-items-center rounded">
                         <div
-                          className=""
+                          className="d-flex flex-column align-items-center mt-5"
                           style={{
-                            position: "absolute",
-                            bottom: "20px",
-                            marginLeft: "110px",
+                            fontFamily: "Open Sans",
+                            fontWeight: 600,
                           }}
                         >
+                          <div
+                            style={{
+                              fontFamily: "Open Sans",
+                              fontWeight: 600,
+                            }}
+                          >
+                            If found, please return{" "}
+                          </div>
+                          <div
+                            style={{
+                              fontFamily: "Open Sans",
+                              fontWeight: 600,
+                            }}
+                          >
+                            to Islamic Development
+                          </div>{" "}
+                          <div
+                            style={{
+                              fontFamily: "Open Sans",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Bank, JEDDAH 21432
+                          </div>{" "}
+                          <div
+                            style={{
+                              fontFamily: "Open Sans",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Safety & Security
+                          </div>{" "}
+                          <div>Section</div>{" "}
+                          <div
+                            className="mb-4"
+                            style={{
+                              fontFamily: "Open Sans",
+                              fontWeight: 600,
+                            }}
+                          >
+                            Call 6466090
+                          </div>
+                          <div>{qrCode(VisitListItemsbyId.Visitormobileno)}</div>
+                          <div
+                            className="mt-4"
+                            style={{
+                              fontFamily: "Open Sans",
+                              fontWeight: 600,
+                            }}
+                          >
+                            {" "}
+                            Exp: auto stamp 3 years
+                          </div>
+                          <div
+                            style={{
+                              fontFamily: "Open Sans",
+                              fontWeight: 600,
+                            }}
+                          >
+                            From initial date
+                          </div>
+                        </div>
+                      </div>
+                      <div
+                        className=""
+                        style={{
+                          position: "absolute",
+                          bottom: "20px",
+                          marginLeft: "110px",
+                        }}
+                      >
+                        <img
+                          src={require("../assets/logo.png")}
+                          alt="Logo"
+                          // height={"50px"}
+                          // width={"50px"}
+                        />
+                      </div>
+                    </div>
+                  </Col>
+                  <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                    <div></div>
+                  </Col>
+                </Row>
+              </Col>
+              <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                <Row>
+                  <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                    <div></div>
+                  </Col>
+                  <Col xs={24} sm={24} md={12} lg={12} xl={12}>
+                    <div className="id-card-hook"></div>
+                    <div id="pattern" className="bg-white shadow rounded-top">
+                      <div className="d-flex flex-column justify-content-center align-items-center rounded">
+                        <div className="mx-3 mt-5">
                           <img
                             src={require("../assets/logo.png")}
                             alt="Logo"
@@ -114,57 +202,77 @@ console.log(listItems.value,"filteredData")
                             // width={"50px"}
                           />
                         </div>
+                        <img
+                          style={{ borderRadius: "50%" }}
+                          className="h-100 m-3"
+                          src={`${context.pageContext.web.absoluteUrl}/_layouts/15/userphoto.aspx?AccountName=${VisitListItemsbyId?.Visitoremailaddress}`}
+                          alt="word"
+                          width={"100px"}
+                        />
                       </div>
-                    </Col>
-                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
-                      <div></div>
-                    </Col>
-                  </Row>
-                </Col>
-                <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                  <Row>
-                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
-                      <div></div>
-                    </Col>
-                    <Col xs={24} sm={24} md={12} lg={12} xl={12}>
-                      <div className="id-card-hook"></div>
-                      <div id="pattern" className="bg-white shadow rounded-top">
-                        <div className="d-flex flex-column justify-content-center align-items-center rounded">
-                          <div className="mx-3 mt-5">
-                            <img
-                              src={require("../assets/logo.png")}
-                              alt="Logo"
-                              // height={"50px"}
-                              // width={"50px"}
-                            />
-                          </div>
-                          <img
-                            style={{ borderRadius: "50%" }}
-                            className="h-100 m-3"
-                            src={require("../assets/avatar.png")}
-                            alt="word"
-                            width={"100px"}
-                          />
+                      <div
+                        className="d-flex flex-column justify-content-center align-items-center"
+                        style={{ fontFamily: "Open Sans", fontWeight: 600 }}
+                      >
+                        <div
+                          className=""
+                          style={{
+                            fontFamily: "Open Sans",
+                            fontWeight: 600,
+                          }}
+                        >
+                          ID: {VisitListItemsbyId.Id}
                         </div>
-                        <div className="">ID: {data.Id}</div>
-                        <div className="">
+                        <div
+                          className=""
+                          style={{
+                            fontFamily: "Open Sans",
+                            fontWeight: 600,
+                          }}
+                        >
                           Visit Date:{" "}
-                          {moment(data.Visitorvisithour).format("DD/MM/YYYY")}{" "}
+                          {moment(VisitListItemsbyId.Visitorvisithour).format(
+                            "DD/MM/YYYY"
+                          )}{" "}
                         </div>
-                        <div className="">Visitor Name: {data.Visitorname}</div>
-                        <div className="">
-                          Employee Name: {data.Visitedemployee}
+                        <div
+                          className=""
+                          style={{
+                            fontFamily: "Open Sans",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Visitor Name: {VisitListItemsbyId.Visitorname}
                         </div>
-                        <div className="">Department: {data.Department}</div>
+                        <div
+                          className=""
+                          style={{
+                            fontFamily: "Open Sans",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Employee Name: {VisitListItemsbyId.Visitedemployee}
+                        </div>
+                        <div
+                          className=""
+                          style={{
+                            fontFamily: "Open Sans",
+                            fontWeight: 600,
+                          }}
+                        >
+                          Department: {VisitListItemsbyId.Department}
+                        </div>
+                     
                       </div>
-                    </Col>
-                    <Col xs={24} sm={24} md={6} lg={6} xl={6}>
-                      <div></div>
-                    </Col>
-                  </Row>
-                </Col>
-              </Row>
-            ))}
+                    </div>
+                  </Col>
+                  <Col xs={24} sm={24} md={6} lg={6} xl={6}>
+                    <div></div>
+                  </Col>
+                </Row>
+              </Col>
+            </Row>
+          )}
         </div>
       </CommunityLayout>
     );
