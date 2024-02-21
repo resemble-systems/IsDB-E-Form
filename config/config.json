@@ -225,6 +225,14 @@
           "manifest": "./src/webparts/dataCenter/DataCenterWebPart.manifest.json"
         }
       ]
+    },
+    "print-contractor-form-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/printContractorForm/PrintContractorFormWebPart.js",
+          "manifest": "./src/webparts/printContractorForm/PrintContractorFormWebPart.manifest.json"
+        }
+      ]
     }
   },
   "externals": {},
@@ -257,6 +265,7 @@
     "ControlStrings": "node_modules/@pnp/spfx-controls-react/lib/loc/{locale}.js",
     "ShiftReportWebPartStrings": "lib/webparts/shiftReport/loc/{locale}.js",
     "WorkPermitWebPartStrings": "lib/webparts/workPermit/loc/{locale}.js",
-    "DataCenterWebPartStrings": "lib/webparts/dataCenter/loc/{locale}.js"
+    "DataCenterWebPartStrings": "lib/webparts/dataCenter/loc/{locale}.js",
+    "PrintContractorFormWebPartStrings": "lib/webparts/printContractorForm/loc/{locale}.js"
   }
 }
