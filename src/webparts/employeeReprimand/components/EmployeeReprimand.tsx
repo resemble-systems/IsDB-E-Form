@@ -873,29 +873,7 @@ export default class EmployeeReprimand extends React.Component<
               </div>
             </div>
 
-            <div className="d-flex justify-content-start ps-2 mb-2">
-              <input
-                className="form-check"
-                disabled={redirection}
-                type="checkbox"
-                checked={conditionCheckBox}
-                onChange={(event) => {
-                  this.setState({
-                    conditionCheckBox: event.target.checked,
-                  });
-                }}
-              />
-              <label className={`ps-4`}>
-                <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
-                  {" "}
-                  {language === "En"
-                    ? "I agree to Terms & Conditions"
-                    : "أوافق على الشروط والأحكام"}
-                </a>
-                <span className="text-danger">*</span>
-              </label>
-            </div>
-
+            
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -920,47 +898,7 @@ export default class EmployeeReprimand extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
-            <Modal
-             bodyStyle={{ padding: "25px 50px 25px 50px" }}
-             width={750}
-             footer={null}
-             closable={false}
-             visible={this.state.isModalOpen}
-            ><h4 className="align-items-center">Terms And Conditions</h4>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <div className="campaign_model_footer d-flex justify-content-end align-items-center">
-                    <button
-                      className={`me-2 border-0 px-5 text-capitalize`}
-                      style={{ color: "#808080",height: "40px"}}
-                      onClick={() =>
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox: false
-                        })
-                      }
-                    >
-                      Don't agree
-                    </button>
-                    <button
-                      className={`border-0 px-5 text-white text-capitalize`}
-                      style={{ backgroundColor: "#223771",height: "40px" }}
-                      onClick={() => {
-                       
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox:true
-                        });
-                      }}
-                    >
-                      Agree
-                    </button>
-                  </div>
-            </Modal>
-          </form>
+           </form>
         </div>
       </CommunityLayout>
     );
