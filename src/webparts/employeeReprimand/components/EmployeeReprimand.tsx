@@ -524,46 +524,6 @@ export default class EmployeeReprimand extends React.Component<
             </div>
             <div className="row">
               <div className="d-flex justify-content-start py-2 ps-2">
-                <div
-                  className="d-flex justify-content-between"
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
-                    {language === "En" ? "On Behalf Of" : "نيابة عن"}
-                    <span className="text-danger">*</span>
-                  </label>
-                </div>
-                <div
-                  style={{ marginLeft: "10px", width: "25%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={redirection}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerItems(i);
-                    }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-
-                    // styles={{ peoplePicker: { border: 'none' } }}
-                  />
-                </div>
-              </div>
-            </div>
-            <div className="row">
-              <div className="d-flex justify-content-start py-2 ps-2">
                 <InputFeild
                   self={this}
                   type="text"
