@@ -2,7 +2,7 @@ import * as React from "react";
 import type { IEmployeeReprimandProps } from "./IEmployeeReprimandProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Select, Modal } from "antd";
+import { Select } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -470,7 +470,6 @@ export default class EmployeeReprimand extends React.Component<
       leaveEngineCheckBox,
       outOfHoursCheckBox,
       drivingCheckBox,
-      conditionCheckBox,
       attachments,
       fileInfos,
       commentsPost,
