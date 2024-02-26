@@ -233,7 +233,24 @@
           "manifest": "./src/webparts/printContractorForm/PrintContractorFormWebPart.manifest.json"
         }
       ]
+    },
+    "print-work-permit-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/printWorkPermit/PrintWorkPermitWebPart.js",
+          "manifest": "./src/webparts/printWorkPermit/PrintWorkPermitWebPart.manifest.json"
+        }
+      ]
+    },
+    "ssims-dashboard-web-part": {
+      "components": [
+        {
+          "entrypoint": "./lib/webparts/ssimsDashboard/SsimsDashboardWebPart.js",
+          "manifest": "./src/webparts/ssimsDashboard/SsimsDashboardWebPart.manifest.json"
+        }
+      ]
     }
+  
   },
   "externals": {},
   "localizedResources": {
@@ -266,6 +283,8 @@
     "ShiftReportWebPartStrings": "lib/webparts/shiftReport/loc/{locale}.js",
     "WorkPermitWebPartStrings": "lib/webparts/workPermit/loc/{locale}.js",
     "DataCenterWebPartStrings": "lib/webparts/dataCenter/loc/{locale}.js",
-    "PrintContractorFormWebPartStrings": "lib/webparts/printContractorForm/loc/{locale}.js"
+    "PrintContractorFormWebPartStrings": "lib/webparts/printContractorForm/loc/{locale}.js",
+    "PrintWorkPermitWebPartStrings": "lib/webparts/printWorkPermit/loc/{locale}.js",
+    "SsimsDashboardWebPartStrings": "lib/webparts/ssimsDashboard/loc/{locale}.js"
   }
 }
