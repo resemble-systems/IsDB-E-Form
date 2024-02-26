@@ -2,7 +2,7 @@ import * as React from "react";
 import type { IEmployeeReprimandProps } from "./IEmployeeReprimandProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Select, Modal } from "antd";
+import { Select } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -470,7 +470,6 @@ export default class EmployeeReprimand extends React.Component<
       leaveEngineCheckBox,
       outOfHoursCheckBox,
       drivingCheckBox,
-      conditionCheckBox,
       attachments,
       fileInfos,
       commentsPost,
@@ -521,46 +520,6 @@ export default class EmployeeReprimand extends React.Component<
               style={{ backgroundColor: "#223771" }}
             >
               {language === "En" ? "Visitor Information" : "معلومات للزوار"}
-            </div>
-            <div className="row">
-              <div className="d-flex justify-content-start py-2 ps-2">
-                <div
-                  className="d-flex justify-content-between"
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
-                    {language === "En" ? "On Behalf Of" : "نيابة عن"}
-                    <span className="text-danger">*</span>
-                  </label>
-                </div>
-                <div
-                  style={{ marginLeft: "10px", width: "25%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={redirection}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerItems(i);
-                    }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-
-                    // styles={{ peoplePicker: { border: 'none' } }}
-                  />
-                </div>
-              </div>
             </div>
             <div className="row">
               <div className="d-flex justify-content-start py-2 ps-2">
@@ -913,29 +872,7 @@ export default class EmployeeReprimand extends React.Component<
               </div>
             </div>
 
-            <div className="d-flex justify-content-start ps-2 mb-2">
-              <input
-                className="form-check"
-                disabled={redirection}
-                type="checkbox"
-                checked={conditionCheckBox}
-                onChange={(event) => {
-                  this.setState({
-                    conditionCheckBox: event.target.checked,
-                  });
-                }}
-              />
-              <label className={`ps-4`}>
-                <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
-                  {" "}
-                  {language === "En"
-                    ? "I agree to Terms & Conditions"
-                    : "أوافق على الشروط والأحكام"}
-                </a>
-                <span className="text-danger">*</span>
-              </label>
-            </div>
-
+            
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -960,47 +897,7 @@ export default class EmployeeReprimand extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
-            <Modal
-             bodyStyle={{ padding: "25px 50px 25px 50px" }}
-             width={750}
-             footer={null}
-             closable={false}
-             visible={this.state.isModalOpen}
-            ><h4 className="align-items-center">Terms And Conditions</h4>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <div className="campaign_model_footer d-flex justify-content-end align-items-center">
-                    <button
-                      className={`me-2 border-0 px-5 text-capitalize`}
-                      style={{ color: "#808080",height: "40px"}}
-                      onClick={() =>
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox: false
-                        })
-                      }
-                    >
-                      Don't agree
-                    </button>
-                    <button
-                      className={`border-0 px-5 text-white text-capitalize`}
-                      style={{ backgroundColor: "#223771",height: "40px" }}
-                      onClick={() => {
-                       
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox:true
-                        });
-                      }}
-                    >
-                      Agree
-                    </button>
-                  </div>
-            </Modal>
-          </form>
+           </form>
         </div>
       </CommunityLayout>
     );
