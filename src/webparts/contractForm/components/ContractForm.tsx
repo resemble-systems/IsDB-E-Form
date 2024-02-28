@@ -169,7 +169,7 @@ export default class ContractForm extends React.Component<
               return;
             }
 
-            console.log("Selected User Details", user);
+            console.log("Selected User Details -------->", user);
 
             this.setState({
               inputFeild: {
