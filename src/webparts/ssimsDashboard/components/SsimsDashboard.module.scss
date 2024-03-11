@@ -1,34 +1,74 @@
-@import '~@fluentui/react/dist/sass/References.scss';
-
-.ssimsDashboard {
-  overflow: hidden;
-  padding: 1em;
-  color: "[theme:bodyText, default: #323130]";
-  color: var(--bodyText);
-  &.teams {
-    font-family: $ms-font-family-fallbacks;
-  }
-}
-
-.welcome {
-  text-align: center;
-}
-
-.welcomeImage {
+.departmentManageSearchItem {
+  border: none !important;
+  background-color: #1a171714;
+  font-size: 16px;
   width: 100%;
-  max-width: 420px;
+  height: 38px;
+  color: #000000;
+  outline: none !important;
+  border-radius: 4px 0 0 4px;
 }
 
-.links {
-  a {
-    text-decoration: none;
-    color: "[theme:link, default:#03787c]";
-    color: var(--link); // note: CSS Custom Properties support is limited to modern browsers only
-
-    &:hover {
-      text-decoration: underline;
-      color: "[theme:linkHovered, default: #014446]";
-      color: var(--linkHovered); // note: CSS Custom Properties support is limited to modern browsers only
-    }
+@media only screen and (max-width: 470px) {
+  .departmentManageSearchItem {
+    width: 100%;
+    margin: 10px 0;
   }
+}
+
+.departmentManageSearchIcon {
+  width: 50px;
+  height: 38px;
+  background-color: #1a171714;
+  color: #9f9c9c;
+  font-size: 16px;
+  border: none;
+  border-radius: 0 4px 4px 0;
+  cursor: pointer;
+}
+
+.departmentManageEventAction {
+  background-color: #ffffff00 !important;
+}
+
+.departmentManageFilterImg {
+  width: 28px;
+   height: 28px;
+}
+
+.departmentManageFilter {
+  background-color: #EDECEC;
+   width: 38px;
+   height: 38px;
+    border: none;
+     border-radius: 4px;
+}
+
+.newsFilterSubmitBtn {
+  background-color: #223771;
+   color: #fff;
+   height: 35px;
+    font-family: Roboto;
+     font-size: 1em;
+      border: none;
+}
+
+.newsFilterDatePicker,
+.newsFilterInput {
+  background-color: #FCFCFC;
+   border-radius: 6px;
+    font-family: Open Sans ;
+     outline: none !important;
+}
+
+.newsFilterLable {
+  color: #585858;
+   font-family: Open Sans;
+    font-size: 0.875em;
+     font-weight: 500;
+}
+
+.newsFilterCardTitle {
+  color: #43425D;
+   font-family: Open Sans;
 }

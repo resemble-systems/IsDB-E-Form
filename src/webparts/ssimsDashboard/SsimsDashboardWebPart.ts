@@ -25,6 +25,8 @@ export default class SsimsDashboardWebPart extends BaseClientSideWebPart<ISsimsD
     const element: React.ReactElement<ISsimsDashboardProps> = React.createElement(
       SsimsDashboard,
       {
+        context: this.context,
+        siteUrl: this.context.pageContext.web.absoluteUrl,
         description: this.properties.description,
         isDarkTheme: this._isDarkTheme,
         environmentMessage: this._environmentMessage,
