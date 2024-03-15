@@ -17,6 +17,7 @@ import {
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import type { IShiftReportProps } from "./IShiftReportProps";
 import RichTextEditor from "../../../common-components/richTextEditor/RichTextEditor";
+import { postData } from "../../../Services/Services";
 
 interface IShiftReportState {
   inputFeild: any;
@@ -35,12 +36,15 @@ interface IShiftReportState {
   handOverChecklist: any;
   cleaning: any;
   redirection: boolean;
+  approverComment: any;
+
   uploadContent: {
     Date: string;
     Title: string;
     Location: string;
     Description: string;
     CreatedBy: string;
+    
   };
 }
 
@@ -70,6 +74,7 @@ export default class ShiftReport extends React.Component<
       handOverChecklist: "",
       cleaning: "",
       redirection: false,
+      approverComment: "",
       uploadContent: {
         Date: "",
         Title: "",
@@ -318,7 +323,30 @@ export default class ShiftReport extends React.Component<
       people: finalData,
     });
   };
+  public onApproveReject: (
+    Type: string,
+    pendingWith: string,
+    comments: string
+  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
 
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: pendingWith,
+      comments: comments || "",
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    // if (updateInteraction) this.getBasicBlogs();
+  };
   public render(): React.ReactElement<IShiftReportProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -749,6 +777,109 @@ export default class ShiftReport extends React.Component<
                 </button>
               </div>
             )}
+              {(this.state.inputFeild.PendingWith === "ManagSecurity Manager" || this.state.inputFeild.PendingWith === "System" ) && (
+              <div>
+                <div
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="approverComment">
+                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
+                  </label>
+                </div>
+                <textarea
+                  className="form-control mb-2 mt-2"
+                  rows={3}
+                  placeholder={
+                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                  }
+                  value={this.state.approverComment}
+                  onChange={(e) =>
+                    this.setState({ approverComment: e.target.value })
+                  }
+                />
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Security Manager") {
+                        this.onApproveReject(
+                          "Approve",
+                          "System",
+                          approverComment
+                        );
+                      } else {
+                        this.onApproveReject(
+                          "Approve",
+                          "Completed",
+                          approverComment
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Security Manager") {
+                        this.onApproveReject(
+                          "Archive",
+                          "Archiveby Security Manager )",
+                          approverComment
+                        );
+                      } else {
+                        this.onApproveReject(
+                          "Reject",
+                          "Archive by System",
+                          approverComment
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Archive" : "أرشيف"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Security Manager )") {
+                        this.onApproveReject(
+                          "Return To User",
+                          "Return To User",
+                          approverComment
+                        );
+                      } else {
+                        this.onApproveReject(
+                          "Return To User",
+                          "Return To User",
+                          approverComment
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Return To User" : "العودة إلى المستخدم"}
+                  </button>
+                </div>
+              </div>
+            )}
+          
           </div>
         </div>
       </CommunityLayout>

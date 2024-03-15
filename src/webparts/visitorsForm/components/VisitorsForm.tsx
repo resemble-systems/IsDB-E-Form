@@ -17,6 +17,7 @@ import {
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { Web } from "sp-pnp-js";
+import { postData } from "../../../Services/Services";
 
 interface IVisitorsFormState {
   inputFeild: any;
@@ -37,6 +38,8 @@ interface IVisitorsFormState {
   peopleData: any;
   people: any;
   visitedEmployeeEmailID: any;
+  redirection:any;
+  approverComment:any;
 }
 
 export default class VisitorsForm extends React.Component<
@@ -90,12 +93,21 @@ export default class VisitorsForm extends React.Component<
       peopleData: [],
       people: [],
       visitedEmployeeEmailID: "",
+      approverComment:"",
+      redirection:false,
     };
   }
   public componentDidMount() {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("#view") != -1) {
+      let itemIdn = itemId.split("#");
+      itemId = itemIdn[0];
+      this.setState({
+        redirection: true,
+      });
+    }
     this.getDetails();
     this.getVisitRequest();
     this.getnames();
@@ -193,7 +205,7 @@ export default class VisitorsForm extends React.Component<
         });
     }
   }
-
+ 
   public onSubmit = async () => {
     const { context } = this.props;
     const { inputFeild, postAttachments, visitorPhoto, visitorIdProof } =
@@ -591,7 +603,30 @@ export default class VisitorsForm extends React.Component<
       },
     });
   };
+  public onApproveReject: (
+    Type: string,
+    pendingWith: string,
+    comments: string
+  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
 
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: pendingWith,
+      comments: comments || "",
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    // if (updateInteraction) this.getBasicBlogs();
+  };
   public render(): React.ReactElement<IVisitorsFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -619,6 +654,7 @@ export default class VisitorsForm extends React.Component<
       visitorPhotoJSON,
       postAttachments,
       attachmentJson,
+      redirection
     } = this.state;
     const { context } = this.props;
 
@@ -751,7 +787,7 @@ export default class VisitorsForm extends React.Component<
               <InputFeild
                 self={this}
                 autoComplete={autoComplete}
-                disabled={true}
+                disabled={redirection}
                 type="text"
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
@@ -760,7 +796,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
@@ -772,7 +808,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
@@ -782,7 +818,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={language === "En" ? "Department" : "قسم"}
                 name="Department"
@@ -794,7 +830,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={language === "En" ? "Office Location" : "موقع المكتب"}
                 name="officeLocation"
@@ -804,7 +840,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={language === "En" ? "Office Number" : "رقم المكتب"}
                 name="officeNumber"
@@ -816,7 +852,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={
                   language === "En" ? "Mobile Number" : "رقم الهاتف المحمول"
@@ -828,7 +864,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={
                   language === "En" ? "Immediate Supervisor" : "المشرف المباشر"
@@ -927,7 +963,7 @@ export default class VisitorsForm extends React.Component<
 
                 <div className="row">
                   <InputFeild
-                    disabled={true}
+                    disabled={redirection}
                     type="text"
                     autoComplete={autoComplete}
                     label={
@@ -943,7 +979,7 @@ export default class VisitorsForm extends React.Component<
                   <InputFeild
                     type="text"
                     autoComplete={autoComplete}
-                    disabled={true}
+                    disabled={redirection}
                     label={
                       language === "En"
                         ? "Visited Employee ID"
@@ -959,7 +995,7 @@ export default class VisitorsForm extends React.Component<
                   <InputFeild
                     type="text"
                     autoComplete={autoComplete}
-                    disabled={true}
+                    disabled={redirection}
                     label={
                       language === "En"
                         ? "Visited Employee Entity"
@@ -973,7 +1009,7 @@ export default class VisitorsForm extends React.Component<
                   <InputFeild
                     type="text"
                     autoComplete={autoComplete}
-                    disabled={true}
+                    disabled={redirection}
                     label={
                       language === "En"
                         ? "Visited Employee Phone"
@@ -989,7 +1025,7 @@ export default class VisitorsForm extends React.Component<
                   <InputFeild
                     type="text"
                     autoComplete={autoComplete}
-                    disabled={true}
+                    disabled={redirection}
                     label={language === "En" ? "Grade" : "درجة"}
                     name="visitedEmployeeGrade"
                     state={inputFeild}
@@ -1008,6 +1044,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
+                disabled={redirection}
                 type="text"
                 autoComplete={autoComplete}
                 label={
@@ -1023,6 +1060,7 @@ export default class VisitorsForm extends React.Component<
               <InputFeild
                 self={this}
                 autoComplete={autoComplete}
+                disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -1038,6 +1076,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
+                disabled={redirection}
                 autoComplete="new-password"
                 type="text"
                 label={
@@ -1052,6 +1091,7 @@ export default class VisitorsForm extends React.Component<
               />
               <InputFeild
                 type="select"
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={language === "En" ? "Nationality" : "جنسية"}
                 name="visitorNationality"
@@ -1064,6 +1104,7 @@ export default class VisitorsForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={
                   <>
@@ -1081,6 +1122,7 @@ export default class VisitorsForm extends React.Component<
 
               <InputFeild
                 type="datetime-local"
+                disabled={redirection}
                 autoComplete={autoComplete}
                 label={
                   <>
@@ -1098,6 +1140,7 @@ export default class VisitorsForm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+                disabled={redirection}
                 autoComplete={autoComplete}
                 type="select"
                 options={["PersonalVisit", "BuisnessVisit"]}
@@ -1115,6 +1158,7 @@ export default class VisitorsForm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+                disabled={redirection}
                 type="file"
                 autoComplete={autoComplete}
                 label={
@@ -1158,6 +1202,7 @@ export default class VisitorsForm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+                disabled={redirection}
                 autoComplete={autoComplete}
                 type="file"
                 label={
@@ -1202,6 +1247,7 @@ export default class VisitorsForm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+                disabled={redirection}
                 type="radio"
                 autoComplete={autoComplete}
                 label={
@@ -1217,6 +1263,7 @@ export default class VisitorsForm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+                disabled={redirection}
                 autoComplete={autoComplete}
                 self={this}
                 type="textArea"
@@ -1227,7 +1274,7 @@ export default class VisitorsForm extends React.Component<
                 inputFeild={inputFeild.visitorRemarks}
               />
             </div>
-
+            { redirection == false && (
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -1250,6 +1297,88 @@ export default class VisitorsForm extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+           )}
+            {this.state.inputFeild.PendingWith === "Receptionist" && (
+              <div>
+                <div
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="approverComment">
+                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
+                  </label>
+                </div>
+                <textarea
+                  className="form-control mb-2 mt-2"
+                  rows={3}
+                  placeholder={
+                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                  }
+                  value={this.state.approverComment}
+                  onChange={(e) =>
+                    this.setState({ approverComment: e.target.value })
+                  }
+                />
+                
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Receptionist") {
+                        this.onApproveReject(
+                          "Approve",
+                          "Completed",
+                          approverComment
+                        );
+                      } else {
+                        this.onApproveReject(
+                          "Approve",
+                          "Completed",
+                          approverComment
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Receptionist") {
+                        this.onApproveReject(
+                          "Reject",
+                          "Rejected by Receptionist",
+                          approverComment
+                        );
+                      } 
+                      else {
+                        this.onApproveReject(
+                          "Reject",
+                          "Rejected",
+                          approverComment
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Reject" : "أرشيف"}
+                  </button>
+                 
+                </div>
+              </div>
+            )}
           </form>
         </div>
       </CommunityLayout>

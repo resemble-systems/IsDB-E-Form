@@ -15,6 +15,7 @@ import {
   PeoplePicker,
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker"; 
+import { postData } from "../../../Services/Services";
 
 interface IGatePassState {
   inputFeild: any;
@@ -270,6 +271,28 @@ export default class GatePass extends React.Component<
     this.setState({
       people: finalData,
     });
+  };
+  public onApproveReject: (Type: string, pendingWith: string) => void = async (
+    Type: string,
+    pendingWith: string
+  ) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Gate-Pass')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
+
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: pendingWith,
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    // if (updateInteraction) this.getBasicBlogs();
   };
   public render(): React.ReactElement<IGatePassProps> {
     let bootstarp5CSS =
@@ -689,6 +712,43 @@ export default class GatePass extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+
+            {this.state.inputFeild.PendingWith === "Manager" && (
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      if(this.state.inputFeild.PendingWith === "Approver"){
+
+                        this.onApproveReject("Approve", "Manager");
+                      }
+                      else{
+                        this.onApproveReject("Approve", "Completed");
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      if(this.state.inputFeild.PendingWith === "Approver"){
+                      this.onApproveReject("Reject", "Rejected by Approver");
+                    }
+                    else{
+                      this.onApproveReject("Reject", "Rejected by Manager");
+                    }
+                    }}
+                    
+                  >
+                    {language === "En" ? "Reject" : "يرفض"}
+                  </button>
+                </div>
+              )}
             <Modal
              bodyStyle={{ padding: "25px 50px 25px 50px" }}
              width={750}

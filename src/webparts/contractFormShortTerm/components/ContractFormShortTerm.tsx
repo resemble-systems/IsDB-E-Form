@@ -6,7 +6,7 @@ import InputFeild from "./InputFeild";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
-import { Select } from "antd";
+import { Select, Switch } from "antd";
 import "./index.css";
 import { Web } from "sp-pnp-js";
 import {
@@ -14,6 +14,7 @@ import {
   ISPHttpClientOptions,
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
+import { postData } from "../../../Services/Services";
 interface IContractFormShortTermState {
   inputFeild: any;
   requestorIdProof: any;
@@ -25,6 +26,9 @@ interface IContractFormShortTermState {
   requestorIdProofJSON: any;
   requestorPhotoJSON: any;
   requestorContractJSON: any;
+  redirection:any;
+  checked:any;
+  approverComment:any;
 }
 
 export default class ContractFormShortTerm extends React.Component<
@@ -71,12 +75,22 @@ export default class ContractFormShortTerm extends React.Component<
       requestorIdProofJSON: {},
       requestorPhotoJSON: {},
       requestorContractJSON: {},
+      redirection:false,
+      checked:false,
+      approverComment:"",
     };
   }
   public componentDidMount() {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("#view") != -1) {
+      let itemIdn = itemId.split("#");
+      itemId = itemIdn[0];
+      this.setState({
+        redirection: true,
+      });
+    }
     this.getDetails();
     if (window.location.href.indexOf("?itemID") != -1) {
       context.spHttpClient
@@ -391,7 +405,34 @@ export default class ContractFormShortTerm extends React.Component<
     console.log("Attachment Post Status", postResponse);
     window.history.go(-1);
   }
+  public onApproveReject: (
+    Type: string,
+    pendingWith: string,
+    comments: string
+  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Contractor-Form')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
 
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: pendingWith,
+      comments: comments || "",
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    // if (updateInteraction) this.getBasicBlogs();
+  };
+  public onChange = (checked: boolean) => {
+    console.log(`Switch to ${checked}`);
+    this.setState({ checked, redirection:false });
+  };
   public render(): React.ReactElement<IContractFormShortTermProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -418,6 +459,7 @@ export default class ContractFormShortTerm extends React.Component<
       requestorIdProofJSON,
       requestorPhotoJSON,
       attachmentJson,
+      redirection,
     } = this.state;
     const { context } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -524,6 +566,11 @@ export default class ContractFormShortTerm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
+          {this.state.inputFeild.PendingWith === "SSIMS Reviewer" && (
+          <div className="">
+            Edit<Switch  onChange={this.onChange} />
+            </div>
+          )}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -553,7 +600,7 @@ export default class ContractFormShortTerm extends React.Component<
               <InputFeild
                 self={this}
                 type="text"
-                disabled={true}
+                disabled={redirection}
                 label={language === "En" ? "Staff Name" : "اسم الموظفين"}
                 name="staffName"
                 state={inputFeild}
@@ -561,7 +608,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled={true}
+                  disabled={redirection}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={inputFeild}
@@ -572,7 +619,7 @@ export default class ContractFormShortTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled={true}
+                  disabled={redirection}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={inputFeild}
@@ -581,7 +628,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled={true}
+                  disabled={redirection}
                 label={language === "En" ? "Department" : "قسم "}
                 name="Department"
                 state={inputFeild}
@@ -592,7 +639,7 @@ export default class ContractFormShortTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                disabled={true}
+                  disabled={redirection}
                 label={
                   language === "En" ? "Phone Extension " : "تحويلة الهاتف "
                 }
@@ -603,7 +650,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
-                disabled={true}
+                  disabled={redirection}
                 label={language === "En" ? "Mobile Number " : "رقم الموبايل "}
                 name="mobileNumber"
                 state={inputFeild}
@@ -619,6 +666,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -637,6 +685,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
+              disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -653,6 +702,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row mb-4">
               <InputFeild
+              disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -666,6 +716,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
+              disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -690,6 +741,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -703,6 +755,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
+              disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -718,6 +771,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -732,6 +786,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
+              disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -754,6 +809,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -767,6 +823,7 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorNationalId}
               />
               <InputFeild
+              disabled={redirection}
                 self={this}
                 type="date"
                 label={
@@ -784,6 +841,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 self={this}
                 type="select"
                 options={["JT-1", "JT-2", "JT-3", "JT-4"]}
@@ -798,6 +856,7 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorJobTittle}
               />
               <InputFeild
+              disabled={redirection}
                 self={this}
                 type="text"
                 label={language === "En" ? "Location of work " : "موقع العمل "}
@@ -808,6 +867,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -823,6 +883,7 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorRelatedEdu}
               />
               <InputFeild
+              disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -838,6 +899,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="date"
                 label={
                   <>
@@ -851,6 +913,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
+              disabled={redirection}
                 type="date"
                 label={
                   <>
@@ -866,6 +929,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="file"
                 label={
                   <>
@@ -908,6 +972,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="file"
                 label={
                   <>
@@ -950,6 +1015,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="file"
                 label={
                   language === "En"
@@ -990,6 +1056,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 type="radio"
                 label={
                   language === "En"
@@ -1004,6 +1071,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+              disabled={redirection}
                 self={this}
                 type="textArea"
                 label={language === "En" ? "Remarks " : "ملاحظات "}
@@ -1012,7 +1080,7 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorRemarks}
               />
             </div>
-
+            {redirection == false && (
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -1035,6 +1103,106 @@ export default class ContractFormShortTerm extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+             )}
+   {(this.state.inputFeild.PendingWith === "Immediate Supervisor" ||
+              this.state.inputFeild.PendingWith === "SSIMS Reviewer" ||
+              this.state.inputFeild.PendingWith === "SSIMS Manager") && (
+              <div>
+                <div
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="approverComment">
+                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
+                  </label>
+                </div>
+                <textarea
+                  className="form-control mb-2 mt-2"
+                  rows={3}
+                  placeholder={
+                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                  }
+                  value={this.state.approverComment}
+                  onChange={(e) =>
+                    this.setState({ approverComment: e.target.value })
+                  }
+                />
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Immediate Supervisor") {
+                        this.onApproveReject(
+                          "Approve",
+                          "SSIMS Reviewer",
+                          approverComment
+                        );
+                     
+                      }
+                  else if(inputFeild.PendingWith === "SSIMS Reviewer")
+                    {
+                      this.onApproveReject(
+                        "Approve",
+                        "SSIMS Manager",
+                        approverComment
+                      );
+                    }
+                    else{
+                      this.onApproveReject(
+                        "Approve",
+                        "Completed",
+                        approverComment)
+                    }
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Immediate Supervisor") {
+                        this.onApproveReject(
+                          "Reject",
+                          "Rejected by SSIMS Reviewer",
+                          approverComment
+                        );
+                     
+                      }
+                  else if(inputFeild.PendingWith === "SSIMS Reviewer")
+                    {
+                      this.onApproveReject(
+                        "Rejected",
+                        "Rejected SSIMS Reviewer",
+                        approverComment
+                      );
+                    }
+                    else{
+                      this.onApproveReject(
+                        "Rejected",
+                        "Rejected by SSIMS Manager",
+                        approverComment)
+                    }
+                    }}
+                  >
+                    {language === "En" ? "Reject" : "أرشيف"}
+                  </button>
+                 
+                </div>
+              </div>
+            )}
           </form>
         </div>
       </CommunityLayout>

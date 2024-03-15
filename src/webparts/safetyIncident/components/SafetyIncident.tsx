@@ -11,6 +11,7 @@ import {
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
 import { Web } from "sp-pnp-js";
+import { postData } from "../../../Services/Services";
 
 interface ISafetyIncidentState {
   inputFeild: any;
@@ -303,7 +304,28 @@ export default class SafetyIncident extends React.Component<
       console.log("Response", Response);
     }
   };
+  public onApproveReject: (Type: string, pendingWith: string) => void = async (
+    Type: string,
+    pendingWith: string
+  ) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Safety-Incident')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
 
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: pendingWith,
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    // if (updateInteraction) this.getBasicBlogs();
+  };
   public render(): React.ReactElement<ISafetyIncidentProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -725,6 +747,30 @@ export default class SafetyIncident extends React.Component<
               </button>
             </div>
   )}
+         {this.state.inputFeild.PendingWith === "SSIMS Manager" && (
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      this.onApproveReject("Approve", "Completed");
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      this.onApproveReject("Archive","Archived");
+                    }}
+                  >
+                    {language === "En" ? "Archive" : "أرشيف"}
+                  </button>
+                </div>
+              )}
           </form>
         </div>
       </CommunityLayout>

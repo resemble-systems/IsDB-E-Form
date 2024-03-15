@@ -4,7 +4,7 @@ import type { IVisitRequestFormVisitorProps } from "./IVisitRequestFormVisitorPr
 import styles from "./VisitRequestFormVisitor.module.sass";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import InputFeild from "./InputFeild";
-import { Select, Modal } from "antd";
+import { Select, Modal, Switch } from "antd";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import {
   SPHttpClient,
@@ -13,6 +13,7 @@ import {
 } from "@microsoft/sp-http";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
 import { Web } from "sp-pnp-js";
+import { postData } from "../../../Services/Services";
 
 interface IVisitRequestFormVisitorState {
   inputFeild: any;
@@ -31,6 +32,9 @@ interface IVisitRequestFormVisitorState {
   visitorIdProofJSON: any;
   visitorPhotoJSON: any;
   isModalOpen: any;
+  redirection:any;
+  checked:any;
+  approverComment:any;
 }
 
 export default class VisitRequestFormVisitor extends React.Component<
@@ -76,6 +80,9 @@ export default class VisitRequestFormVisitor extends React.Component<
       visitorIdProofJSON: {},
       visitorPhotoJSON: {},
       isModalOpen: false,
+      redirection:false,
+      checked:false,
+      approverComment:"",
     };
   }
   public componentDidMount() {
@@ -83,6 +90,13 @@ export default class VisitRequestFormVisitor extends React.Component<
     const { inputFeild } = this.state;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("#view") != -1) {
+      let itemIdn = itemId.split("#");
+      itemId = itemIdn[0];
+      this.setState({
+        redirection: true,
+      });
+    }
     // this.getDetails();
     this.getVisitRequest();
     if (window.location.href.indexOf("?itemID") != -1) {
@@ -148,6 +162,7 @@ export default class VisitRequestFormVisitor extends React.Component<
         });
     }
   }
+
   public onSubmit = async () => {
     const { context } = this.props;
     const { inputFeild, postAttachments, conditionCheckBox } = this.state;
@@ -468,6 +483,35 @@ export default class VisitRequestFormVisitor extends React.Component<
           });
       });
   }
+  public onApproveReject: (
+    Type: string,
+    pendingWith: string,
+    comments: string
+  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
+
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: pendingWith,
+      comments: comments || "",
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    // if (updateInteraction) this.getBasicBlogs();
+  };
+  public onChange = (checked: boolean) => {
+    console.log(`Switch to ${checked}`);
+    this.setState({ checked, redirection:false });
+  };
+
   public render(): React.ReactElement<IVisitRequestFormVisitorProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -490,6 +534,7 @@ export default class VisitRequestFormVisitor extends React.Component<
       visitorPhoto,
       postAttachments,
       language,
+      redirection
     } = this.state;
     const { context } = this.props;
 
@@ -573,6 +618,11 @@ export default class VisitRequestFormVisitor extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
+          {this.state.inputFeild.PendingWith === "Employee" && (
+          <div className="">
+            Edit<Switch  onChange={this.onChange} />
+            </div>
+          )}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -599,6 +649,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             <div className="row">
               <InputFeild
                 self={this}
+                disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -612,6 +663,7 @@ export default class VisitRequestFormVisitor extends React.Component<
               />
               <InputFeild
                 self={this}
+                disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -626,6 +678,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -639,6 +692,7 @@ export default class VisitRequestFormVisitor extends React.Component<
                 inputFeild={inputFeild.visitorEmailId}
               />
               <InputFeild
+               disabled={redirection}
                 type="select"
                 label={language === "En" ? "Nationality" : "جنسية"}
                 name="visitorNationality"
@@ -650,6 +704,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -665,6 +720,7 @@ export default class VisitRequestFormVisitor extends React.Component<
                 self={this}
               />
               <InputFeild
+               disabled={redirection}
                 type="datetime-local"
                 label={
                   <>
@@ -683,6 +739,7 @@ export default class VisitRequestFormVisitor extends React.Component<
 
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 type="select"
                 options={["Business Visit", "Personal Visit"]}
                 label={language === "En" ? "Purpose of Visit" : "غرض الزيارة"}
@@ -694,6 +751,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 type="file"
                 label={
                   language === "En" ? "Attach ID Proof" : "إرفاق إثبات الهوية"
@@ -731,6 +789,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 type="file"
                 label={
                   language === "En"
@@ -770,6 +829,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 type="radio"
                 label={
                   language === "En"
@@ -784,6 +844,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 self={this}
                 type="textArea"
                 label={language === "En" ? "Remarks" : "ملاحظات"}
@@ -813,6 +874,7 @@ export default class VisitRequestFormVisitor extends React.Component<
                 </label>
               </a>
             </div>
+            {redirection == false && (
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -835,6 +897,87 @@ export default class VisitRequestFormVisitor extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+  )}
+     {(this.state.inputFeild.PendingWith === "Employee" || this.state.inputFeild.PendingWith === "Receptionist") && (
+              <div>
+                <div
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="approverComment">
+                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
+                  </label>
+                </div>
+                <textarea
+                  className="form-control mb-2 mt-2"
+                  rows={3}
+                  placeholder={
+                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                  }
+                  value={this.state.approverComment}
+                  onChange={(e) =>
+                    this.setState({ approverComment: e.target.value })
+                  }
+                />
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Employee") {
+                        this.onApproveReject(
+                          "Approve",
+                          "Receptionist",
+                          approverComment
+                        );
+                      } else {
+                        this.onApproveReject(
+                          "Approve",
+                          "Completed",
+                          approverComment
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      const { inputFeild, approverComment } = this.state;
+
+                      if (inputFeild.PendingWith === "Employee") {
+                        this.onApproveReject(
+                          "Reject",
+                          "Rejected by Employee",
+                          approverComment
+                        );
+                      } else {
+                        this.onApproveReject(
+                          "Reject",
+                          "Reject by Receptionist",
+                          approverComment
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Reject" : "أرشيف"}
+                  </button>
+                 
+                </div>
+              </div>
+            )}
+
             <Modal
              bodyStyle={{ padding: "25px 50px 25px 50px" }}
              width={750}

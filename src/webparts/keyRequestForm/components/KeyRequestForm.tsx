@@ -15,6 +15,7 @@ import {
   PeoplePicker,
   PrincipalType,
 } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+import { postData } from "../../../Services/Services";
 
 interface IKeyRequestFormState {
   inputFeild: any;
@@ -32,6 +33,7 @@ interface IKeyRequestFormState {
   conditionCheckBox: any;
   alreadyExist: any;
   isModalOpen: any;
+  redirection: any;
 }
 export default class KeyRequestForm extends React.Component<
   IKeyRequestFormProps,
@@ -62,12 +64,20 @@ export default class KeyRequestForm extends React.Component<
       peopleData: [],
       alreadyExist: "",
       isModalOpen: false,
+      redirection: false,
     };
   }
   public componentDidMount() {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("#view") != -1) {
+      let itemIdn = itemId.split("#");
+      itemId = itemIdn[0];
+      this.setState({
+        redirection: true,
+      });
+    }
     if (window.location.href.indexOf("?itemID") != -1) {
       this.getData(itemId);
     }
@@ -164,6 +174,7 @@ export default class KeyRequestForm extends React.Component<
         console.log("Res listItems", listItems);
       });
   }
+
   public onSubmit = () => {
     const { context } = this.props;
     const {
@@ -209,6 +220,7 @@ export default class KeyRequestForm extends React.Component<
                   DDMenu: inputFeild.DDMenu,
                   OnBehalfOfName: JSON.stringify(peopleArr),
                   OnBehalfOfEmail: JSON.stringify(post.secondaryText),
+                  
                 }),
               }
             : {
@@ -249,6 +261,29 @@ export default class KeyRequestForm extends React.Component<
       });
     }
   };
+  public onApproveReject: (Type: string, pendingWith: string) => void = async (
+    Type: string,
+    pendingWith: string
+  ) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Key-Request')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
+
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: pendingWith,
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    // if (updateInteraction) this.getBasicBlogs();
+  };
+
   public onChangePeoplePickerItems = (items: any) => {
     const { peopleData } = this.state;
     console.log("item in peoplepicker", items);
@@ -292,6 +327,7 @@ export default class KeyRequestForm extends React.Component<
       doorCheckBox,
       drawerCheckBox,
       conditionCheckBox,
+      redirection,
     } = this.state;
     const { context } = this.props;
     console.log(inputFeild.doorCheckBox, "doorcheckbox value");
@@ -317,6 +353,7 @@ export default class KeyRequestForm extends React.Component<
           </div>
           <div className="d-flex justify-content-end mb-2">
             <Select
+              disabled={redirection}
               style={{ width: "200px" }}
               bordered={false}
               allowClear={false}
@@ -343,6 +380,7 @@ export default class KeyRequestForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="select"
+                disabled={redirection}
                 label={language === "En" ? "Request Type " : "نوع الطلب "}
                 name="requestType"
                 options={requestTypeData}
@@ -352,6 +390,7 @@ export default class KeyRequestForm extends React.Component<
               />
               <InputFeild
                 type="select"
+                disabled={redirection}
                 label={language === "En" ? "Employee Entity " : "كيان الموظف"}
                 name="entity"
                 options={entityData}
@@ -364,6 +403,7 @@ export default class KeyRequestForm extends React.Component<
             <div className="row">
               <InputFeild
                 type="select"
+                disabled={redirection}
                 label={language === "En" ? "Floor " : "طابق"}
                 name="floor"
                 options={["1", "2", "3", "4", "5"]}
@@ -373,6 +413,7 @@ export default class KeyRequestForm extends React.Component<
               />
               <InputFeild
                 type="text"
+                disabled={redirection}
                 label={
                   language === "En"
                     ? "Requested Office Number "
@@ -386,7 +427,7 @@ export default class KeyRequestForm extends React.Component<
             </div>
 
             <div className="row mb-2">
-            <div className="d-flex justify-content-start py-2 ps-2">
+              <div className="d-flex justify-content-start py-2 ps-2">
                 <div
                   className="d-flex justify-content-between"
                   style={{
@@ -411,6 +452,7 @@ export default class KeyRequestForm extends React.Component<
                     }}
                     className="form-check"
                     type="checkbox"
+                    disabled={redirection}
                     checked={checkBox}
                     onChange={(event) => {
                       this.setState({
@@ -438,204 +480,237 @@ export default class KeyRequestForm extends React.Component<
                     ensureUser={true}
                   />
                 </div>
-            </div>
-
-            {this.state.inputFeild.requestType == "Key Request" && (
-              <div className="row">
-                <InputFeild
-                  type="select"
-                  label={language === "En" ? "DD Menu" : "نوع الطلب "}
-                  name="DDMenu"
-                  options={["New Office", "Lost Key", "Damaged Key"]}
-                  state={inputFeild}
-                  inputFeild={inputFeild.DDMenu}
-                  self={this}
-                />
-              </div>
-            )}
-
-            <div>
-              <div
-                className="mb-3 w-25 p-2"
-                style={{ backgroundColor: "#F0F0F0" }}
-              >
-                <label>
-                  {language === "En"
-                    ? "Specify the Required Keys"
-                    : "حدد المفاتيح المطلوبة"}
-                </label>
               </div>
 
-              <div className="d-flex justify-content-start ps-2 mb-2">
-                <input
-                  className="form-check"
-                  type="checkbox"
-                  checked={doorCheckBox}
-                  defaultChecked={doorCheckBox}
-                  onChange={(event) => {
-                    this.setState({
-                      doorCheckBox: event.target.checked,
-                    });
-                  }}
-                />
-                <label className={`ps-3`}>
-                  {language === "En" ? "Door" : "باب"}
-                </label>
-              </div>
+              {this.state.inputFeild.requestType == "Key Request" && (
+                <div className="row">
+                  <InputFeild
+                    disabled={redirection}
+                    type="select"
+                    label={language === "En" ? "DD Menu" : "نوع الطلب "}
+                    name="DDMenu"
+                    options={["New Office", "Lost Key", "Damaged Key"]}
+                    state={inputFeild}
+                    inputFeild={inputFeild.DDMenu}
+                    self={this}
+                  />
+                </div>
+              )}
 
-              <div className="d-flex justify-content-start ps-2 mb-2">
-                <input
-                  className="form-check"
-                  type="checkbox"
-                  checked={deskCheckBox}
-                  onChange={(event) => {
-                    this.setState({
-                      deskCheckBox: event.target.checked,
-                    });
-                  }}
-                />
-                <label className={`ps-3`}>
-                  {language === "En" ? "Office Desk" : "مكتب مكتب"}
-                </label>
-              </div>
-
-              <div className="d-flex justify-content-start ps-2 mb-2">
-                <input
-                  className="form-check"
-                  type="checkBox"
-                  checked={cabinetCheckBox}
-                  onChange={(event) => {
-                    this.setState({
-                      cabinetCheckBox: event.target.checked,
-                    });
-                  }}
-                />
-                <label className={`ps-3`}>
-                  {language === "En" ? "Office Cabinet" : "مكتب مجلس الوزراء"}
-                </label>
-              </div>
-
-              <div className="d-flex justify-content-start ps-2 mb-2">
-                <input
-                  className="form-check"
-                  type="checkbox"
-                  checked={safeCheckBox}
-                  onChange={(event) => {
-                    this.setState({
-                      safeCheckBox: event.target.checked,
-                    });
-                  }}
-                />
-                <label className={`ps-3`}>
-                  {language === "En" ? "Office Safe" : "مكتب آمن"}
-                </label>
-              </div>
-
-              <div className="d-flex justify-content-start ps-2 mb-2">
-                <input
-                  className="form-check"
-                  type="checkbox"
-                  checked={drawerCheckBox}
-                  onChange={(event) => {
-                    this.setState({
-                      drawerCheckBox: event.target.checked,
-                    });
-                  }}
-                />
-                <label className={`ps-3`}>
-                  {language === "En" ? "Drawer" : "جارور"}
-                </label>
-              </div>
-
-              <div className="d-flex justify-content-start ps-2 mb-2">
-                <input
-                  className="form-check"
-                  type="checkbox"
-                  checked={conditionCheckBox}
-                  onChange={(event) => {
-                    this.setState({
-                      conditionCheckBox: event.target.checked,
-                    });
-                  }}
-                />
-                  <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
-                <label className={`ps-3`}>
-                  <a href="#">
+              <div>
+                <div
+                  className="mb-3 w-25 p-2"
+                  style={{ backgroundColor: "#F0F0F0" }}
+                >
+                  <label>
                     {language === "En"
-                      ? "I agree to Terms & Conditions"
-                      : "أوافق على الشروط والأحكام"}
-                  </a>
-                  <span className="text-danger">*</span>
-                </label>
-                </a>
-              </div>
-            </div>
+                      ? "Specify the Required Keys"
+                      : "حدد المفاتيح المطلوبة"}
+                  </label>
+                </div>
 
-            <div className="d-flex justify-content-end mb-2 gap-3">
+                <div className="d-flex justify-content-start ps-2 mb-2">
+                  <input
+                    className="form-check"
+                    type="checkbox"
+                    disabled={redirection}
+                    checked={doorCheckBox}
+                    defaultChecked={doorCheckBox}
+                    onChange={(event) => {
+                      this.setState({
+                        doorCheckBox: event.target.checked,
+                      });
+                    }}
+                  />
+                  <label className={`ps-3`}>
+                    {language === "En" ? "Door" : "باب"}
+                  </label>
+                </div>
+
+                <div className="d-flex justify-content-start ps-2 mb-2">
+                  <input
+                    className="form-check"
+                    type="checkbox"
+                    disabled={redirection}
+                    checked={deskCheckBox}
+                    onChange={(event) => {
+                      this.setState({
+                        deskCheckBox: event.target.checked,
+                      });
+                    }}
+                  />
+                  <label className={`ps-3`}>
+                    {language === "En" ? "Office Desk" : "مكتب مكتب"}
+                  </label>
+                </div>
+
+                <div className="d-flex justify-content-start ps-2 mb-2">
+                  <input
+                    className="form-check"
+                    type="checkBox"
+                    disabled={redirection}
+                    checked={cabinetCheckBox}
+                    onChange={(event) => {
+                      this.setState({
+                        cabinetCheckBox: event.target.checked,
+                      });
+                    }}
+                  />
+                  <label className={`ps-3`}>
+                    {language === "En" ? "Office Cabinet" : "مكتب مجلس الوزراء"}
+                  </label>
+                </div>
+
+                <div className="d-flex justify-content-start ps-2 mb-2">
+                  <input
+                    className="form-check"
+                    type="checkbox"
+                    disabled={redirection}
+                    checked={safeCheckBox}
+                    onChange={(event) => {
+                      this.setState({
+                        safeCheckBox: event.target.checked,
+                      });
+                    }}
+                  />
+                  <label className={`ps-3`}>
+                    {language === "En" ? "Office Safe" : "مكتب آمن"}
+                  </label>
+                </div>
+
+                <div className="d-flex justify-content-start ps-2 mb-2">
+                  <input
+                    disabled={redirection}
+                    className="form-check"
+                    type="checkbox"
+                    checked={drawerCheckBox}
+                    onChange={(event) => {
+                      this.setState({
+                        drawerCheckBox: event.target.checked,
+                      });
+                    }}
+                  />
+                  <label className={`ps-3`}>
+                    {language === "En" ? "Drawer" : "جارور"}
+                  </label>
+                </div>
+
+                <div className="d-flex justify-content-start ps-2 mb-2">
+                  <input
+                    disabled={redirection}
+                    className="form-check"
+                    type="checkbox"
+                    checked={conditionCheckBox}
+                    onChange={(event) => {
+                      this.setState({
+                        conditionCheckBox: event.target.checked,
+                      });
+                    }}
+                  />
+                  <a
+                    href="#"
+                    onClick={() => this.setState({ isModalOpen: true })}
+                  >
+                    <label className={`ps-3`}>
+                      <a href="#">
+                        {language === "En"
+                          ? "I agree to Terms & Conditions"
+                          : "أوافق على الشروط والأحكام"}
+                      </a>
+                      <span className="text-danger">*</span>
+                    </label>
+                  </a>
+                </div>
+              </div>
+
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
+                  }}
+                >
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+              {this.state.inputFeild.PendingWith === "Key Processor" && (
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      this.onApproveReject("Approve", "Completed");
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      this.onApproveReject("Reject", "Rejected");
+                    }}
+                  >
+                    {language === "En" ? "Reject" : "يرفض"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+          <Modal
+            bodyStyle={{ padding: "25px 50px 25px 50px" }}
+            width={750}
+            footer={null}
+            closable={false}
+            visible={this.state.isModalOpen}
+          >
+            <h4 className="align-items-center">Terms And Conditions</h4>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+            <p>Some contents...</p>
+            <div className="campaign_model_footer d-flex justify-content-end align-items-center">
               <button
-                className="px-4 py-2"
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
+                className={`me-2 border-0 px-5 text-capitalize`}
+                style={{ color: "#808080", height: "40px" }}
+                onClick={() =>
+                  this.setState({
+                    isModalOpen: false,
+                    conditionCheckBox: false,
+                  })
+                }
               >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                Don't agree
               </button>
               <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="button"
+                className={`border-0 px-5 text-white text-capitalize`}
+                style={{ backgroundColor: "#223771", height: "40px" }}
                 onClick={() => {
-                  this.onSubmit();
+                  this.setState({
+                    isModalOpen: false,
+                    conditionCheckBox: true,
+                  });
                 }}
               >
-                {language === "En" ? "Submit" : "إرسال"}
+                Agree
               </button>
             </div>
-          
-          </div>
-        </div>
-        <Modal
-             bodyStyle={{ padding: "25px 50px 25px 50px" }}
-             width={750}
-             footer={null}
-             closable={false}
-             visible={this.state.isModalOpen}
-            ><h4 className="align-items-center">Terms And Conditions</h4>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <p>Some contents...</p>
-              <div className="campaign_model_footer d-flex justify-content-end align-items-center">
-                    <button
-                      className={`me-2 border-0 px-5 text-capitalize`}
-                      style={{ color: "#808080",height: "40px"}}
-                      onClick={() =>
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox: false
-                        })
-                      }
-                    >
-                      Don't agree
-                    </button>
-                    <button
-                      className={`border-0 px-5 text-white text-capitalize`}
-                      style={{ backgroundColor: "#223771",height: "40px" }}
-                      onClick={() => {
-                       
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox:true
-                        });
-                      }}
-                    >
-                      Agree
-                    </button>
-                  </div>
-            </Modal>
+          </Modal>
         </div>
       </CommunityLayout>
     );
