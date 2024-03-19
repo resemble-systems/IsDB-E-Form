@@ -239,7 +239,8 @@ export default class ShiftReport extends React.Component<
 
     if (people.length < 1) {
       alert("User Name cannot be blank!");
-    } else if (!inputFeild.date) {
+    } else 
+    if (!inputFeild.date) {
       alert("Please enter the Request Date!");
     } else {
       let peopleArr = people;

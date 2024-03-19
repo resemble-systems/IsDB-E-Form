@@ -12,6 +12,7 @@ import {
 } from "@microsoft/sp-http";
 import { Web } from "sp-pnp-js";
 import { postData } from "../../../Services/Services";
+import { PeoplePicker,PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 
 interface ISafetyIncidentState {
   inputFeild: any;
@@ -319,14 +320,38 @@ export default class SafetyIncident extends React.Component<
       "If-Match": "*",
     };
 
-    let body: string = JSON.stringify({
+    let body: any = {
       status: Type,
       PendingWith: PendingWith,
-    });
+    };
+    if (Type === "Approve") {
+      const { people } = this.state;
+      body.PeopleData = people.map((person: any) => person.secondaryText);
+    }
+  
+    
+    
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
     // if (updateInteraction) this.getBasicBlogs();
+  };
+  public onChangePeoplePickerItems = (items: any) => {
+    const { peopleData } = this.state;
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log("onChangePeoplePickerItems", finalData, items);
+
+    this.setState({
+      people: finalData,
+    });
   };
   public render(): React.ReactElement<ISafetyIncidentProps> {
     let bootstarp5CSS =
@@ -767,12 +792,60 @@ export default class SafetyIncident extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
+                      this.onApproveReject("Reject","Rejected");
+                    }}
+                  >
+                    {language === "En" ? "Reject" : "يرفض"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
                       this.onApproveReject("Archive","Archived");
                     }}
                   >
                     {language === "En" ? "Archive" : "أرشيف"}
                   </button>
+                  <div className="d-flex justify-content-start py-2 ps-2">
+                <div
+                  className="d-flex justify-content-between"
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
+                    {language === "En" ? "To Notify" : "بللإخطاراسم"}
+                   
+                  </label>
+                 
                 </div>
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={false}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
+                  />
+                </div>
+              </div>
+                </div>
+                
               )}
           </form>
         </div>

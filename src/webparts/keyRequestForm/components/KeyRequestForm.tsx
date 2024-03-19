@@ -194,8 +194,8 @@ export default class KeyRequestForm extends React.Component<
 
     if (conditionCheckBox == false) {
       alert("Please Agree the Terms and Conditions!");
-    } else if (people.length < 1) {
-      alert("User Name cannot be blank!");
+    // } else if (people.length < 1) {
+    //   alert("User Name cannot be blank!");
     } else {
       const peopleArr = people.map((person: any) => person.secondaryText);
       const onBehalfEmail = people[0]?.secondaryText;

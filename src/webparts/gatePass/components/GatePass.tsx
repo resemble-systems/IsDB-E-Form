@@ -70,7 +70,7 @@ export default class GatePass extends React.Component<
       showAdd: false,
       addDetails: { Model: "", Serial: "", Description: "", Quantity: 0 },
       isModalOpen:false,
-      PendingWith:"Manager"
+      PendingWith:"Approver"
     };
   }
 
@@ -716,7 +716,7 @@ export default class GatePass extends React.Component<
               </button>
             </div>
 
-            {PendingWith === "Manager" && (
+            {PendingWith === "SSIMS Manager" || PendingWith === "Approver"   && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
@@ -725,7 +725,7 @@ export default class GatePass extends React.Component<
                     onClick={() => {
                       if(PendingWith === "Approver"){
 
-                        this.onApproveReject("Approve", "Manager");
+                        this.onApproveReject("Approve", "SSIMS Manager");
                       }
                       else{
                         this.onApproveReject("Approve", "Completed");
@@ -740,7 +740,7 @@ export default class GatePass extends React.Component<
                     type="button"
                     onClick={() => {
                       if(PendingWith === "Approver"){
-                      this.onApproveReject("Reject", "Rejected by Approver");
+                      this.onApproveReject("Reject", "Rejected by SSIMS Manager");
                     }
                     else{
                       this.onApproveReject("Reject", "Rejected by Manager");
