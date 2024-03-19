@@ -47,8 +47,8 @@ interface IEmployeeReprimandState {
   redirection: boolean;
   isModalOpen: any;
   approverComment: any;
-  checked:any;
-  
+  checked: any;
+  pendingWith: any;
 }
 export default class EmployeeReprimand extends React.Component<
   IEmployeeReprimandProps,
@@ -94,8 +94,8 @@ export default class EmployeeReprimand extends React.Component<
       warningCount: 0,
       isModalOpen: false,
       approverComment: "",
-      checked:false,
-    
+      checked: false,
+      pendingWith: "SSIMS Reviewer",
     };
   }
 
@@ -285,7 +285,6 @@ export default class EmployeeReprimand extends React.Component<
     const { context } = this.props;
     const {
       inputFeild,
-      conditionCheckBox,
       violatorPeople,
       people,
       commentsPost,
@@ -298,9 +297,9 @@ export default class EmployeeReprimand extends React.Component<
       outOfHoursCheckBox,
     } = this.state;
 
-    if (conditionCheckBox == false) {
-      alert("Please Agree the Terms and Conditions!");
-    } else if (people.length < 1) {
+    // if (conditionCheckBox == false) {
+    //   alert("Please Agree the Terms and Conditions!");
+    if (people.length < 1) {
       alert("User Name cannot be blank!");
     } else {
       let peopleArr = people;
@@ -459,7 +458,7 @@ export default class EmployeeReprimand extends React.Component<
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
-    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Key-Request')/items('${itemId}')`;
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Employee-Reprimand')/items('${itemId}')`;
     const headers = {
       "X-HTTP-Method": "MERGE",
       "If-Match": "*",
@@ -477,7 +476,7 @@ export default class EmployeeReprimand extends React.Component<
   };
   public onChange = (checked: boolean) => {
     console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection:false });
+    this.setState({ checked, redirection: false });
   };
   public render(): React.ReactElement<IEmployeeReprimandProps> {
     let bootstarp5CSS =
@@ -507,6 +506,7 @@ export default class EmployeeReprimand extends React.Component<
       attachments,
       fileInfos,
       commentsPost,
+      pendingWith
     } = this.state;
     const { context } = this.props;
     console.log("attachments", attachments);
@@ -534,7 +534,8 @@ export default class EmployeeReprimand extends React.Component<
           </div>
           <div className="d-flex justify-content-end mb-2">
             <div className="">
-            Edit<Switch  onChange={this.onChange} />
+              Edit
+              <Switch onChange={this.onChange} />
             </div>
             <Select
               style={{ width: "200px" }}
@@ -908,8 +909,7 @@ export default class EmployeeReprimand extends React.Component<
                   ))}
               </div>
             </div>
-
-            
+            {redirection == false && (
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -934,8 +934,9 @@ export default class EmployeeReprimand extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
-
-            {this.state.inputFeild.PendingWith === "Manager" && (
+            )}
+            {(pendingWith === "SSIMS Reviewer" ||
+              pendingWith === "SSIMS Manager") && (
               <div>
                 <div
                   style={{
@@ -969,7 +970,7 @@ export default class EmployeeReprimand extends React.Component<
                     onClick={() => {
                       const { inputFeild, approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "SSIMS Reviewer ") {
+                      if (inputFeild.PendingWith === "SSIMS Reviewer") {
                         this.onApproveReject(
                           "Approve",
                           "Completed",
@@ -1013,7 +1014,7 @@ export default class EmployeeReprimand extends React.Component<
                 </div>
               </div>
             )}
-           </form>
+          </form>
         </div>
       </CommunityLayout>
     );

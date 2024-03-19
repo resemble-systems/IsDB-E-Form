@@ -34,6 +34,7 @@ interface IKeyRequestFormState {
   alreadyExist: any;
   isModalOpen: any;
   redirection: any;
+  pendingWith: any;
 }
 export default class KeyRequestForm extends React.Component<
   IKeyRequestFormProps,
@@ -49,6 +50,7 @@ export default class KeyRequestForm extends React.Component<
         number: "",
         floor: "1",
         DDMenu: "New Office",
+        
       },
       language: "En",
       requestTypeData: [],
@@ -65,6 +67,7 @@ export default class KeyRequestForm extends React.Component<
       alreadyExist: "",
       isModalOpen: false,
       redirection: false,
+      pendingWith:"Key Processor",
     };
   }
   public componentDidMount() {
@@ -256,7 +259,7 @@ export default class KeyRequestForm extends React.Component<
           .then((res) => {
             console.log("RES POST", res);
             alert(`You have successfully submitted`);
-            // window.history.go(-1);
+            window.history.go(-1);
           });
       });
     }
@@ -328,6 +331,7 @@ export default class KeyRequestForm extends React.Component<
       drawerCheckBox,
       conditionCheckBox,
       redirection,
+      pendingWith
     } = this.state;
     const { context } = this.props;
     console.log(inputFeild.doorCheckBox, "doorcheckbox value");
@@ -440,7 +444,7 @@ export default class KeyRequestForm extends React.Component<
                 >
                   <label className="ps-2 py-2" htmlFor="onBehalfOf">
                     {language === "En" ? "On behalf of" : "باسم"}
-                    <span className="text-danger">*</span>
+                    {/* <span className="text-danger">*</span> */}
                   </label>
                   <input
                     style={{
@@ -622,7 +626,7 @@ export default class KeyRequestForm extends React.Component<
                   </a>
                 </div>
               </div>
-
+              {redirection == false && (
               <div className="d-flex justify-content-end mb-2 gap-3">
                 <button
                   className="px-4 py-2"
@@ -645,14 +649,15 @@ export default class KeyRequestForm extends React.Component<
                   {language === "En" ? "Submit" : "إرسال"}
                 </button>
               </div>
-              {this.state.inputFeild.PendingWith === "Key Processor" && (
+              )}
+              {pendingWith === "Key Processor" && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      this.onApproveReject("Approve", "Completed");
+                      this.onApproveReject("Approved", "Completed");
                     }}
                   >
                     {language === "En" ? "Approve" : "يعتمد"}
@@ -662,7 +667,7 @@ export default class KeyRequestForm extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      this.onApproveReject("Reject", "Rejected");
+                      this.onApproveReject("Rejected", "Rejected");
                     }}
                   >
                     {language === "En" ? "Reject" : "يرفض"}

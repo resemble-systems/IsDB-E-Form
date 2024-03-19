@@ -10,6 +10,10 @@ import {
   SPHttpClient,
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
+import {
+  PeoplePicker,
+  PrincipalType,
+} from "@pnp/spfx-controls-react/lib/PeoplePicker"; 
 import RichTextEditor from "../../../common-components/richTextEditor/RichTextEditor";
 import { postData } from "../../../Services/Services";
 
@@ -24,6 +28,8 @@ interface IWorkPermitState {
   description: any;
   redirection: boolean;
   approverComment: any;
+  peopleData: any;
+  people: any;
 }
 
 export default class WorkPermit extends React.Component<
@@ -42,6 +48,8 @@ export default class WorkPermit extends React.Component<
       },
       language: "En",
       description: "",
+      peopleData: [],
+      people: [],
       others: false,
       grind: false,
       braze: false,
@@ -180,6 +188,23 @@ export default class WorkPermit extends React.Component<
           window.history.go(-1);
         });
     }
+  };
+  public onChangePeoplePickerItems = (items: any) => {
+    const { peopleData } = this.state;
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log("onChangePeoplePickerItems", finalData, items);
+
+    this.setState({
+      people: finalData,
+    });
   };
   public onApproveReject: (
     Type: string,
@@ -339,6 +364,7 @@ export default class WorkPermit extends React.Component<
             </div>
 
             <div className="row">
+            <div className="d-flex py-2">
               <InputFeild
                 type="text"
                 disabled={redirection}
@@ -353,6 +379,42 @@ export default class WorkPermit extends React.Component<
                 inputFeild={inputFeild.area}
                 self={this}
               />
+               <div
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="Description">
+                    {language === "En" ? "FMSDC Supervisor" : "نيابة عن"}
+                    <span className="text-danger">*</span>
+                  </label>
+                </div>
+
+
+                <div
+                  style={{ marginLeft: "10px", width: "25%" }}
+                  className={"custom-people-picker"}
+                >
+                  <PeoplePicker
+                    context={context as any}
+                    disabled={false}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.onChangePeoplePickerItems(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
+                  />
+                </div>
+</div>
             </div>
             <div>
               <div

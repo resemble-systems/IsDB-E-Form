@@ -25,7 +25,7 @@ interface IDataCenterState {
   userDisplayName: string;
   redirection: any;
   isModalOpen: any;
-  // context: any;
+  pendingWith: any;
 }
 
 export default class DataCenter extends React.Component<
@@ -45,7 +45,8 @@ export default class DataCenter extends React.Component<
       userDisplayName: "",
       redirection: false,
       isModalOpen: false,
-    };
+      pendingWith:"Data Center Owner",
+    }   
   }
   public componentDidMount() {
     let data = window.location.href.split("=");
@@ -164,7 +165,7 @@ export default class DataCenter extends React.Component<
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
-    const { inputFeild, language, conditionCheckBox, redirection } = this.state;
+    const { inputFeild, language, conditionCheckBox, redirection,pendingWith } = this.state;
     const { context } = this.props;
     console.log(inputFeild.doorCheckBox, "doorcheckbox value");
     return (
@@ -404,8 +405,8 @@ export default class DataCenter extends React.Component<
                 </div>
               )}
             </div>
-            {(this.state.inputFeild.PendingWith === "Data Center Owner" ||
-              this.state.inputFeild.PendingWith === "SSIMS Manager") && (
+            {(pendingWith === "Data Center Owner" ||
+              pendingWith === "SSIMS Manager") && (
               <div className="d-flex justify-content-end mb-2 gap-3">
                 <button
                   className="px-4 py-2"

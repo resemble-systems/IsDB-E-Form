@@ -36,6 +36,7 @@ interface ISafetyIncidentState {
   attachments: any;
   listId: any;
   redirection: boolean;
+  pendingWith:any,
 }
 export default class SafetyIncident extends React.Component<
   ISafetyIncidentProps,
@@ -70,6 +71,7 @@ export default class SafetyIncident extends React.Component<
       attachments: "",
       listId: 0,
       redirection: false,
+      pendingWith:"SSIMS Manager",
     };
   }
   public componentDidMount() {
@@ -354,6 +356,7 @@ export default class SafetyIncident extends React.Component<
       when,
       fileInfos,
       redirection,
+      pendingWith
     } = this.state;
     const { context } = this.props;
 
@@ -747,7 +750,7 @@ export default class SafetyIncident extends React.Component<
               </button>
             </div>
   )}
-         {this.state.inputFeild.PendingWith === "SSIMS Manager" && (
+         {pendingWith === "SSIMS Manager" && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"

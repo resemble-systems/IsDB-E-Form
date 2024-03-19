@@ -75,23 +75,91 @@ export default class SsimsDashboard extends React.Component<
       dataIndex: ["Id", "View"],
       key: "operation",
       width: 220,
-      render: (t: any, r: any, i: any) => (
-        <Space size="middle">
-          <a
-            className={`${styles.departmentManageEventAction} mx-2`}
-            onClick={() => {
-              window.location.href = `${
-                this.props.context.pageContext.site.absoluteUrl
-              }/SitePages/visit-request-printout.aspx?itemID=${r[
-                "Id"
-              ].toString()}`;
-            }}
-          >
-            View
-          </a>
-        </Space>
-      ),
+      render: (t: any, r: any, i: any) => {
+        let viewLink = "";
+        if (r.listType === "VisitorRequestForm") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/visit-request-form-employee.aspx?itemID=${r[
+            "Id"
+          ].toString()}`;
+        } else if (r.listType === "Contractor-Form") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/contractor-form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "Parking-Request") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/parking-request-form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "Key-Request") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/key-request-form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "DataCenterAccess") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/data-center-form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "Employee-Reprimand") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/employee-reprimand.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "Gate-Pass") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/Gate-Pass-Request-form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "Safety-Incident") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/Safety-Incident-Form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "Shift-Report") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/shift-report-form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "BlackList") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/black-list-form.aspx?itemID=${r["Id"].toString()}`;
+        } else if (r.listType === "Work-Permit") {
+          viewLink = `${
+            this.props.context.pageContext.site.absoluteUrl
+          }/SitePages/work-permit.aspx?itemID=${r["Id"].toString()}`;
+        }
+        return (
+          <Space size="middle">
+            <a
+              className={`${styles.departmentManageEventAction} mx-2`}
+              href={viewLink}
+              target="_blank"
+            >
+              View
+            </a>
+          </Space>
+        );
+      },
     },
+    // {
+    //   title: "Action",
+    //   dataIndex: ["Id", "View"],
+    //   key: "operation",
+    //   width: 220,
+    //   render: (t: any, r: any, i: any) => (
+
+    //     <Space size="middle">
+    //       <a
+    //         className={`${styles.departmentManageEventAction} mx-2`}
+    //         onClick={() => {
+    //           window.location.href = `${
+    //             this.props.context.pageContext.site.absoluteUrl
+    //           }/SitePages/visit-request-printout.aspx?itemID=${r[
+    //             "Id"
+    //           ].toString()}`;
+    //         }}
+    //       >
+    //         View
+    //       </a>
+    //     </Space>
+    //   ),
+    // },
   ];
 
   public downloadExcel = (data: any) => {
@@ -132,48 +200,48 @@ export default class SsimsDashboard extends React.Component<
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Key-Request')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  KeyRequest = await  KeyRequestRes.json();
+    let KeyRequest = await KeyRequestRes.json();
 
     let DataCenterAccessRes = await context.spHttpClient.get(
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('DataCenterAccess')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  DataCenterAccess = await  DataCenterAccessRes.json();
-    
+    let DataCenterAccess = await DataCenterAccessRes.json();
+
     let EmployeeReprimandRes = await context.spHttpClient.get(
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Employee-Reprimand')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  EmployeeReprimand = await  EmployeeReprimandRes.json();
+    let EmployeeReprimand = await EmployeeReprimandRes.json();
 
     let GatePassRes = await context.spHttpClient.get(
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Gate-Pass')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  GatePass = await  GatePassRes.json();
+    let GatePass = await GatePassRes.json();
     let SafetyIncidentRes = await context.spHttpClient.get(
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Safety-Incident')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  SafetyIncident = await  SafetyIncidentRes.json();
-    
+    let SafetyIncident = await SafetyIncidentRes.json();
+
     let ShiftReportRes = await context.spHttpClient.get(
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  ShiftReport = await  ShiftReportRes.json();
+    let ShiftReport = await ShiftReportRes.json();
 
     let BlackListRes = await context.spHttpClient.get(
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('BlackList')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  BlackList = await  BlackListRes.json();
+    let BlackList = await BlackListRes.json();
 
     let WorkPermitRes = await context.spHttpClient.get(
       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Work-Permit')/items?$select=&$expand=AttachmentFiles`,
       SPHttpClient.configurations.v1
     );
-    let  WorkPermit = await  WorkPermitRes.json();
+    let WorkPermit = await WorkPermitRes.json();
     let tableListData = [
       ...VisitorRequestForm.value,
       ...contractorForm.value,
@@ -185,11 +253,23 @@ export default class SsimsDashboard extends React.Component<
       ...SafetyIncident.value,
       ...ShiftReport.value,
       ...BlackList.value,
-      ...WorkPermit.value
-
+      ...WorkPermit.value,
     ];
     const filteredItems = tableListData.filter(
-      (item: any) => item.PendingWith === "Manager"
+      (item: any) =>
+        item.PendingWith === "Receptionist" ||
+        item.PendingWith === "FMSDC (Approver)" ||
+        item.PendingWith === "Contract Admin Manager" ||
+        item.PendingWith === "HR Training and Development Division" ||
+        item.PendingWith === "Immediate Supervisor" ||
+        item.PendingWith === "Employee" ||
+        item.PendingWith === "System" ||
+        item.PendingWith === "ManagSecurity Manager" ||
+        item.PendingWith === "Head of Safety and Security" ||
+        item.PendingWith === "SSIMS Reviewer" ||
+        item.PendingWith === "SSIMS Manager" ||
+        item.PendingWith === "Data Center Owner" ||
+        item.pendingWith === "Key Processor"
     );
 
     let tableSortedData = filteredItems.sort(
