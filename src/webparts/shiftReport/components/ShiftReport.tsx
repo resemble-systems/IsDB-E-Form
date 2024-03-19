@@ -37,15 +37,15 @@ interface IShiftReportState {
   cleaning: any;
   redirection: boolean;
   approverComment: any;
-
+  
   uploadContent: {
     Date: string;
     Title: string;
     Location: string;
     Description: string;
     CreatedBy: string;
-    
   };
+  PendingWith:any;
 }
 
 export default class ShiftReport extends React.Component<
@@ -75,6 +75,7 @@ export default class ShiftReport extends React.Component<
       cleaning: "",
       redirection: false,
       approverComment: "",
+      PendingWith:"Security Manager",
       uploadContent: {
         Date: "",
         Title: "",
@@ -325,9 +326,9 @@ export default class ShiftReport extends React.Component<
   };
   public onApproveReject: (
     Type: string,
-    pendingWith: string,
+    PendingWith: string,
     comments: string
-  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+  ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
@@ -339,7 +340,7 @@ export default class ShiftReport extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
       comments: comments || "",
     });
 
@@ -371,6 +372,7 @@ export default class ShiftReport extends React.Component<
       handOverChecklist,
       cleaning,
       redirection,
+      PendingWith
     } = this.state;
     const { context } = this.props;
 
@@ -777,7 +779,8 @@ export default class ShiftReport extends React.Component<
                 </button>
               </div>
             )}
-              {(this.state.inputFeild.PendingWith === "ManagSecurity Manager" || this.state.inputFeild.PendingWith === "System" ) && (
+            {(PendingWith === "Security Manager" ||
+              PendingWith === "System") && (
               <div>
                 <div
                   style={{
@@ -809,9 +812,9 @@ export default class ShiftReport extends React.Component<
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "Security Manager") {
+                      if (PendingWith === "Security Manager") {
                         this.onApproveReject(
                           "Approve",
                           "System",
@@ -833,9 +836,9 @@ export default class ShiftReport extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "Security Manager") {
+                      if (PendingWith === "Security Manager") {
                         this.onApproveReject(
                           "Archive",
                           "Archiveby Security Manager )",
@@ -857,9 +860,9 @@ export default class ShiftReport extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "Security Manager )") {
+                      if (PendingWith === "Security Manager )") {
                         this.onApproveReject(
                           "Return To User",
                           "Return To User",
@@ -874,12 +877,13 @@ export default class ShiftReport extends React.Component<
                       }
                     }}
                   >
-                    {language === "En" ? "Return To User" : "العودة إلى المستخدم"}
+                    {language === "En"
+                      ? "Return To User"
+                      : "العودة إلى المستخدم"}
                   </button>
                 </div>
               </div>
             )}
-          
           </div>
         </div>
       </CommunityLayout>

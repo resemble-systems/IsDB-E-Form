@@ -48,7 +48,7 @@ interface IEmployeeReprimandState {
   isModalOpen: any;
   approverComment: any;
   checked: any;
-  pendingWith: any;
+  PendingWith: any;
 }
 export default class EmployeeReprimand extends React.Component<
   IEmployeeReprimandProps,
@@ -95,7 +95,7 @@ export default class EmployeeReprimand extends React.Component<
       isModalOpen: false,
       approverComment: "",
       checked: false,
-      pendingWith: "SSIMS Reviewer",
+      PendingWith: "SSIMS Reviewer",
     };
   }
 
@@ -452,9 +452,9 @@ export default class EmployeeReprimand extends React.Component<
   };
   public onApproveReject: (
     Type: string,
-    pendingWith: string,
+    PendingWith: string,
     comments: string
-  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+  ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
@@ -466,7 +466,7 @@ export default class EmployeeReprimand extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
       comments: comments || "",
     });
 
@@ -506,7 +506,7 @@ export default class EmployeeReprimand extends React.Component<
       attachments,
       fileInfos,
       commentsPost,
-      pendingWith
+      PendingWith
     } = this.state;
     const { context } = this.props;
     console.log("attachments", attachments);
@@ -533,10 +533,12 @@ export default class EmployeeReprimand extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-            <div className="">
-              Edit
-              <Switch onChange={this.onChange} />
-            </div>
+          {PendingWith === "SSIMS Reviewer" && (
+              <div className="">
+                Edit
+                <Switch onChange={this.onChange} />
+              </div>
+            )}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -935,8 +937,8 @@ export default class EmployeeReprimand extends React.Component<
               </button>
             </div>
             )}
-            {(pendingWith === "SSIMS Reviewer" ||
-              pendingWith === "SSIMS Manager") && (
+            {(PendingWith === "SSIMS Reviewer" ||
+              PendingWith === "SSIMS Manager") && (
               <div>
                 <div
                   style={{
@@ -968,9 +970,9 @@ export default class EmployeeReprimand extends React.Component<
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "SSIMS Reviewer") {
+                      if (PendingWith === "SSIMS Reviewer") {
                         this.onApproveReject(
                           "Approve",
                           "Completed",
@@ -992,9 +994,9 @@ export default class EmployeeReprimand extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "SSIMS Reviewer") {
+                      if (PendingWith === "SSIMS Reviewer") {
                         this.onApproveReject(
                           "Archive",
                           "Archived by SSIMS Reviewer",

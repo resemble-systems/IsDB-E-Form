@@ -40,6 +40,7 @@ interface IVisitorsFormState {
   visitedEmployeeEmailID: any;
   redirection:any;
   approverComment:any;
+  PendingWith:any;
 }
 
 export default class VisitorsForm extends React.Component<
@@ -95,6 +96,7 @@ export default class VisitorsForm extends React.Component<
       visitedEmployeeEmailID: "",
       approverComment:"",
       redirection:false,
+      PendingWith:"Receptionist"
     };
   }
   public componentDidMount() {
@@ -605,9 +607,9 @@ export default class VisitorsForm extends React.Component<
   };
   public onApproveReject: (
     Type: string,
-    pendingWith: string,
+    PendingWith: string,
     comments: string
-  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+  ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
@@ -619,7 +621,7 @@ export default class VisitorsForm extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
       comments: comments || "",
     });
 
@@ -654,7 +656,8 @@ export default class VisitorsForm extends React.Component<
       visitorPhotoJSON,
       postAttachments,
       attachmentJson,
-      redirection
+      redirection,
+      PendingWith
     } = this.state;
     const { context } = this.props;
 
@@ -1298,7 +1301,7 @@ export default class VisitorsForm extends React.Component<
               </button>
             </div>
            )}
-            {this.state.inputFeild.PendingWith === "Receptionist" && (
+            {PendingWith === "Receptionist" && (
               <div>
                 <div
                   style={{
@@ -1331,9 +1334,9 @@ export default class VisitorsForm extends React.Component<
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "Receptionist") {
+                      if (PendingWith=== "Receptionist") {
                         this.onApproveReject(
                           "Approve",
                           "Completed",
@@ -1355,9 +1358,9 @@ export default class VisitorsForm extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const {  approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "Receptionist") {
+                      if (PendingWith === "Receptionist") {
                         this.onApproveReject(
                           "Reject",
                           "Rejected by Receptionist",

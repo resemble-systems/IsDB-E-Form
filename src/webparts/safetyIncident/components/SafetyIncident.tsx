@@ -36,7 +36,7 @@ interface ISafetyIncidentState {
   attachments: any;
   listId: any;
   redirection: boolean;
-  pendingWith:any,
+  PendingWith:any,
 }
 export default class SafetyIncident extends React.Component<
   ISafetyIncidentProps,
@@ -71,7 +71,7 @@ export default class SafetyIncident extends React.Component<
       attachments: "",
       listId: 0,
       redirection: false,
-      pendingWith:"SSIMS Manager",
+      PendingWith:"SSIMS Manager",
     };
   }
   public componentDidMount() {
@@ -306,9 +306,9 @@ export default class SafetyIncident extends React.Component<
       console.log("Response", Response);
     }
   };
-  public onApproveReject: (Type: string, pendingWith: string) => void = async (
+  public onApproveReject: (Type: string, PendingWith: string) => void = async (
     Type: string,
-    pendingWith: string
+    PendingWith: string
   ) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
@@ -321,7 +321,7 @@ export default class SafetyIncident extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
@@ -356,7 +356,7 @@ export default class SafetyIncident extends React.Component<
       when,
       fileInfos,
       redirection,
-      pendingWith
+      PendingWith
     } = this.state;
     const { context } = this.props;
 
@@ -456,7 +456,7 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder="Add a Incident Description..."
+                placeholder={language === "En" ? "Add a Incident Description..." : "إضافة وصف الحادث..."}
                 required
                 value={descriptionPost}
                 onChange={(e) =>
@@ -482,7 +482,7 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder="Add a comment..."
+                placeholder= {language === "En" ? "Add a comment..." : "اضف تعليق..."}
                 required
                 value={commentsPost}
                 onChange={(e) =>
@@ -517,7 +517,7 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder="Add a comments..."
+                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
                 required
                 value={what}
                 onChange={(e) => this.setState({ what: e.target.value })}
@@ -542,7 +542,7 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder="Add a comments..."
+                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
                 required
                 value={why}
                 onChange={(e) => this.setState({ why: e.target.value })}
@@ -592,7 +592,7 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder="Add a comments..."
+                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
                 required
                 value={how}
                 onChange={(e) => this.setState({ how: e.target.value })}
@@ -617,7 +617,7 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder="Add a comments..."
+                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
                 required
                 value={where}
                 onChange={(e) => this.setState({ where: e.target.value })}
@@ -642,7 +642,7 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder="Add a comments..."
+                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
                 required
                 value={who}
                 onChange={(e) => this.setState({ who: e.target.value })}
@@ -750,7 +750,7 @@ export default class SafetyIncident extends React.Component<
               </button>
             </div>
   )}
-         {pendingWith === "SSIMS Manager" && (
+         {PendingWith === "SSIMS Manager" && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"

@@ -264,12 +264,12 @@ export default class SsimsDashboard extends React.Component<
         item.PendingWith === "Immediate Supervisor" ||
         item.PendingWith === "Employee" ||
         item.PendingWith === "System" ||
-        item.PendingWith === "ManagSecurity Manager" ||
+        item.PendingWith === "Security Manager" ||
         item.PendingWith === "Head of Safety and Security" ||
         item.PendingWith === "SSIMS Reviewer" ||
         item.PendingWith === "SSIMS Manager" ||
         item.PendingWith === "Data Center Owner" ||
-        item.pendingWith === "Key Processor"
+        item.PendingWith === "Key Processor"
     );
 
     let tableSortedData = filteredItems.sort(

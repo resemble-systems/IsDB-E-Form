@@ -13,7 +13,7 @@ import {
 import {
   PeoplePicker,
   PrincipalType,
-} from "@pnp/spfx-controls-react/lib/PeoplePicker"; 
+} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import RichTextEditor from "../../../common-components/richTextEditor/RichTextEditor";
 import { postData } from "../../../Services/Services";
 
@@ -30,6 +30,7 @@ interface IWorkPermitState {
   approverComment: any;
   peopleData: any;
   people: any;
+  PendingWith:any;
 }
 
 export default class WorkPermit extends React.Component<
@@ -57,6 +58,7 @@ export default class WorkPermit extends React.Component<
       cut: false,
       redirection: false,
       approverComment: "",
+      PendingWith:"FMSDC (Approver)"
     };
   }
 
@@ -208,9 +210,9 @@ export default class WorkPermit extends React.Component<
   };
   public onApproveReject: (
     Type: string,
-    pendingWith: string,
+    PendingWith: string,
     comments: string
-  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+  ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
@@ -222,7 +224,7 @@ export default class WorkPermit extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
       comments: comments || "",
     });
 
@@ -253,6 +255,7 @@ export default class WorkPermit extends React.Component<
       weld,
       description,
       redirection,
+      PendingWith
     } = this.state;
     const { context } = this.props;
 
@@ -364,22 +367,22 @@ export default class WorkPermit extends React.Component<
             </div>
 
             <div className="row">
-            <div className="d-flex py-2">
-              <InputFeild
-                type="text"
-                disabled={redirection}
-                label={
-                  <>
-                    {language === "En" ? "Area" : "منطقة"}
-                    <span className="text-danger">*</span>
-                  </>
-                }
-                name="area"
-                state={inputFeild}
-                inputFeild={inputFeild.area}
-                self={this}
-              />
-               <div
+              <div className="d-flex py-2">
+                <InputFeild
+                  type="text"
+                  disabled={redirection}
+                  label={
+                    <>
+                      {language === "En" ? "Area" : "منطقة"}
+                      <span className="text-danger">*</span>
+                    </>
+                  }
+                  name="area"
+                  state={inputFeild}
+                  inputFeild={inputFeild.area}
+                  self={this}
+                />
+                <div
                   style={{
                     fontSize: "1em",
                     fontFamily: "Open Sans",
@@ -393,7 +396,6 @@ export default class WorkPermit extends React.Component<
                     <span className="text-danger">*</span>
                   </label>
                 </div>
-
 
                 <div
                   style={{ marginLeft: "10px", width: "25%" }}
@@ -414,7 +416,7 @@ export default class WorkPermit extends React.Component<
                     ensureUser={true}
                   />
                 </div>
-</div>
+              </div>
             </div>
             <div>
               <div
@@ -568,7 +570,8 @@ export default class WorkPermit extends React.Component<
                 </button>
               </div>
             )}
-            {(this.state.inputFeild.PendingWith === "FMSDC (Approver)" || this.state.inputFeild.PendingWith === "Head of Safety and Security" ) && (
+            {(PendingWith === "FMSDC (Approver)" ||
+              PendingWith === "Head of Safety and Security") && (
               <div>
                 <div
                   style={{
@@ -600,9 +603,9 @@ export default class WorkPermit extends React.Component<
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "FMSDC (Approver)") {
+                      if (PendingWith === "FMSDC (Approver)") {
                         this.onApproveReject(
                           "Approve",
                           "Head of Safety and Security",
@@ -624,9 +627,9 @@ export default class WorkPermit extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const {  approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "FMSDC (Approver)") {
+                      if (PendingWith === "FMSDC (Approver)") {
                         this.onApproveReject(
                           "Reject",
                           "Rejected by FMSDC (Approver)",

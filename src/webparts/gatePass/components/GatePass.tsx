@@ -34,7 +34,8 @@ interface IGatePassState {
   addDetails: any;
   nameOptions: Array<{ value: string; label: string; email: string }>;
   nameSelected: any;
-  isModalOpen:any
+  isModalOpen:any;
+  PendingWith:any;
 }
 
 export default class GatePass extends React.Component<
@@ -68,7 +69,8 @@ export default class GatePass extends React.Component<
       nameSelected: [],
       showAdd: false,
       addDetails: { Model: "", Serial: "", Description: "", Quantity: 0 },
-      isModalOpen:false
+      isModalOpen:false,
+      PendingWith:"Manager"
     };
   }
 
@@ -272,9 +274,9 @@ export default class GatePass extends React.Component<
       people: finalData,
     });
   };
-  public onApproveReject: (Type: string, pendingWith: string) => void = async (
+  public onApproveReject: (Type: string, PendingWith: string) => void = async (
     Type: string,
-    pendingWith: string
+    PendingWith: string
   ) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
@@ -287,7 +289,7 @@ export default class GatePass extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
@@ -317,6 +319,7 @@ export default class GatePass extends React.Component<
       tableData,
       showAdd,
       addDetails,
+      PendingWith
     } = this.state;
     const { context } = this.props;
 
@@ -713,14 +716,14 @@ export default class GatePass extends React.Component<
               </button>
             </div>
 
-            {this.state.inputFeild.PendingWith === "Manager" && (
+            {PendingWith === "Manager" && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      if(this.state.inputFeild.PendingWith === "Approver"){
+                      if(PendingWith === "Approver"){
 
                         this.onApproveReject("Approve", "Manager");
                       }
@@ -736,7 +739,7 @@ export default class GatePass extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      if(this.state.inputFeild.PendingWith === "Approver"){
+                      if(PendingWith === "Approver"){
                       this.onApproveReject("Reject", "Rejected by Approver");
                     }
                     else{

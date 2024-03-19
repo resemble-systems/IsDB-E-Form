@@ -35,6 +35,7 @@ interface IVisitRequestFormVisitorState {
   redirection:any;
   checked:any;
   approverComment:any;
+  PendingWith:any;
 }
 
 export default class VisitRequestFormVisitor extends React.Component<
@@ -83,6 +84,7 @@ export default class VisitRequestFormVisitor extends React.Component<
       redirection:false,
       checked:false,
       approverComment:"",
+      PendingWith:"Employee"
     };
   }
   public componentDidMount() {
@@ -485,9 +487,9 @@ export default class VisitRequestFormVisitor extends React.Component<
   }
   public onApproveReject: (
     Type: string,
-    pendingWith: string,
+    PendingWith: string,
     comments: string
-  ) => void = async (Type: string, pendingWith: string, comments?: string) => {
+  ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
@@ -499,7 +501,7 @@ export default class VisitRequestFormVisitor extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
       comments: comments || "",
     });
 
@@ -534,7 +536,8 @@ export default class VisitRequestFormVisitor extends React.Component<
       visitorPhoto,
       postAttachments,
       language,
-      redirection
+      redirection,
+      PendingWith
     } = this.state;
     const { context } = this.props;
 
@@ -618,7 +621,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-          {this.state.inputFeild.PendingWith === "Employee" && (
+          {PendingWith === "Employee" && (
           <div className="">
             Edit<Switch  onChange={this.onChange} />
             </div>
@@ -898,7 +901,7 @@ export default class VisitRequestFormVisitor extends React.Component<
               </button>
             </div>
   )}
-     {(this.state.inputFeild.PendingWith === "Employee" || this.state.inputFeild.PendingWith === "Receptionist") && (
+     {(PendingWith === "Employee" || PendingWith === "Receptionist") && (
               <div>
                 <div
                   style={{
@@ -930,9 +933,9 @@ export default class VisitRequestFormVisitor extends React.Component<
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "Employee") {
+                      if (PendingWith === "Employee") {
                         this.onApproveReject(
                           "Approve",
                           "Receptionist",
@@ -954,9 +957,9 @@ export default class VisitRequestFormVisitor extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      const { inputFeild, approverComment } = this.state;
+                      const { approverComment } = this.state;
 
-                      if (inputFeild.PendingWith === "Employee") {
+                      if (PendingWith === "Employee") {
                         this.onApproveReject(
                           "Reject",
                           "Rejected by Employee",

@@ -34,7 +34,8 @@ interface IKeyRequestFormState {
   alreadyExist: any;
   isModalOpen: any;
   redirection: any;
-  pendingWith: any;
+  PendingWith: any;
+  pendingApprover: any;
 }
 export default class KeyRequestForm extends React.Component<
   IKeyRequestFormProps,
@@ -50,7 +51,6 @@ export default class KeyRequestForm extends React.Component<
         number: "",
         floor: "1",
         DDMenu: "New Office",
-        
       },
       language: "En",
       requestTypeData: [],
@@ -67,7 +67,8 @@ export default class KeyRequestForm extends React.Component<
       alreadyExist: "",
       isModalOpen: false,
       redirection: false,
-      pendingWith:"Key Processor",
+      PendingWith: "",
+      pendingApprover: "",
     };
   }
   public componentDidMount() {
@@ -178,7 +179,7 @@ export default class KeyRequestForm extends React.Component<
       });
   }
 
-  public onSubmit = () => {
+  public onSubmit = async () => {
     const { context } = this.props;
     const {
       inputFeild,
@@ -196,77 +197,115 @@ export default class KeyRequestForm extends React.Component<
     } else if (people.length < 1) {
       alert("User Name cannot be blank!");
     } else {
-      let peopleArr = people;
-      console.log("people on submit", peopleArr, people);
-      peopleArr?.map((post: any) => {
-        console.log("post on submit", post);
-        const headers: any = {
-          "X-HTTP-Method": "MERGE",
-          "If-Match": "*",
-          "Content-Type": "application/json;odata=nometadata",
-        };
+      const peopleArr = people.map((person: any) => person.secondaryText);
+      const onBehalfEmail = people[0]?.secondaryText;
+      let pendingApprover = "";
 
-        const spHttpClintOptions: ISPHttpClientOptions =
-          window.location.href.indexOf("?itemID") != -1
-            ? {
-                headers,
-                body: JSON.stringify({
-                  Title: inputFeild.requestType,
-                  EmployeeEntity: inputFeild.entity,
-                  Floor: inputFeild.floor,
-                  officeNumber: inputFeild.number,
-                  Door: doorCheckBox.toString(),
-                  officeDesk: deskCheckBox.toString(),
-                  cabinet: cabinetCheckBox.toString(),
-                  officeSafe: safeCheckBox.toString(),
-                  drawer: drawerCheckBox.toString(),
-                  DDMenu: inputFeild.DDMenu,
-                  OnBehalfOfName: JSON.stringify(peopleArr),
-                  OnBehalfOfEmail: JSON.stringify(post.secondaryText),
-                  
-                }),
-              }
-            : {
-                body: JSON.stringify({
-                  Title: inputFeild.requestType,
-                  EmployeeEntity: inputFeild.entity,
-                  Floor: inputFeild.floor,
-                  officeNumber: inputFeild.number,
-                  Door: doorCheckBox.toString(),
-                  officeDesk: deskCheckBox.toString(),
-                  cabinet: cabinetCheckBox.toString(),
-                  officeSafe: safeCheckBox.toString(),
-                  drawer: drawerCheckBox.toString(),
-                  DDMenu: inputFeild.DDMenu,
-                  OnBehalfOfName: JSON.stringify(peopleArr),
-                  OnBehalfOfEmail: JSON.stringify(post.secondaryText),
-                }),
-              };
+      if (onBehalfEmail) {
+        pendingApprover = onBehalfEmail;
+      } else {
+        const keyProcessorEmails = await this.getKeyProcessor();
+        pendingApprover = keyProcessorEmails[0];
+      }
+      console.log(pendingApprover, "pendingApprover");
+      const headers: any = {
+        "X-HTTP-Method": "MERGE",
+        "If-Match": "*",
+        "Content-Type": "application/json;odata=nometadata",
+      };
+      const pendingWith = onBehalfEmail ? "On Behalf Of" : "Key Processor";
 
-        let data = window.location.href.split("=");
-        let itemId: any = data[data.length - 1];
-        let url =
-          window.location.href.indexOf("?itemID") != -1
-            ? `/_api/web/lists/GetByTitle('Key-Request')/items('${itemId}')`
-            : "/_api/web/lists/GetByTitle('Key-Request')/items";
+      const spHttpClintOptions: ISPHttpClientOptions =
+        window.location.href.indexOf("?itemID") != -1
+          ? {
+              headers,
+              body: JSON.stringify({
+                Title: inputFeild.requestType,
+                EmployeeEntity: inputFeild.entity,
+                Floor: inputFeild.floor,
+                officeNumber: inputFeild.number,
+                Door: doorCheckBox.toString(),
+                officeDesk: deskCheckBox.toString(),
+                cabinet: cabinetCheckBox.toString(),
+                officeSafe: safeCheckBox.toString(),
+                drawer: drawerCheckBox.toString(),
+                DDMenu: inputFeild.DDMenu,
+                OnBehalfOfName: JSON.stringify(peopleArr),
+                OnBehalfOfEmail: JSON.stringify(onBehalfEmail),
+                pendingApprover: JSON.stringify(pendingApprover),
+                pendingWith: pendingWith,
+              }),
+            }
+          : {
+              body: JSON.stringify({
+                Title: inputFeild.requestType,
+                EmployeeEntity: inputFeild.entity,
+                Floor: inputFeild.floor,
+                officeNumber: inputFeild.number,
+                Door: doorCheckBox.toString(),
+                officeDesk: deskCheckBox.toString(),
+                cabinet: cabinetCheckBox.toString(),
+                officeSafe: safeCheckBox.toString(),
+                drawer: drawerCheckBox.toString(),
+                DDMenu: inputFeild.DDMenu,
+                OnBehalfOfName: JSON.stringify(peopleArr),
+                OnBehalfOfEmail: JSON.stringify(onBehalfEmail),
+                pendingApprover: JSON.stringify(pendingApprover),
+                pendingWith: pendingWith,
+                // OnBehalfOfEmail: JSON.stringify(post.secondaryText),
+              }),
+            };
 
-        context.spHttpClient
-          .post(
-            `${context.pageContext.web.absoluteUrl}${url}`,
-            SPHttpClient.configurations.v1,
-            spHttpClintOptions
-          )
-          .then((res) => {
-            console.log("RES POST", res);
-            alert(`You have successfully submitted`);
-            window.history.go(-1);
-          });
-      });
+      let data = window.location.href.split("=");
+      let itemId: any = data[data.length - 1];
+      let url =
+        window.location.href.indexOf("?itemID") != -1
+          ? `/_api/web/lists/GetByTitle('Key-Request')/items('${itemId}')`
+          : "/_api/web/lists/GetByTitle('Key-Request')/items";
+
+      context.spHttpClient
+        .post(
+          `${context.pageContext.web.absoluteUrl}${url}`,
+          SPHttpClient.configurations.v1,
+          spHttpClintOptions
+        )
+        .then((res) => {
+          console.log("RES POST", res);
+          alert(`You have successfully submitted`);
+          window.history.go(-1);
+        });
     }
   };
-  public onApproveReject: (Type: string, pendingWith: string) => void = async (
+  private async getKeyProcessor(): Promise<string[]> {
+    const { context } = this.props;
+    const url = `${context.pageContext.web.absoluteUrl}/_api/web/lists/getbytitle('Gate-Pass-Approver')/items`;
+    try {
+      const response = await context.spHttpClient.get(
+        url,
+        SPHttpClient.configurations.v1
+      );
+      if (response.ok) {
+        const data = await response.json();
+        const keyProcessorEmails: string[] = data.value.map(
+          (item: any) => item["Key-Processor"]
+        );
+        return keyProcessorEmails;
+      } else {
+        console.error(
+          "Failed to fetch Key Processor emails:",
+          response.statusText
+        );
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching Key Processor emails:", error);
+      return [];
+    }
+  }
+
+  public onApproveReject: (Type: string, PendingWith: string) => void = async (
     Type: string,
-    pendingWith: string
+    PendingWith: string
   ) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
@@ -279,7 +318,7 @@ export default class KeyRequestForm extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
@@ -331,7 +370,7 @@ export default class KeyRequestForm extends React.Component<
       drawerCheckBox,
       conditionCheckBox,
       redirection,
-      pendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
     console.log(inputFeild.doorCheckBox, "doorcheckbox value");
@@ -627,30 +666,31 @@ export default class KeyRequestForm extends React.Component<
                 </div>
               </div>
               {redirection == false && (
-              <div className="d-flex justify-content-end mb-2 gap-3">
-                <button
-                  className="px-4 py-2"
-                  style={{ backgroundColor: "#E5E5E5" }}
-                  type="button"
-                  onClick={() => {
-                    window.history.go(-1);
-                  }}
-                >
-                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
-                </button>
-                <button
-                  className="px-4 py-2 text-white"
-                  style={{ backgroundColor: "#223771" }}
-                  type="button"
-                  onClick={() => {
-                    this.onSubmit();
-                  }}
-                >
-                  {language === "En" ? "Submit" : "إرسال"}
-                </button>
-              </div>
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      window.history.go(-1);
+                    }}
+                  >
+                    {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      this.onSubmit();
+                    }}
+                  >
+                    {language === "En" ? "Submit" : "إرسال"}
+                  </button>
+                </div>
               )}
-              {pendingWith === "Key Processor" && (
+              {(PendingWith === "Key Processor" ||
+                PendingWith === "On Behalf Of") && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"

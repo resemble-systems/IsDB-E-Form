@@ -25,7 +25,7 @@ interface IDataCenterState {
   userDisplayName: string;
   redirection: any;
   isModalOpen: any;
-  pendingWith: any;
+  PendingWith: any;
 }
 
 export default class DataCenter extends React.Component<
@@ -45,8 +45,8 @@ export default class DataCenter extends React.Component<
       userDisplayName: "",
       redirection: false,
       isModalOpen: false,
-      pendingWith:"Data Center Owner",
-    }   
+      PendingWith: "Data Center Owner",
+    };
   }
   public componentDidMount() {
     let data = window.location.href.split("=");
@@ -130,9 +130,9 @@ export default class DataCenter extends React.Component<
       });
     }
   };
-  public onApproveReject: (Type: string, pendingWith: string) => void = async (
+  public onApproveReject: (Type: string, PendingWith: string) => void = async (
     Type: string,
-    pendingWith: string
+    PendingWith: string
   ) => {
     const { context } = this.props;
     let data = window.location.href.split("=");
@@ -145,7 +145,7 @@ export default class DataCenter extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      pendingWith: pendingWith,
+      PendingWith: PendingWith,
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
@@ -165,7 +165,13 @@ export default class DataCenter extends React.Component<
     SPComponentLoader.loadCss(sansFont);
     SPComponentLoader.loadCss(font);
     SPComponentLoader.loadCss(fa);
-    const { inputFeild, language, conditionCheckBox, redirection,pendingWith } = this.state;
+    const {
+      inputFeild,
+      language,
+      conditionCheckBox,
+      redirection,
+      PendingWith,
+    } = this.state;
     const { context } = this.props;
     console.log(inputFeild.doorCheckBox, "doorcheckbox value");
     return (
@@ -405,17 +411,15 @@ export default class DataCenter extends React.Component<
                 </div>
               )}
             </div>
-            {(pendingWith === "Data Center Owner" ||
-              pendingWith === "SSIMS Manager") && (
+            {(PendingWith === "Data Center Owner" ||
+              PendingWith === "SSIMS Manager") && (
               <div className="d-flex justify-content-end mb-2 gap-3">
                 <button
                   className="px-4 py-2"
                   style={{ backgroundColor: "#223771" }}
                   type="button"
                   onClick={() => {
-                    const { inputFeild } = this.state;
-
-                    if (inputFeild.PendingWith === "Data Center Owner") {
+                    if (PendingWith === "Data Center Owner") {
                       this.onApproveReject("Approve", "SSIMS Manager");
                     } else {
                       this.onApproveReject("Approve", "Completed");
@@ -429,9 +433,7 @@ export default class DataCenter extends React.Component<
                   style={{ backgroundColor: "#E5E5E5" }}
                   type="button"
                   onClick={() => {
-                    const { inputFeild } = this.state;
-
-                    if (inputFeild.PendingWith === "Data Center Owner") {
+                    if (PendingWith === "Data Center Owner") {
                       this.onApproveReject(
                         "Reject",
                         "Rejected by Data Center Owner"
