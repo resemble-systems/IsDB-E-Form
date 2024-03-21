@@ -2,7 +2,7 @@ import * as React from "react";
 import type { IEmployeeReprimandProps } from "./IEmployeeReprimandProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Select, Switch } from "antd";
+import { Select } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -474,10 +474,10 @@ export default class EmployeeReprimand extends React.Component<
     console.log(updateInteraction);
     // if (updateInteraction) this.getBasicBlogs();
   };
-  public onChange = (checked: boolean) => {
-    console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection: false });
-  };
+  // public onChange = (checked: boolean) => {
+  //   console.log(`Switch to ${checked}`);
+  //   this.setState({ checked, redirection: false });
+  // };
   public render(): React.ReactElement<IEmployeeReprimandProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -506,7 +506,7 @@ export default class EmployeeReprimand extends React.Component<
       attachments,
       fileInfos,
       commentsPost,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
     console.log("attachments", attachments);
@@ -533,12 +533,12 @@ export default class EmployeeReprimand extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-          {PendingWith === "SSIMS Reviewer" && (
+            {/* {PendingWith === "SSIMS Reviewer" && (
               <div className="">
                 Edit
                 <Switch onChange={this.onChange} />
               </div>
-            )}
+            )} */}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -912,60 +912,63 @@ export default class EmployeeReprimand extends React.Component<
               </div>
             </div>
             {redirection == false && (
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                disabled={redirection}
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                disabled={redirection}
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
-            )}
-            {(PendingWith === "SSIMS Reviewer" ||
-              PendingWith === "SSIMS Manager") && (
-              <div>
-                <div
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
                   }}
                 >
-                  <label className="ps-2 py-2" htmlFor="approverComment">
-                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
-                  </label>
-                </div>
-                <textarea
-                  className="form-control mb-2 mt-2"
-                  rows={3}
-                  placeholder={
-                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
-                  }
-                  value={this.state.approverComment}
-                  onChange={(e) =>
-                    this.setState({ approverComment: e.target.value })
-                  }
-                />
-                <div className="d-flex justify-content-end mb-2 gap-3">
-                  <button
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+            )}
+            {((PendingWith === "SSIMS Reviewer" ||
+              PendingWith === "SSIMS Manager") &&
+              redirection == true) && (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
+                    <label className="ps-2 py-2" htmlFor="approverComment">
+                      {language === "En"
+                        ? "Approver Comment"
+                        : "تعليقات الموافق"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    value={this.state.approverComment}
+                    onChange={(e) =>
+                      this.setState({ approverComment: e.target.value })
+                    }
+                  />
+                  <div className="d-flex justify-content-end mb-2 gap-3">
+                    {/* <button
                     className="px-4 py-2"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
@@ -988,34 +991,34 @@ export default class EmployeeReprimand extends React.Component<
                     }}
                   >
                     {language === "En" ? "Approve" : "يعتمد"}
-                  </button>
-                  <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
+                  </button> */}
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#E5E5E5" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
 
-                      if (PendingWith === "SSIMS Reviewer") {
-                        this.onApproveReject(
-                          "Archive",
-                          "Archived by SSIMS Reviewer",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Archive",
-                          "Rejected",
-                          approverComment
-                        );
-                      }
-                    }}
-                  >
-                    {language === "En" ? "Archive" : "أرشيف"}
-                  </button>
+                        if (PendingWith === "SSIMS Reviewer") {
+                          this.onApproveReject(
+                            "Archive",
+                            "Archived by SSIMS Reviewer",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Archive",
+                            "Archived",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Archive" : "أرشيف"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </form>
         </div>
       </CommunityLayout>

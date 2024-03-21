@@ -198,6 +198,7 @@ export default class KeyRequestForm extends React.Component<
       // } else if (people.length < 1) {
       //   alert("User Name cannot be blank!");
     } else {
+      this.getDetails();
       const peopleArr = people.map((person: any) => person.secondaryText);
       const onBehalfEmail = people[0]?.secondaryText;
       let pendingApprover = "";
@@ -345,7 +346,34 @@ export default class KeyRequestForm extends React.Component<
       people: finalData,
     });
   };
+  public getDetails() {
+    const { context } = this.props;
+    context.msGraphClientFactory
+      .getClient("3")
+      .then((grahpClient: MSGraphClientV3): void => {
+        grahpClient
+          .api(`/users/${context.pageContext.user.email}`)
+          .version("v1.0")
+          .select("*")
 
+          .get((error: any, user: any, rawResponse?: any) => {
+            if (error) {
+              console.log("User Error Msg:", error);
+
+              return;
+            }
+
+            console.log("Selected User Details -------->", user);
+
+            this.setState({
+              inputFeild: {
+                ...InputFeild,
+                userEmail: user.mail,
+              },
+            });
+          });
+      });
+  }
   public render(): React.ReactElement<IKeyRequestFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -375,6 +403,8 @@ export default class KeyRequestForm extends React.Component<
       PendingWith,
     } = this.state;
     const { context } = this.props;
+    const hideApproveReject =
+      inputFeild.OnBehalfOfEmail === this.state.inputFeild.userEmail;
     console.log(inputFeild.doorCheckBox, PendingWith, "doorcheckbox value");
     return (
       <CommunityLayout
@@ -692,30 +722,32 @@ export default class KeyRequestForm extends React.Component<
                 </div>
               )}
               {(PendingWith === "Key Processor" ||
-                PendingWith === "On Behalf Of") && (
-                <div className="d-flex justify-content-end mb-2 gap-3">
-                  <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#223771" }}
-                    type="button"
-                    onClick={() => {
-                      this.onApproveReject("Approved", "Completed");
-                    }}
-                  >
-                    {language === "En" ? "Approve" : "يعتمد"}
-                  </button>
-                  <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
-                    type="button"
-                    onClick={() => {
-                      this.onApproveReject("Rejected", "Rejected");
-                    }}
-                  >
-                    {language === "En" ? "Reject" : "يرفض"}
-                  </button>
-                </div>
-              )}
+                PendingWith === "On Behalf Of") &&
+                !hideApproveReject &&
+                redirection === true && (
+                  <div className="d-flex justify-content-end mb-2 gap-3">
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        this.onApproveReject("Approved", "Completed");
+                      }}
+                    >
+                      {language === "En" ? "Approve" : "يعتمد"}
+                    </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#E5E5E5" }}
+                      type="button"
+                      onClick={() => {
+                        this.onApproveReject("Rejected", "Rejected");
+                      }}
+                    >
+                      {language === "En" ? "Reject" : "يرفض"}
+                    </button>
+                  </div>
+                )}
             </div>
           </div>
           <Modal

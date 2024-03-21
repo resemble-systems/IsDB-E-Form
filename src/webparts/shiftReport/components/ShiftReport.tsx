@@ -809,8 +809,8 @@ export default class ShiftReport extends React.Component<
                 </div>
               </Col>
             </Row>
-            {redirection == false ||
-              (PendingWith === " " && (
+            {redirection == false && (
+           
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
@@ -835,7 +835,9 @@ export default class ShiftReport extends React.Component<
                     {language === "En" ? "Submit" : "إرسال"}
                   </button>
                 </div>
-              ))}
+              )}
+                  {redirection == true &&(
+              <div>
              {(PendingWith === "Security Manager" ||
                 PendingWith === "Assign to follow up") && (
                  <div>
@@ -1036,6 +1038,8 @@ export default class ShiftReport extends React.Component<
                 </button>
               </div>
             )}
+            </div>
+                  )}
           </div>
         </div>
       </CommunityLayout>
