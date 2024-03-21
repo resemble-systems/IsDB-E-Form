@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Row, Col, Select } from "antd";
+import { Row, Col, Select} from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import { Web } from "sp-pnp-js";
@@ -37,7 +37,7 @@ interface IShiftReportState {
   cleaning: any;
   redirection: boolean;
   approverComment: any;
-  
+  isAssignToFollowUp: any;
   uploadContent: {
     Date: string;
     Title: string;
@@ -46,6 +46,7 @@ interface IShiftReportState {
     CreatedBy: string;
   };
   PendingWith:any;
+
 }
 
 export default class ShiftReport extends React.Component<
@@ -76,12 +77,14 @@ export default class ShiftReport extends React.Component<
       redirection: false,
       approverComment: "",
       PendingWith:"Security Manager",
+      isAssignToFollowUp: false,
       uploadContent: {
         Date: "",
         Title: "",
         Location: "",
         Description: "",
         CreatedBy: "",
+        
       },
     };
   }
@@ -325,6 +328,51 @@ export default class ShiftReport extends React.Component<
       people: finalData,
     });
   };
+  public handleAssign = (items: any) => {
+    const { peopleData } = this.state;
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log("handle", finalData, items);
+
+    this.setState({
+      people: finalData,
+    });
+  };
+  public getDetails() {
+    const { context } = this.props;
+    context.msGraphClientFactory
+      .getClient("3")
+      .then((grahpClient: MSGraphClientV3): void => {
+        grahpClient
+          .api(`/users/${context.pageContext.user.email}`)
+          .version("v1.0")
+          .select("*")
+
+          .get((error: any, user: any, rawResponse?: any) => {
+            if (error) {
+              console.log("User Error Msg:", error);
+
+              return;
+            }
+
+            console.log("Selected User Details -------->", user);
+
+            this.setState({
+              inputFeild: {
+                ...InputFeild,
+                userEmail: user.mail,
+              },
+            });
+          });
+      });
+  }
   public onApproveReject: (
     Type: string,
     PendingWith: string,
@@ -842,12 +890,12 @@ export default class ShiftReport extends React.Component<
                       if (PendingWith === "Security Manager") {
                         this.onApproveReject(
                           "Archive",
-                          "Archiveby Security Manager )",
+                          "Archive by Security Manager )",
                           approverComment
                         );
                       } else {
                         this.onApproveReject(
-                          "Reject",
+                          "Archive",
                           "Archive by System",
                           approverComment
                         );
@@ -862,7 +910,7 @@ export default class ShiftReport extends React.Component<
                     type="button"
                     onClick={() => {
                       const { approverComment } = this.state;
-
+                      this.getDetails();
                       if (PendingWith === "Security Manager )") {
                         this.onApproveReject(
                           "Return To User",
@@ -882,9 +930,78 @@ export default class ShiftReport extends React.Component<
                       ? "Return To User"
                       : "العودة إلى المستخدم"}
                   </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      const { approverComment } = this.state;
+                      this.onApproveReject(
+                        "Assign to follow up",
+                        "Assign to follow up",
+                        approverComment
+                      );
+                      // Reset the state after assignment
+                      this.setState({ isAssignToFollowUp: false });
+                    }}
+                  >
+                  
+                    {language === "En"
+                      ? "Assign to follow up"
+                      : "تكليف بالمتابعة"}
+                  </button> 
                 </div>
+                <div
+                  className="d-flex justify-content-between"
+                  style={{
+                    fontSize: "1em",
+                    fontFamily: "Open Sans",
+                    fontWeight: "600",
+                    width: "24.5%",
+                    backgroundColor: "#F0F0F0",
+                  }}
+                >
+                  <label className="ps-2 py-2" htmlFor="Assign To">
+                    {language === "En" ? "Assign To" : "باسم"}
+                  
+                  </label>
+
+<PeoplePicker
+                    context={context as any}
+                    personSelectionLimit={1}
+                    showtooltip={true}
+                    required={true}
+                    onChange={(i: any) => {
+                      this.handleAssign(i);
+                    }}
+                    showHiddenInUI={false}
+                    principalTypes={[PrincipalType.User]}
+                    resolveDelay={1000}
+                    ensureUser={true}
+                  />
+                </div>
+                <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      const { approverComment } = this.state;
+                      this.onApproveReject(
+                        "Assign to follow up",
+                        "Assign to follow up",
+                        approverComment
+                      );
+                      this.setState({ isAssignToFollowUp: false });
+                    }}
+                  >
+                    {language === "En"
+                      ? "Ok"
+                      : "نعم"}
+                  </button> 
               </div>
+              
             )}
+
           </div>
         </div>
       </CommunityLayout>
