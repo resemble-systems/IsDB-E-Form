@@ -18,6 +18,7 @@ import {
 import type { IShiftReportProps } from "./IShiftReportProps";
 import RichTextEditor from "../../../common-components/richTextEditor/RichTextEditor";
 import { postData } from "../../../Services/Services";
+import moment from "moment";
 
 interface IShiftReportState {
   inputFeild: any;
@@ -117,7 +118,7 @@ export default class ShiftReport extends React.Component<
             inputFeild: {
               ...inputFeild,
               shift: listItems?.ShiftType,
-              date: listItems?.Title,
+              date: moment(listItems?.Title),
             },
             commentsPost: listItems?.CheckListStatus,
             buildingCommentsPost: listItems?.BuildingFloorDetails,
@@ -872,7 +873,7 @@ export default class ShiftReport extends React.Component<
                
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
-                    className="px-4 py-2"
+                    className="px-4 py-2 text-white"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
@@ -897,7 +898,7 @@ export default class ShiftReport extends React.Component<
                   </button>
                   <button
                     className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
+                    style={{backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
                       const { approverComment } = this.state;
@@ -921,7 +922,7 @@ export default class ShiftReport extends React.Component<
                   </button>
                   <button
                     className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
+                    style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
                       const { approverComment } = this.state;
@@ -947,7 +948,7 @@ export default class ShiftReport extends React.Component<
                   </button>
                   <button
                     className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
+                    style={{backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
                       const { approverComment } = this.state;
@@ -997,6 +998,30 @@ export default class ShiftReport extends React.Component<
                     resolveDelay={1000}
                     ensureUser={true}
                   />
+                   <button
+                    className="px-4 py-2 text-white"
+                    style={{backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      const { approverComment } = this.state;
+                      if (!this.state.Assignpeople) {
+                        alert("Please select a user to assign to follow up.");
+                        return;
+                      }
+
+                      this.onApproveReject(
+                        "Assign to follow up",
+                        "Assign to follow up",
+                        approverComment
+                      );
+
+                      this.setState({ isAssignToFollowUp: false });
+                    }}
+                  >
+                    {language === "En"
+                      ? "Ok"
+                      : "نعم"}
+                  </button>
                 </div>
               </div>
             )}
@@ -1004,7 +1029,7 @@ export default class ShiftReport extends React.Component<
               <div className="d-flex justify-content-end mb-2 gap-3">
                 <button
                   className="px-4 py-2 text-white"
-                  style={{ backgroundColor: "#E5E5E5" }}
+                  style={{ backgroundColor: "#223771" }}
                   type="button"
                   onClick={() => {
                     const { approverComment } = this.state;
@@ -1022,7 +1047,7 @@ export default class ShiftReport extends React.Component<
                 </button>
                 <button
                   className="px-4 py-2 text-white"
-                  style={{ backgroundColor: "#E5E5E5" }}
+                  style={{ backgroundColor: "#223771" }}
                   type="button"
                   onClick={() => {
                     const { approverComment } = this.state;

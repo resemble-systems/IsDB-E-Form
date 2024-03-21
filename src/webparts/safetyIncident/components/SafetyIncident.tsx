@@ -818,7 +818,7 @@ export default class SafetyIncident extends React.Component<
                     backgroundColor: "#F0F0F0",
                   }}
                 >
-                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
+                  <label className="ps-2 py-2" htmlFor="To Notify">
                     {language === "En" ? "To Notify" : "بللإخطاراسم"}
                    
                   </label>

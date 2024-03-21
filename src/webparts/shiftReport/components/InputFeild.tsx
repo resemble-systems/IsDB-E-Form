@@ -77,6 +77,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="w-50 ps-2"
             id={label}
             name={name}
+            disabled={disabled}
             // defaultValue={options[0]}
             style={{
               border: "none",
@@ -114,6 +115,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={type}
+                disabled={disabled}
                 id={"Yes"}
                 name={name}
                 value={inputFeild}
