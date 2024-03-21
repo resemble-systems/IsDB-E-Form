@@ -1,7 +1,7 @@
 import * as React from "react";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Row, Col, Select} from "antd";
+import { Row, Col, Select } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import { Web } from "sp-pnp-js";
@@ -23,6 +23,7 @@ interface IShiftReportState {
   inputFeild: any;
   language: any;
   people: any;
+  Assignpeople: any;
   peopleData: any;
   checkBox: any;
   commentsPost: any;
@@ -45,8 +46,8 @@ interface IShiftReportState {
     Description: string;
     CreatedBy: string;
   };
-  PendingWith:any;
-
+  PendingWith: any;
+  pendingApprover:any;
 }
 
 export default class ShiftReport extends React.Component<
@@ -62,6 +63,7 @@ export default class ShiftReport extends React.Component<
       },
       language: "En",
       people: [],
+      Assignpeople: [],
       peopleData: [],
       checkBox: false,
       commentsPost: "",
@@ -76,15 +78,15 @@ export default class ShiftReport extends React.Component<
       cleaning: "",
       redirection: false,
       approverComment: "",
-      PendingWith:"Security Manager",
+      PendingWith: "Security Manager",
       isAssignToFollowUp: false,
+      pendingApprover: "",
       uploadContent: {
         Date: "",
         Title: "",
         Location: "",
         Description: "",
         CreatedBy: "",
-        
       },
     };
   }
@@ -242,8 +244,7 @@ export default class ShiftReport extends React.Component<
 
     if (people.length < 1) {
       alert("User Name cannot be blank!");
-    } else 
-    if (!inputFeild.date) {
+    } else if (!inputFeild.date) {
       alert("Please enter the Request Date!");
     } else {
       let peopleArr = people;
@@ -340,9 +341,15 @@ export default class ShiftReport extends React.Component<
       finalData = items;
     }
     console.log("handle", finalData, items);
-
+  
     this.setState({
-      people: finalData,
+      Assignpeople: finalData,
+    });
+  
+   
+    const emails = finalData.map((item: any) => item.secondaryText);
+    this.setState({
+      pendingApprover: emails || '',
     });
   };
   public getDetails() {
@@ -421,7 +428,7 @@ export default class ShiftReport extends React.Component<
       handOverChecklist,
       cleaning,
       redirection,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
 
@@ -802,36 +809,37 @@ export default class ShiftReport extends React.Component<
                 </div>
               </Col>
             </Row>
-            {redirection == false && (
-              <div className="d-flex justify-content-end mb-2 gap-3">
-                <button
-                  className="px-4 py-2"
-                  disabled={redirection}
-                  style={{ backgroundColor: "#E5E5E5" }}
-                  type="button"
-                  onClick={() => {
-                    window.history.go(-1);
-                  }}
-                >
-                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
-                </button>
-                <button
-                  className="px-4 py-2 text-white"
-                  disabled={redirection}
-                  style={{ backgroundColor: "#223771" }}
-                  type="button"
-                  onClick={() => {
-                    this.onSubmit();
-                  }}
-                >
-                  {language === "En" ? "Submit" : "إرسال"}
-                </button>
-              </div>
-            )}
-            {(PendingWith === "Security Manager" ||
-              PendingWith === "System") && (
-              <div>
-                <div
+            {redirection == false ||
+              (PendingWith === " " && (
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    disabled={redirection}
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      window.history.go(-1);
+                    }}
+                  >
+                    {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    disabled={redirection}
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      this.onSubmit();
+                    }}
+                  >
+                    {language === "En" ? "Submit" : "إرسال"}
+                  </button>
+                </div>
+              ))}
+             {(PendingWith === "Security Manager" ||
+                PendingWith === "Assign to follow up") && (
+                 <div>
+                   <div
                   style={{
                     fontSize: "1em",
                     fontFamily: "Open Sans",
@@ -855,6 +863,11 @@ export default class ShiftReport extends React.Component<
                     this.setState({ approverComment: e.target.value })
                   }
                 />
+                  </div>
+                )}
+            {PendingWith === "Security Manager" && (
+              <div>
+               
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
@@ -866,7 +879,7 @@ export default class ShiftReport extends React.Component<
                       if (PendingWith === "Security Manager") {
                         this.onApproveReject(
                           "Approve",
-                          "System",
+                          "Completed",
                           approverComment
                         );
                       } else {
@@ -896,7 +909,7 @@ export default class ShiftReport extends React.Component<
                       } else {
                         this.onApproveReject(
                           "Archive",
-                          "Archive by System",
+                          "Archive by Assigned User",
                           approverComment
                         );
                       }
@@ -911,7 +924,7 @@ export default class ShiftReport extends React.Component<
                     onClick={() => {
                       const { approverComment } = this.state;
                       this.getDetails();
-                      if (PendingWith === "Security Manager )") {
+                      if (PendingWith === "Security Manager") {
                         this.onApproveReject(
                           "Return To User",
                           "Return To User",
@@ -936,20 +949,24 @@ export default class ShiftReport extends React.Component<
                     type="button"
                     onClick={() => {
                       const { approverComment } = this.state;
+                      if (!this.state.Assignpeople) {
+                        alert("Please select a user to assign to follow up.");
+                        return;
+                      }
+
                       this.onApproveReject(
                         "Assign to follow up",
                         "Assign to follow up",
                         approverComment
                       );
-                      // Reset the state after assignment
+
                       this.setState({ isAssignToFollowUp: false });
                     }}
                   >
-                  
                     {language === "En"
                       ? "Assign to follow up"
                       : "تكليف بالمتابعة"}
-                  </button> 
+                  </button>
                 </div>
                 <div
                   className="d-flex justify-content-between"
@@ -963,10 +980,9 @@ export default class ShiftReport extends React.Component<
                 >
                   <label className="ps-2 py-2" htmlFor="Assign To">
                     {language === "En" ? "Assign To" : "باسم"}
-                  
                   </label>
 
-<PeoplePicker
+                  <PeoplePicker
                     context={context as any}
                     personSelectionLimit={1}
                     showtooltip={true}
@@ -980,28 +996,46 @@ export default class ShiftReport extends React.Component<
                     ensureUser={true}
                   />
                 </div>
-                <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
-                      this.onApproveReject(
-                        "Assign to follow up",
-                        "Assign to follow up",
-                        approverComment
-                      );
-                      this.setState({ isAssignToFollowUp: false });
-                    }}
-                  >
-                    {language === "En"
-                      ? "Ok"
-                      : "نعم"}
-                  </button> 
               </div>
-              
             )}
+            {PendingWith === "Assign to follow up" && (
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    const { approverComment } = this.state;
 
+                    this.onApproveReject(
+                      "Return To Security Manager",
+                      "Security Manager",
+                      approverComment
+                    );
+                  }}
+                >
+                  {language === "En"
+                    ? "Return To Security Manager"
+                    : "العودة إلى المستخدم"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    const { approverComment } = this.state;
+
+                    this.onApproveReject(
+                      "Archive",
+                      "Archive by Assigned User",
+                      approverComment
+                    );
+                  }}
+                >
+                  {language === "En" ? "Archive" : "أرشيف"}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </CommunityLayout>
