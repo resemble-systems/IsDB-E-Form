@@ -174,6 +174,7 @@ export default class KeyRequestForm extends React.Component<
           cabinetCheckBox: listItems?.cabinet == "true" ? true : false,
           safeCheckBox: listItems?.officeSafe == "true" ? true : false,
           drawerCheckBox: listItems?.drawer == "true" ? true : false,
+          PendingWith: listItems?.pendingWith,
         });
         console.log("Res listItems", listItems);
       });
@@ -194,8 +195,8 @@ export default class KeyRequestForm extends React.Component<
 
     if (conditionCheckBox == false) {
       alert("Please Agree the Terms and Conditions!");
-    // } else if (people.length < 1) {
-    //   alert("User Name cannot be blank!");
+      // } else if (people.length < 1) {
+      //   alert("User Name cannot be blank!");
     } else {
       const peopleArr = people.map((person: any) => person.secondaryText);
       const onBehalfEmail = people[0]?.secondaryText;
@@ -317,12 +318,13 @@ export default class KeyRequestForm extends React.Component<
     };
 
     let body: string = JSON.stringify({
-      status: Type,
-      PendingWith: PendingWith,
+      Status: Type,
+      pendingWith: PendingWith,
     });
-
+    console.log("body", body);
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
+    window.history.go(-1);
     // if (updateInteraction) this.getBasicBlogs();
   };
 
@@ -373,7 +375,7 @@ export default class KeyRequestForm extends React.Component<
       PendingWith,
     } = this.state;
     const { context } = this.props;
-    console.log(inputFeild.doorCheckBox, "doorcheckbox value");
+    console.log(inputFeild.doorCheckBox, PendingWith, "doorcheckbox value");
     return (
       <CommunityLayout
         self={this}
@@ -693,7 +695,7 @@ export default class KeyRequestForm extends React.Component<
                 PendingWith === "On Behalf Of") && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
-                    className="px-4 py-2"
+                    className="px-4 py-2 text-white"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
