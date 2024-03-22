@@ -12,7 +12,7 @@ import {
 } from "@microsoft/sp-http";
 import { Web } from "sp-pnp-js";
 import { postData } from "../../../Services/Services";
-import { PeoplePicker,PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
+// import { PeoplePicker,PrincipalType } from "@pnp/spfx-controls-react/lib/PeoplePicker";
 
 interface ISafetyIncidentState {
   inputFeild: any;
@@ -775,7 +775,7 @@ export default class SafetyIncident extends React.Component<
               </button>
             </div>
   )}
-         {PendingWith === "SSIMS Manager" && (
+         {PendingWith === "SSIMS Manager" && redirection == true && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
@@ -807,7 +807,7 @@ export default class SafetyIncident extends React.Component<
                   >
                     {language === "En" ? "Archive" : "أرشيف"}
                   </button>
-                  <div className="d-flex justify-content-start py-2 ps-2">
+                  {/* <div className="d-flex justify-content-start py-2 ps-2">
                 <div
                   className="d-flex justify-content-between"
                   style={{
@@ -843,7 +843,7 @@ export default class SafetyIncident extends React.Component<
                     ensureUser={true}
                   />
                 </div>
-              </div>
+              </div> */}
                 </div>
                 
               )}

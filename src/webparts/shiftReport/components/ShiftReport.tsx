@@ -107,6 +107,7 @@ export default class ShiftReport extends React.Component<
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
+      
       context.spHttpClient
         .get(
           `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -115,13 +116,16 @@ export default class ShiftReport extends React.Component<
         .then((res: SPHttpClientResponse) => {
           return res.json();
         })
+        
         .then((listItems: any) => {
+          const extractedEmail = listItems?.OnBehalfOfEmail.replace(/^"(.*)"$/, '$1');
+          console.log("extractedEmail",extractedEmail);
           this.setState({
             inputFeild: {
               ...inputFeild,
               shift: listItems?.ShiftType,
               date: moment(listItems?.Title).format("DD-MM-YYYY HH:mm"),
-              onBehalfEmail: listItems?.OnBehalfOfEmail,
+              OnBehalfOfEmail: extractedEmail,
             },
             commentsPost: listItems?.CheckListStatus,
             buildingCommentsPost: listItems?.BuildingFloorDetails,
@@ -132,6 +136,8 @@ export default class ShiftReport extends React.Component<
             handOverChecklist: listItems?.HandOver,
           });
           console.log("Res listItems", listItems);
+          console.log("date",moment(listItems?.Title).format("DD-MM-YYYY HH:mm"));
+          console.log("mailid",listItems?.OnBehalfOfEmail)
         });
 
       context.msGraphClientFactory
@@ -541,7 +547,7 @@ export default class ShiftReport extends React.Component<
                     label={language === "En" ? "On behalf of" : "نيابة عن"}
                     name="on behalf of"
                     state={inputFeild}
-                    inputFeild={this.state.people.map((person:any) => person.secondaryText).join(", ")}
+                    inputFeild={inputFeild.OnBehalfOfEmail}
                     self={this}
                   />
                 </div>
