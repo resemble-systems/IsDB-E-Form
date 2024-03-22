@@ -103,7 +103,7 @@ export default class ShiftReport extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
@@ -121,7 +121,7 @@ export default class ShiftReport extends React.Component<
               ...inputFeild,
               shift: listItems?.ShiftType,
               date: moment(listItems?.Title).format("DD-MM-YYYY HH:mm"),
-              onBehalfEmail: listItems,
+              onBehalfEmail: listItems?.OnBehalfOfEmail,
             },
             commentsPost: listItems?.CheckListStatus,
             buildingCommentsPost: listItems?.BuildingFloorDetails,
@@ -390,17 +390,20 @@ export default class ShiftReport extends React.Component<
   ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
     let url = window.location.href;
+    let sub3= url.indexOf("=") +1;
+    let sub2=url.indexOf("#view");
+    let itemID = url.substring(sub3,sub2);
     // let itemId = data[data.length - 1];
-    let itemID = url
-      .split("?")[1]
-      .split("&")
-      .reduce(function (params, param) {
-        let parts = param.split("=");
-        if (parts[0] === "itemID") {
-          params = parts[1];
-        }
-        return params;
-      }, {});
+    // let itemID = url
+    //   .split("?")[1]
+    //   .split("&")
+    //   .reduce(function (params, param) {
+    //     let parts = param.split("=");
+    //     if (parts[0] === "itemID") {
+    //       params = parts[1];
+    //     }
+    //     return params;
+    //   }, {});
     const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items('${itemID}')`;
     console.log("postUrl", postUrl);
     const headers = {
@@ -538,13 +541,14 @@ export default class ShiftReport extends React.Component<
                     label={language === "En" ? "On behalf of" : "نيابة عن"}
                     name="on behalf of"
                     state={inputFeild}
-                    inputFeild={inputFeild.onBehalfEmail}
+                    inputFeild={this.state.people.map((person:any) => person.secondaryText).join(", ")}
                     self={this}
                   />
                 </div>
               )}
             </div>
             <div className="row">
+            {!redirection ? (
               <InputFeild
                 type="datetime-local"
                 disabled={redirection}
@@ -559,6 +563,22 @@ export default class ShiftReport extends React.Component<
                 inputFeild={inputFeild.date}
                 self={this}
               />
+                    ) : (
+              <InputFeild
+                type="text"
+                disabled={redirection}
+                label={
+                  <>
+                    {language === "En" ? "Date" : "تاريخ"}
+                    <span className="text-danger">*</span>
+                  </>
+                }
+                name="date"
+                state={inputFeild}
+                inputFeild={inputFeild.date}
+                self={this}
+              />
+               )}
               <InputFeild
                 type="select"
                 disabled={redirection}

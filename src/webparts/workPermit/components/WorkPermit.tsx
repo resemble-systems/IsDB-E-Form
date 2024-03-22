@@ -31,6 +31,7 @@ interface IWorkPermitState {
   peopleData: any;
   people: any;
   PendingWith: any;
+  pendingApprover: any;
 }
 
 export default class WorkPermit extends React.Component<
@@ -58,7 +59,8 @@ export default class WorkPermit extends React.Component<
       cut: false,
       redirection: false,
       approverComment: "",
-      PendingWith: "FMSDC (Approver)",
+      PendingWith: "",
+      pendingApprover: "",
     };
   }
 
@@ -73,7 +75,7 @@ export default class WorkPermit extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
@@ -117,80 +119,91 @@ export default class WorkPermit extends React.Component<
       console.log(isValidNumber, mobileNumberRegex, "mobile numbers testing");
       return isValidNumber;
     };
+    const peopleArr = people.map((person: any) => person.secondaryText);
+    const FMSDCApprover = people[0]?.secondaryText;
+    let pendingApprover = "";
+    if (FMSDCApprover) {
+      pendingApprover = FMSDCApprover;
+      if (
+        !inputFeild.name ||
+        inputFeild.name?.length < 3 ||
+        inputFeild.name?.length > 30
+      ) {
+        alert(
+          "Contractor Name cannot be blank, should have more than 2 characters and less than 30 characters!"
+        );
+      } else if (!inputFeild.date) {
+        alert("Please enter the Request Date!");
+      } else if (checkMobileNo(inputFeild.number)) {
+        alert("Invalid Mobile Number!");
+      } else if (!inputFeild.area) {
+        alert("Area cannot be blank!");
+      } else {
+        const headers: any = {
+          "X-HTTP-Method": "POST",
+          "If-Match": "*",
+        };
+        const pendingWith = FMSDCApprover
+          ? "FMSDC (Approver)"
+          : "Head of Safety and Security";
+        const spHttpClintOptions: ISPHttpClientOptions =
+          window.location.href.indexOf("?itemID") != -1
+            ? {
+                headers,
+                body: JSON.stringify({
+                  Title: inputFeild?.name,
+                  RequestDate: inputFeild?.date,
+                  ContactNumber: inputFeild?.number,
+                  CommonDate: inputFeild?.commonDate,
+                  Area: inputFeild?.area,
+                  Description: description,
+                  Others: others,
+                  Grind: grind,
+                  Braze: braze,
+                  Weld: weld,
+                  Cut: cut,
+                  OnBehalfOfName: JSON.stringify(peopleArr),
+                  pendingApprover: JSON.stringify(pendingApprover),
+                  pendingWith: pendingWith,
+                }),
+              }
+            : {
+                body: JSON.stringify({
+                  Title: inputFeild?.name,
+                  RequestDate: new Date(inputFeild?.date).toString(),
+                  ContactNumber: inputFeild?.number,
+                  CommonDate: new Date(inputFeild?.commonDate).toString(),
+                  Area: inputFeild?.area,
+                  Description: description,
+                  Others: others.toString(),
+                  Grind: grind.toString(),
+                  Braze: braze.toString(),
+                  Weld: weld.toString(),
+                  Cut: cut.toString(),
+                  OnBehalfOfName: JSON.stringify(peopleArr),
+                  pendingApprover: JSON.stringify(pendingApprover),
+                  pendingWith: pendingWith,
+                }),
+              };
+        let data = window.location.href.split("=");
+        let itemId = data[data.length - 1];
+        let url =
+          window.location.href.indexOf("?itemID") != -1
+            ? `/_api/web/lists/GetByTitle('Work-Permit')/items('${itemId}')`
+            : "/_api/web/lists/GetByTitle('Work-Permit')/items";
 
-    if (
-      !inputFeild.name ||
-      inputFeild.name?.length < 3 ||
-      inputFeild.name?.length > 30
-    ) {
-      alert(
-        "Contractor Name cannot be blank, should have more than 2 characters and less than 30 characters!"
-      );
-    } else if (!inputFeild.date) {
-      alert("Please enter the Request Date!");
-    } else if (checkMobileNo(inputFeild.number)) {
-      alert("Invalid Mobile Number!");
-    } else if (!inputFeild.area) {
-      alert("Area cannot be blank!");
-    } else {
-      const headers: any = {
-        "X-HTTP-Method": "POST",
-        "If-Match": "*",
-      };
-
-      const spHttpClintOptions: ISPHttpClientOptions =
-        window.location.href.indexOf("?itemID") != -1
-          ? {
-              headers,
-              body: JSON.stringify({
-                Title: inputFeild?.name,
-                RequestDate: inputFeild?.date,
-                ContactNumber: inputFeild?.number,
-                CommonDate: inputFeild?.commonDate,
-                Area: inputFeild?.area,
-                Description: description,
-                Others: others,
-                Grind: grind,
-                Braze: braze,
-                Weld: weld,
-                Cut: cut,
-                FMSDCApprover: people,
-              }),
-            }
-          : {
-              body: JSON.stringify({
-                Title: inputFeild?.name,
-                RequestDate: new Date(inputFeild?.date).toString(),
-                ContactNumber: inputFeild?.number,
-                CommonDate: new Date(inputFeild?.commonDate).toString(),
-                Area: inputFeild?.area,
-                Description: description,
-                Others: others.toString(),
-                Grind: grind.toString(),
-                Braze: braze.toString(),
-                Weld: weld.toString(),
-                Cut: cut.toString(),
-                FMSDCApprover: people,
-              }),
-            };
-      let data = window.location.href.split("=");
-      let itemId = data[data.length - 1];
-      let url =
-        window.location.href.indexOf("?itemID") != -1
-          ? `/_api/web/lists/GetByTitle('Work-Permit')/items('${itemId}')`
-          : "/_api/web/lists/GetByTitle('Work-Permit')/items";
-
-      context.spHttpClient
-        .post(
-          `${context.pageContext.web.absoluteUrl}${url}`,
-          SPHttpClient.configurations.v1,
-          spHttpClintOptions
-        )
-        .then((res) => {
-          console.log("RES POST", res);
-          alert(`You have successfully submitted`);
-          window.history.go(-1);
-        });
+        context.spHttpClient
+          .post(
+            `${context.pageContext.web.absoluteUrl}${url}`,
+            SPHttpClient.configurations.v1,
+            spHttpClintOptions
+          )
+          .then((res) => {
+            console.log("RES POST", res);
+            alert(`You have successfully submitted`);
+            window.history.go(-1);
+          });
+      }
     }
   };
   public onChangePeoplePickerItems = (items: any) => {
@@ -573,84 +586,87 @@ export default class WorkPermit extends React.Component<
               </div>
             )}
             {(PendingWith === "FMSDC (Approver)" ||
-              PendingWith === "Head of Safety and Security") && (
-              <div>
-                <div
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="approverComment">
-                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
-                  </label>
-                </div>
-                <textarea
-                  className="form-control mb-2 mt-2"
-                  rows={3}
-                  placeholder={
-                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
-                  }
-                  value={this.state.approverComment}
-                  onChange={(e) =>
-                    this.setState({ approverComment: e.target.value })
-                  }
-                />
-                <div className="d-flex justify-content-end mb-2 gap-3">
-                  <button
-                    className="px-4 py-2"
-                    style={{ backgroundColor: "#223771" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
-
-                      if (PendingWith === "FMSDC (Approver)") {
-                        this.onApproveReject(
-                          "Approve",
-                          "Head of Safety and Security",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Approve",
-                          "Completed",
-                          approverComment
-                        );
-                      }
+              PendingWith === "Head of Safety and Security") &&
+              redirection === true && (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
                     }}
                   >
-                    {language === "En" ? "Approve" : "يعتمد"}
-                  </button>
-                  <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
+                    <label className="ps-2 py-2" htmlFor="approverComment">
+                      {language === "En"
+                        ? "Approver Comment"
+                        : "تعليقات الموافق"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    value={this.state.approverComment}
+                    onChange={(e) =>
+                      this.setState({ approverComment: e.target.value })
+                    }
+                  />
+                  <div className="d-flex justify-content-end mb-2 gap-3">
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
 
-                      if (PendingWith === "FMSDC (Approver)") {
-                        this.onApproveReject(
-                          "Reject",
-                          "Rejected by FMSDC (Approver)",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Reject",
-                          "Rejected by Head of Safety and Security (Approver)",
-                          approverComment
-                        );
-                      }
-                    }}
-                  >
-                    {language === "En" ? "Reject" : "يرفض"}
-                  </button>
+                        if (PendingWith === "FMSDC (Approver)") {
+                          this.onApproveReject(
+                            "Approve",
+                            "Head of Safety and Security",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Approve",
+                            "Completed",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Approve" : "يعتمد"}
+                    </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
+
+                        if (PendingWith === "FMSDC (Approver)") {
+                          this.onApproveReject(
+                            "Reject",
+                            "Rejected by FMSDC (Approver)",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Reject",
+                            "Rejected by Head of Safety and Security (Approver)",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Reject" : "يرفض"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </CommunityLayout>
