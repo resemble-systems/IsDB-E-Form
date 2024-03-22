@@ -502,6 +502,7 @@ export default class KeyRequestForm extends React.Component<
             </div>
 
             <div className="row mb-2">
+            {!redirection ? (
               <div className="d-flex justify-content-start py-2 ps-2">
                 <div
                   className="d-flex justify-content-between"
@@ -556,7 +557,20 @@ export default class KeyRequestForm extends React.Component<
                   />
                 </div>
               </div>
-
+                 ) : (
+                  <div>
+                    <InputFeild
+                      type="text"
+                      disabled={redirection}
+                      label={language === "En" ? "On behalf of" : "نيابة عن"}
+                      name="on behalf of"
+                      state={inputFeild}
+                      inputFeild={inputFeild.OnBehalfOfEmail}
+                      self={this}
+                    />
+                  </div>
+                )}
+          
               {this.state.inputFeild.requestType == "Key Request" && (
                 <div className="row">
                   <InputFeild

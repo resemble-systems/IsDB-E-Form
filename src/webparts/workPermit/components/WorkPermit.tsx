@@ -75,7 +75,7 @@ export default class WorkPermit extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?viewitemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
@@ -87,12 +87,19 @@ export default class WorkPermit extends React.Component<
         .then((res: SPHttpClientResponse) => {
           return res.json();
         })
+        
         .then((listItems: any) => {
+          const extractedEmail = listItems?.pendingApprover.replace(
+            /^"(.*)"$/,
+            "$1"
+          );
+          console.log("extractedEmail", extractedEmail);
           this.setState({
             inputFeild: {
               ...inputFeild,
               name: listItems?.Title,
               date: listItems?.RequestDate,
+              pendingApprover: extractedEmail || "N/A",
               number: listItems?.ContactNumber,
               commonDate: listItems?.CommonDate,
               area: listItems?.Area,
@@ -334,7 +341,7 @@ export default class WorkPermit extends React.Component<
                 inputFeild={inputFeild.name}
                 self={this}
               />
-
+               {!redirection ? (
               <InputFeild
                 type="datetime-local"
                 label={
@@ -349,6 +356,22 @@ export default class WorkPermit extends React.Component<
                 inputFeild={inputFeild.date}
                 self={this}
               />
+               ) : (
+                <InputFeild
+                  type="text"
+                  disabled={redirection}
+                  label={
+                    <>
+                      {language === "En" ? "Request Date" : "تاريخ الطلب"}
+                      <span className="text-danger">*</span>
+                    </>
+                  }
+                  name="date"
+                  state={inputFeild}
+                  inputFeild={inputFeild.date}
+                  self={this}
+                />
+              )}
             </div>
 
             <div className="row">
@@ -366,7 +389,7 @@ export default class WorkPermit extends React.Component<
                 inputFeild={inputFeild.number}
                 self={this}
               />
-
+             {!redirection ? (
               <InputFeild
                 type="datetime-local"
                 disabled={redirection}
@@ -378,6 +401,19 @@ export default class WorkPermit extends React.Component<
                 inputFeild={inputFeild.commonDate}
                 self={this}
               />
+              ) : (
+                <InputFeild
+                  type="text"
+                  disabled={redirection}
+                  label={
+                    language === "En" ? "Commencement Date" : "تاريخ التوحيد"
+                  }
+                  name="date"
+                  state={inputFeild}
+                  inputFeild={inputFeild.commonDate}
+                  self={this}
+                />
+              )}
             </div>
 
             <div className="row">
@@ -396,6 +432,9 @@ export default class WorkPermit extends React.Component<
                   inputFeild={inputFeild.area}
                   self={this}
                 />
+               
+               {!redirection ? ( 
+               <div>
                 <div
                   style={{
                     fontSize: "1em",
@@ -430,9 +469,24 @@ export default class WorkPermit extends React.Component<
                     ensureUser={true}
                   />
                 </div>
+                </div>
+                 ) : (
+                  <div>
+                    <InputFeild
+                      type="text"
+                      disabled={redirection}
+                      label=  {language === "En" ? "FMSDC Supervisor" : "نيابة عن"}
+                      name="on behalf of"
+                      state={inputFeild}
+                      inputFeild={inputFeild.OnBehalfOfEmail}
+                      self={this}
+                    />
+                  </div>
+               )}
               </div>
+
             </div>
-            <div>
+            <div >
               <div
                 style={{
                   fontSize: "1em",
@@ -453,6 +507,7 @@ export default class WorkPermit extends React.Component<
                 </label>
               </div>
               <RichTextEditor
+             readonly={redirection}
                 handleSubmit={""}
                 // disabled={redirection}
                 handleChange={(content: any) => {
