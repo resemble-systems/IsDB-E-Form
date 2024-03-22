@@ -478,7 +478,7 @@ export default class WorkPermit extends React.Component<
                       label=  {language === "En" ? "FMSDC Supervisor" : "نيابة عن"}
                       name="on behalf of"
                       state={inputFeild}
-                      inputFeild={inputFeild.OnBehalfOfEmail}
+                      inputFeild={inputFeild.pendingApprover}
                       self={this}
                     />
                   </div>
@@ -509,6 +509,7 @@ export default class WorkPermit extends React.Component<
               <RichTextEditor
              readonly={redirection}
                 handleSubmit={""}
+                
                 // disabled={redirection}
                 handleChange={(content: any) => {
                   this.setState({

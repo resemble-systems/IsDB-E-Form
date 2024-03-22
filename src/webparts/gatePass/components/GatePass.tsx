@@ -29,6 +29,7 @@ interface IGatePassState {
   alreadyExist: any;
   tableData: any;
   paginationData: any;
+  redirection: boolean;
   Column: any;
   showAdd: boolean;
   addDetails: any;
@@ -55,6 +56,7 @@ export default class GatePass extends React.Component<
       checkBox: false,
       people: [],
       peopleData: [],
+      redirection: false,
       conditionCheckBox: false,
       alreadyExist: "",
       tableData: [],
@@ -78,6 +80,13 @@ export default class GatePass extends React.Component<
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
+    if (window.location.href.indexOf("#view") != -1) {
+      let itemIdn = itemId.split("#");
+      itemId = itemIdn[0];
+      this.setState({
+        redirection: true,
+      });
+    }
     if (window.location.href.indexOf("?itemID") != -1) {
       this.getAdmin(itemId);
     }
@@ -176,11 +185,19 @@ export default class GatePass extends React.Component<
           ? JSON.parse(listItems?.OnBehalfOfEmail)
           : [];
         console.log("JSON DATA", TableData, PeopleData);
+        const extractedEmail = listItems?.OnBehalfOfEmail.replace(
+          /^"(.*)"$/,
+          "$1"
+        );
+        console.log("extractedEmail", extractedEmail);
+
         this.setState({
+          
           inputFeild: {
             ...inputFeild,
             requestType: listItems?.Title,
             entity: listItems?.VisitedEntity,
+            OnBehalfOfEmail: extractedEmail,
           },
           tableData: TableData,
           people: PeopleData,
@@ -319,7 +336,8 @@ export default class GatePass extends React.Component<
       tableData,
       showAdd,
       addDetails,
-      PendingWith
+      PendingWith,
+      redirection
     } = this.state;
     const { context } = this.props;
 
@@ -424,6 +442,7 @@ export default class GatePass extends React.Component<
                 : "نيابة عن المعلومات"}
             </div>
             <div className="row mb-2">
+            {!redirection ? (
               <div className="d-flex py-2">
                 <div
                   style={{
@@ -459,43 +478,21 @@ export default class GatePass extends React.Component<
                     ensureUser={true}
                   />
                 </div>
-                {/* <Select
-                  className="flex-fill"
-                  id="AssignedTo"
-                  showSearch
-                  value={this.state.nameSelected}
-                  placeholder="Assigned To..."
-                  defaultActiveFirstOption={false}
-                  showArrow={false}
-                  filterOption={false}
-                  onSearch={handleSearch}
-                  onChange={(newValue: string | string[]) => {
-                    console.log("newValue", newValue);
-                    this.setState({ nameSelected: newValue });
-                  }}
-                  notFoundContent={null}
-                  options={(this.state.nameOptions || []).map(
-                    (data: {
-                      value: string;
-                      label: string;
-                      email: string;
-                    }) => ({
-                      value: data.value,
-                      label: (
-                        <div className="d-flex gap-1 justify-content-center align-items-center p-1">
-                          <img
-                            className="rounded-circle"
-                            src={`${this.context.pageContext.absoluteUrl}/_layouts/15/userphoto.aspx?AccountName=${data.email}`}
-                            width={30}
-                            height={30}
-                          />
-                          <div>{data.label}</div>
-                        </div>
-                      ),
-                    })
-                  )}
-                /> */}
+               
               </div>
+               ) : (
+                <div>
+                  <InputFeild
+                    type="text"
+                    disabled={redirection}
+                    label={language === "En" ? "On behalf of" : "نيابة عن"}
+                    name="on behalf of"
+                    state={inputFeild}
+                    inputFeild={inputFeild.OnBehalfOfEmail}
+                    self={this}
+                  />
+                </div>
+              )}
             </div>
             <div
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
@@ -505,6 +502,7 @@ export default class GatePass extends React.Component<
             </div>
             <div className="row">
               <InputFeild
+               disabled={redirection}
                 type="select"
                 label={
                   language === "En"
@@ -518,6 +516,7 @@ export default class GatePass extends React.Component<
                 self={this}
               />
               <InputFeild
+               disabled={redirection}
                 type="select"
                 label={language === "En" ? "Original Entity " : "الكيان الأصلي"}
                 name="entity"
@@ -693,6 +692,7 @@ export default class GatePass extends React.Component<
                 <span className="text-danger">*</span>
               </label>
             </div>
+            {redirection == false &&(
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -715,8 +715,8 @@ export default class GatePass extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
-
-            {PendingWith === "SSIMS Manager" || PendingWith === "Approver"   && (
+)}
+            {(PendingWith === "SSIMS Manager" || PendingWith === "Approver") && redirection == true   && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"

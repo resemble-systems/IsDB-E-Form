@@ -1,20 +1,19 @@
 import * as React from "react";
 import "react-quill/dist/quill.snow.css";
-import ReactQuill from 'react-quill';
+import ReactQuill from "react-quill";
 import "./index.css";
 import ImageModal from "./ImageModal";
 // const ReactQuill = require("../../../node_modules/react-quill/lib/index");
 export interface IRichTextEditorProps {
-  uploadContent:any;
+  uploadContent: any;
   handleChange: any;
   handleSubmit: any;
   placeholder: string;
-  readonly?:boolean;
-  
+  readonly: boolean;
 }
 interface IRichTextEditorState {
   imageUpload: any;
-  readonly:boolean;
+
   imageUrl: string;
   isModalOpen: boolean;
 }
@@ -30,8 +29,6 @@ export default class RichTextEditor extends React.Component<
       imageUpload: document.getElementsByClassName("ql-image"),
       imageUrl: "",
       isModalOpen: false,
-      readonly:false,
-      
     };
     this.quillRef = React.createRef();
   }
@@ -62,8 +59,9 @@ export default class RichTextEditor extends React.Component<
   ): void {}
 
   public render(): React.ReactElement<IRichTextEditorProps> {
-    const { uploadContent,handleChange,handleSubmit,placeholder,readonly } = this.props;
-    const { imageUpload, isModalOpen, imageUrl, } = this.state;
+    const { uploadContent, handleChange, handleSubmit, placeholder, readonly } =
+      this.props;
+    const { imageUpload, isModalOpen, imageUrl } = this.state;
     console.log("imageUpload", imageUpload);
     console.log("quillRef", this.quillRef);
     const modules = {
@@ -123,7 +121,7 @@ export default class RichTextEditor extends React.Component<
           style={{ overflowY: "scroll" }}
           placeholder={placeholder}
           onChange={handleChange}
-          readOnly={readonly} 
+          readOnly={readonly}
         />
         <ImageModal
           self={this}

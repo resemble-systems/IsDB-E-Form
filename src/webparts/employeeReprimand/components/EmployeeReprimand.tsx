@@ -122,11 +122,18 @@ export default class EmployeeReprimand extends React.Component<
           return res.json();
         })
         .then((listItems: any) => {
+          const extractedEmail = listItems?.OnBehalfOfEmail.replace(
+            /^"(.*)"$/,
+            "$1"
+          );
+          console.log("extractedEmail", extractedEmail);
+
           this.setState({
             inputFeild: {
               ...inputFeild,
               position: listItems?.Title,
               violator: listItems?.Violator,
+              OnBehalfOfEmail: extractedEmail,
               otherViolation: listItems?.OtherViolation,
               id: listItems?.VisitorID,
               department: listItems?.Department,
@@ -572,6 +579,8 @@ export default class EmployeeReprimand extends React.Component<
                   state={inputFeild}
                   inputFeild={inputFeild.department}
                 />
+                {!redirection ? (
+                  <div>
                 <div
                   className="d-flex justify-content-between"
                   style={{
@@ -608,6 +617,20 @@ export default class EmployeeReprimand extends React.Component<
                     // styles={{ peoplePicker: { border: 'none' } }}
                   />
                 </div>
+                </div>
+                 ) : (
+                  <div>
+                    <InputFeild
+                      type="text"
+                      disabled={redirection}
+                      label={language === "En" ? "On behalf of" : "نيابة عن"}
+                      name="on behalf of"
+                      state={inputFeild}
+                      inputFeild={inputFeild.OnBehalfOfEmail}
+                      self={this}
+                    />
+                  </div>
+                )}
                 {/* <div className={"custom-people-picker"}>
                   <PeoplePicker
                     context={context as any}

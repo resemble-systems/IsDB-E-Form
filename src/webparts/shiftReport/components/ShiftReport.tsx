@@ -358,7 +358,7 @@ export default class ShiftReport extends React.Component<
     console.log("handle", finalData, items);
 
     this.setState({
-      Assignpeople: finalData,
+      Assignpeople: peopleData[0].secondaryText,
     });
 
     const emails = finalData.map((item: any) => item.secondaryText);
@@ -421,15 +421,27 @@ export default class ShiftReport extends React.Component<
       "If-Match": "*",
     };
 
-    let body: string = JSON.stringify({
+    let body: string;
+    body = JSON.stringify({
       Status: Type,
       pendingWith: PendingWith,
       comments: comments || "",
     });
-
+    if (PendingWith === "Assign to follow up") {
+      body = JSON.stringify({
+        Status: Type,
+        pendingWith: PendingWith,
+        comments: comments || "",
+        userEmail: this.state.pendingApprover.map((approver: any) => approver.email),
+        pendingApprover: this.state.pendingApprover.map((approver: any) => approver.email),
+      });
+    }
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
-    
+    if (updateInteraction) {
+      alert("The form has been succesfully " + PendingWith + "!");
+      window.history.go(-1);
+    }
     // if (updateInteraction) this.getBasicBlogs();
   };
   public render(): React.ReactElement<IShiftReportProps> {
@@ -687,6 +699,7 @@ export default class ShiftReport extends React.Component<
               </div>
               <RichTextEditor
                 handleSubmit={""}
+                readonly={redirection}
                 // disabled={redirection}
                 handleChange={(content: any) => {
                   this.setState({
@@ -718,6 +731,7 @@ export default class ShiftReport extends React.Component<
               </div>
               <RichTextEditor
                 handleSubmit={""}
+                readonly={redirection}
                 // disabled={redirection}
                 handleChange={(content: any) => {
                   this.setState({
@@ -750,6 +764,7 @@ export default class ShiftReport extends React.Component<
               <RichTextEditor
                 handleSubmit={""}
                 // disabled={redirection}
+                readonly={redirection}
                 handleChange={(content: any) => {
                   this.setState({
                     vehicleStatus: content,
@@ -784,6 +799,7 @@ export default class ShiftReport extends React.Component<
               
                 handleSubmit={""}
                 // disabled={redirection}
+                readonly={redirection}
                 handleChange={(content: any) => {
                   this.setState({
                     handOverChecklist: content,
@@ -896,10 +912,10 @@ export default class ShiftReport extends React.Component<
                 </button>
               </div>
             )}
-            {redirection == true && (
+           
               <div>
                 {(PendingWith === "Security Manager" ||
-                  PendingWith === "Assign to follow up") && (
+                  PendingWith === "Assign to follow up") && redirection  == true && (
                   <div>
                     <div
                       style={{
@@ -929,7 +945,7 @@ export default class ShiftReport extends React.Component<
                     />
                   </div>
                 )}
-                {PendingWith === "Security Manager" && (
+                {PendingWith === "Security Manager" && redirection == true && (
                   <div>
                     <div className="d-flex justify-content-end mb-2 gap-3">
                       <button
@@ -1076,7 +1092,7 @@ export default class ShiftReport extends React.Component<
                     )}
                   </div>
                 )}
-                {PendingWith === "Assign to follow up" && (
+                {PendingWith === "Assign to follow up" && redirection == true && (
                   <div className="d-flex justify-content-end mb-2 gap-3">
                     <button
                       className="px-4 py-2 text-white"
@@ -1115,7 +1131,7 @@ export default class ShiftReport extends React.Component<
                   </div>
                 )}
               </div>
-            )}
+        
           </div>
         </div>
       </CommunityLayout>
