@@ -30,7 +30,7 @@ interface IWorkPermitState {
   approverComment: any;
   peopleData: any;
   people: any;
-  PendingWith:any;
+  PendingWith: any;
 }
 
 export default class WorkPermit extends React.Component<
@@ -58,7 +58,7 @@ export default class WorkPermit extends React.Component<
       cut: false,
       redirection: false,
       approverComment: "",
-      PendingWith:"FMSDC (Approver)"
+      PendingWith: "FMSDC (Approver)",
     };
   }
 
@@ -109,7 +109,7 @@ export default class WorkPermit extends React.Component<
 
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, description, others, grind, braze, cut, weld } =
+    const { inputFeild, description, others, grind, braze, cut, weld, people } =
       this.state;
     const checkMobileNo = (Number: any) => {
       const mobileNumberRegex = /^(\+[\d]{1,5}|0)?[1-9]\d{9}$/;
@@ -154,6 +154,7 @@ export default class WorkPermit extends React.Component<
                 Braze: braze,
                 Weld: weld,
                 Cut: cut,
+                FMSDCApprover: people,
               }),
             }
           : {
@@ -169,6 +170,7 @@ export default class WorkPermit extends React.Component<
                 Braze: braze.toString(),
                 Weld: weld.toString(),
                 Cut: cut.toString(),
+                FMSDCApprover: people,
               }),
             };
       let data = window.location.href.split("=");
@@ -255,7 +257,7 @@ export default class WorkPermit extends React.Component<
       weld,
       description,
       redirection,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
 
@@ -357,7 +359,7 @@ export default class WorkPermit extends React.Component<
                 type="datetime-local"
                 disabled={redirection}
                 label={
-                  language === "En" ? "Commoncoment Date" : "تاريخ التوحيد"
+                  language === "En" ? "Commencement Date" : "تاريخ التوحيد"
                 }
                 name="commonDate"
                 state={inputFeild}
@@ -627,7 +629,7 @@ export default class WorkPermit extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      const {  approverComment } = this.state;
+                      const { approverComment } = this.state;
 
                       if (PendingWith === "FMSDC (Approver)") {
                         this.onApproveReject(

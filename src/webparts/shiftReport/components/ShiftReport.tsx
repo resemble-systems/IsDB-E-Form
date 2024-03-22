@@ -389,9 +389,20 @@ export default class ShiftReport extends React.Component<
     comments: string
   ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
-    let data = window.location.href.split("=");
-    let itemId = data[data.length - 1];
-    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items('${itemId}')`;
+    let url = window.location.href;
+    // let itemId = data[data.length - 1];
+    let itemID = url
+      .split("?")[1]
+      .split("&")
+      .reduce(function (params, param) {
+        let parts = param.split("=");
+        if (parts[0] === "itemID") {
+          params = parts[1];
+        }
+        return params;
+      }, {});
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items('${itemID}')`;
+    console.log("postUrl", postUrl);
     const headers = {
       "X-HTTP-Method": "MERGE",
       "If-Match": "*",
@@ -483,57 +494,55 @@ export default class ShiftReport extends React.Component<
             </div>
 
             <div className="row mb-2">
-            {!redirection ? (
-              <div className="d-flex justify-content-start py-2 ps-2">
-                <div
-                  className="d-flex justify-content-between"
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
-                    {language === "En" ? "On behalf of" : "نيابة عن"}
-                    <span className="text-danger">*</span>
-                  </label>
-                </div>
-                <div
-                  style={{ marginLeft: "10px", width: "25%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerItems(i);
+              {!redirection ? (
+                <div className="d-flex justify-content-start py-2 ps-2">
+                  <div
+                    className="d-flex justify-content-between"
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
                     }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
+                  >
+                    <label className="ps-2 py-2" htmlFor="onBehalfOf">
+                      {language === "En" ? "On behalf of" : "نيابة عن"}
+                      <span className="text-danger">*</span>
+                    </label>
+                  </div>
+                  <div
+                    style={{ marginLeft: "10px", width: "25%" }}
+                    className={"custom-people-picker"}
+                  >
+                    <PeoplePicker
+                      context={context as any}
+                      personSelectionLimit={1}
+                      showtooltip={true}
+                      required={true}
+                      onChange={(i: any) => {
+                        this.onChangePeoplePickerItems(i);
+                      }}
+                      showHiddenInUI={false}
+                      principalTypes={[PrincipalType.User]}
+                      resolveDelay={1000}
+                      ensureUser={true}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <InputFeild
+                    type="text"
+                    disabled={redirection}
+                    label={language === "En" ? "On behalf of" : "نيابة عن"}
+                    name="on behalf of"
+                    state={inputFeild}
+                    inputFeild={inputFeild.onBehalfEmail}
+                    self={this}
                   />
                 </div>
-              </div>
-               ) : (
-              <div>
-
-             
-              <InputFeild
-                type="text"
-                disabled={redirection}
-                label={language === "En" ? "On behalf of" : "نيابة عن"}
-                name="on behalf of"
-                state={inputFeild}
-                inputFeild={inputFeild.onBehalfEmail}
-                self={this}
-              />
-               </div>
-                )}
+              )}
             </div>
             <div className="row">
               <InputFeild
@@ -980,20 +989,20 @@ export default class ShiftReport extends React.Component<
                     </div>
                     {showAssignToFollowUpDetails && (
                       <div className="d-flex justify-content-end">
-                      <div
-                        className="d-flex justify-content-between"
-                        style={{
-                          fontSize: "1em",
-                          fontFamily: "Open Sans",
-                          fontWeight: "600",
-                          width: "24.5%",
-                          backgroundColor: "#F0F0F0",
-                        }}
-                      >
-                        <label className="ps-2 py-2" htmlFor="Assign To">
-                          {language === "En" ? "Assign To" : "باسم"}
-                        </label>
-                         </div>
+                        <div
+                          className="d-flex justify-content-between"
+                          style={{
+                            fontSize: "1em",
+                            fontFamily: "Open Sans",
+                            fontWeight: "600",
+                            width: "24.5%",
+                            backgroundColor: "#F0F0F0",
+                          }}
+                        >
+                          <label className="ps-2 py-2" htmlFor="Assign To">
+                            {language === "En" ? "Assign To" : "باسم"}
+                          </label>
+                        </div>
                         <PeoplePicker
                           context={context as any}
                           personSelectionLimit={1}
