@@ -107,7 +107,6 @@ export default class ShiftReport extends React.Component<
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
-      
       context.spHttpClient
         .get(
           `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Shift-Report')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -116,10 +115,13 @@ export default class ShiftReport extends React.Component<
         .then((res: SPHttpClientResponse) => {
           return res.json();
         })
-        
         .then((listItems: any) => {
-          const extractedEmail = listItems?.OnBehalfOfEmail.replace(/^"(.*)"$/, '$1');
-          console.log("extractedEmail",extractedEmail);
+          const extractedEmail = listItems?.OnBehalfOfEmail.replace(
+            /^"(.*)"$/,
+            "$1"
+          );
+          console.log("extractedEmail", extractedEmail);
+
           this.setState({
             inputFeild: {
               ...inputFeild,
@@ -136,8 +138,11 @@ export default class ShiftReport extends React.Component<
             handOverChecklist: listItems?.HandOver,
           });
           console.log("Res listItems", listItems);
-          console.log("date",moment(listItems?.Title).format("DD-MM-YYYY HH:mm"));
-          console.log("mailid",listItems?.OnBehalfOfEmail)
+          console.log(
+            "date",
+            moment(listItems?.Title).format("DD-MM-YYYY HH:mm")
+          );
+          console.log("mailid", listItems?.OnBehalfOfEmail);
         });
 
       context.msGraphClientFactory
@@ -228,7 +233,7 @@ export default class ShiftReport extends React.Component<
 
   private deleteFiles(files: any) {
     let { listId } = this.state;
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?viewitemID") != -1) {
       console.log("attachment delete successfull", this.props, listId);
       let web = new Web(this.props.context.pageContext.web.absoluteUrl);
       web.lists
@@ -268,7 +273,7 @@ export default class ShiftReport extends React.Component<
         };
 
         const spHttpClintOptions: ISPHttpClientOptions =
-          window.location.href.indexOf("?itemID") != -1
+          window.location.href.indexOf("?viewitemID") != -1
             ? {
                 headers,
                 body: JSON.stringify({
@@ -301,7 +306,7 @@ export default class ShiftReport extends React.Component<
         let data = window.location.href.split("=");
         let itemId = data[data.length - 1];
         let url =
-          window.location.href.indexOf("?itemID") != -1
+          window.location.href.indexOf("?viewitemID") != -1
             ? `/_api/web/lists/GetByTitle('Shift-Report')/items('${itemId}')`
             : "/_api/web/lists/GetByTitle('Shift-Report')/items";
 
@@ -396,9 +401,8 @@ export default class ShiftReport extends React.Component<
   ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
     let url = window.location.href;
-    let sub3= url.indexOf("=") +1;
-    let sub2=url.indexOf("#view");
-    let itemID = url.substring(sub3,sub2);
+    let sub3 = url.indexOf("=") + 1;
+    let itemID = url.substring(sub3);
     // let itemId = data[data.length - 1];
     // let itemID = url
     //   .split("?")[1]
@@ -418,8 +422,8 @@ export default class ShiftReport extends React.Component<
     };
 
     let body: string = JSON.stringify({
-      status: Type,
-      PendingWith: PendingWith,
+      Status: Type,
+      pendingWith: PendingWith,
       comments: comments || "",
     });
 
@@ -554,37 +558,37 @@ export default class ShiftReport extends React.Component<
               )}
             </div>
             <div className="row">
-            {!redirection ? (
-              <InputFeild
-                type="datetime-local"
-                disabled={redirection}
-                label={
-                  <>
-                    {language === "En" ? "Date" : "تاريخ"}
-                    <span className="text-danger">*</span>
-                  </>
-                }
-                name="date"
-                state={inputFeild}
-                inputFeild={inputFeild.date}
-                self={this}
-              />
-                    ) : (
-              <InputFeild
-                type="text"
-                disabled={redirection}
-                label={
-                  <>
-                    {language === "En" ? "Date" : "تاريخ"}
-                    <span className="text-danger">*</span>
-                  </>
-                }
-                name="date"
-                state={inputFeild}
-                inputFeild={inputFeild.date}
-                self={this}
-              />
-               )}
+              {!redirection ? (
+                <InputFeild
+                  type="datetime-local"
+                  disabled={redirection}
+                  label={
+                    <>
+                      {language === "En" ? "Date" : "تاريخ"}
+                      <span className="text-danger">*</span>
+                    </>
+                  }
+                  name="date"
+                  state={inputFeild}
+                  inputFeild={inputFeild.date}
+                  self={this}
+                />
+              ) : (
+                <InputFeild
+                  type="text"
+                  disabled={redirection}
+                  label={
+                    <>
+                      {language === "En" ? "Date" : "تاريخ"}
+                      <span className="text-danger">*</span>
+                    </>
+                  }
+                  name="date"
+                  state={inputFeild}
+                  inputFeild={inputFeild.date}
+                  self={this}
+                />
+              )}
               <InputFeild
                 type="select"
                 disabled={redirection}

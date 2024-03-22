@@ -119,7 +119,7 @@ export default class WorkPermit extends React.Component<
       console.log(isValidNumber, mobileNumberRegex, "mobile numbers testing");
       return isValidNumber;
     };
-    const peopleArr = people.map((person: any) => person.secondaryText);
+    // const peopleArr = people.map((person: any) => person.secondaryText);
     const FMSDCApprover = people[0]?.secondaryText;
     let pendingApprover = "";
     if (FMSDCApprover) {
@@ -162,7 +162,7 @@ export default class WorkPermit extends React.Component<
                   Braze: braze,
                   Weld: weld,
                   Cut: cut,
-                  OnBehalfOfName: JSON.stringify(peopleArr),
+                  FMSDCApprover: JSON.stringify(FMSDCApprover),
                   pendingApprover: JSON.stringify(pendingApprover),
                   pendingWith: pendingWith,
                 }),
@@ -180,7 +180,6 @@ export default class WorkPermit extends React.Component<
                   Braze: braze.toString(),
                   Weld: weld.toString(),
                   Cut: cut.toString(),
-                  OnBehalfOfName: JSON.stringify(peopleArr),
                   pendingApprover: JSON.stringify(pendingApprover),
                   pendingWith: pendingWith,
                 }),
