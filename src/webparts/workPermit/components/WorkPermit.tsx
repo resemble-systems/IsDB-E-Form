@@ -454,6 +454,7 @@ export default class WorkPermit extends React.Component<
               </div>
               <RichTextEditor
                 handleSubmit={""}
+                readonly={redirection}
                 // disabled={redirection}
                 handleChange={(content: any) => {
                   this.setState({

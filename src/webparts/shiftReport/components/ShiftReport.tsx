@@ -103,7 +103,7 @@ export default class ShiftReport extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?viewitemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
@@ -358,7 +358,7 @@ export default class ShiftReport extends React.Component<
     console.log("handle", finalData, items);
 
     this.setState({
-      Assignpeople: finalData,
+      Assignpeople: peopleData[0].secondaryText,
     });
 
     const emails = finalData.map((item: any) => item.secondaryText);
@@ -421,14 +421,27 @@ export default class ShiftReport extends React.Component<
       "If-Match": "*",
     };
 
-    let body: string = JSON.stringify({
+    let body: string;
+    body = JSON.stringify({
       Status: Type,
       pendingWith: PendingWith,
       comments: comments || "",
     });
-
+    if (PendingWith === "Assign to follow up") {
+      body = JSON.stringify({
+        Status: Type,
+        pendingWith: PendingWith,
+        comments: comments || "",
+        userEmail: this.state.Assignpeople,
+        pendingApprover: this.state.Assignpeople,
+      });
+    }
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
+    if (updateInteraction) {
+      alert("The form has been succesfully " + PendingWith + "!");
+      window.history.go(-1);
+    }
     // if (updateInteraction) this.getBasicBlogs();
   };
   public render(): React.ReactElement<IShiftReportProps> {
@@ -686,6 +699,7 @@ export default class ShiftReport extends React.Component<
               </div>
               <RichTextEditor
                 handleSubmit={""}
+                readonly={redirection}
                 // disabled={redirection}
                 handleChange={(content: any) => {
                   this.setState({
@@ -717,6 +731,7 @@ export default class ShiftReport extends React.Component<
               </div>
               <RichTextEditor
                 handleSubmit={""}
+                readonly={redirection}
                 // disabled={redirection}
                 handleChange={(content: any) => {
                   this.setState({
@@ -749,6 +764,7 @@ export default class ShiftReport extends React.Component<
               <RichTextEditor
                 handleSubmit={""}
                 // disabled={redirection}
+                readonly={redirection}
                 handleChange={(content: any) => {
                   this.setState({
                     vehicleStatus: content,
@@ -782,6 +798,7 @@ export default class ShiftReport extends React.Component<
               <RichTextEditor
                 handleSubmit={""}
                 // disabled={redirection}
+                readonly={redirection}
                 handleChange={(content: any) => {
                   this.setState({
                     handOverChecklist: content,
