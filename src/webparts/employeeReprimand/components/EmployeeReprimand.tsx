@@ -151,6 +151,7 @@ export default class EmployeeReprimand extends React.Component<
             outOfHoursCheckBox:
               listItems?.OutOfHoursCheckBox == "true" ? true : false,
             fileInfos: listItems?.AttachmentFiles,
+            PendingWith: listItems?.pendingWith
           });
           console.log("Res listItems", listItems);
         });
@@ -302,6 +303,7 @@ export default class EmployeeReprimand extends React.Component<
       leakageCheckBox,
       leaveEngineCheckBox,
       outOfHoursCheckBox,
+      PendingWith,
     } = this.state;
 
     // if (conditionCheckBox == false) {
@@ -340,6 +342,7 @@ export default class EmployeeReprimand extends React.Component<
                 LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
                 OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
                 WarningCount: this.state.warningCount,
+                pendingWith: PendingWith
               }),
             }
           : {
@@ -360,6 +363,7 @@ export default class EmployeeReprimand extends React.Component<
                 LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
                 OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
                 WarningCount: this.state.warningCount,
+                pendingWith: PendingWith
               }),
             };
 

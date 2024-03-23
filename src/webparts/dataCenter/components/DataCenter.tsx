@@ -412,44 +412,45 @@ export default class DataCenter extends React.Component<
               )}
             </div>
             {(PendingWith === "Data Center Owner" ||
-              PendingWith === "SSIMS Manager") && (
-              <div className="d-flex justify-content-end mb-2 gap-3">
-                <button
-                  className="px-4 py-2"
-                  style={{ backgroundColor: "#223771" }}
-                  type="button"
-                  onClick={() => {
-                    if (PendingWith === "Data Center Owner") {
-                      this.onApproveReject("Approve", "SSIMS Manager");
-                    } else {
-                      this.onApproveReject("Approve", "Completed");
-                    }
-                  }}
-                >
-                  {language === "En" ? "Approve" : "يعتمد"}
-                </button>
-                <button
-                  className="px-4 py-2 text-white"
-                  style={{ backgroundColor: "#E5E5E5" }}
-                  type="button"
-                  onClick={() => {
-                    if (PendingWith === "Data Center Owner") {
-                      this.onApproveReject(
-                        "Reject",
-                        "Rejected by Data Center Owner"
-                      );
-                    } else {
-                      this.onApproveReject(
-                        "Reject",
-                        "Rejected by SSIMS Manager"
-                      );
-                    }
-                  }}
-                >
-                  {language === "En" ? "Reject" : "يرفض"}
-                </button>
-              </div>
-            )}
+              PendingWith === "SSIMS Manager") &&
+              redirection == true && (
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      if (PendingWith === "Data Center Owner") {
+                        this.onApproveReject("Approve", "SSIMS Manager");
+                      } else {
+                        this.onApproveReject("Approve", "Completed");
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Approve" : "يعتمد"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#E5E5E5" }}
+                    type="button"
+                    onClick={() => {
+                      if (PendingWith === "Data Center Owner") {
+                        this.onApproveReject(
+                          "Reject",
+                          "Rejected by Data Center Owner"
+                        );
+                      } else {
+                        this.onApproveReject(
+                          "Reject",
+                          "Rejected by SSIMS Manager"
+                        );
+                      }
+                    }}
+                  >
+                    {language === "En" ? "Reject" : "يرفض"}
+                  </button>
+                </div>
+              )}
           </div>
           <Modal
             bodyStyle={{ padding: "25px 50px 25px 50px" }}

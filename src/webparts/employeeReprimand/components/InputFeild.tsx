@@ -78,7 +78,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="lablePart ps-2"
             id={label}
             name={name}
-           
+            disabled={disabled}
             style={{
               border: "none",
               whiteSpace: "nowrap",
@@ -102,6 +102,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           <input
             className="w-100 ps-2"
             type={type}
+            disabled={disabled}
             id={label}
             name={name}
             multiple={false}
@@ -115,6 +116,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={type}
+                disabled={disabled}
                 id={"Yes"}
                 name={name}
                 value={inputFeild}
@@ -130,6 +132,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={type}
+                disabled={disabled}
                 id={"No"}
                 name={name}
                 value={inputFeild}

@@ -1117,7 +1117,7 @@ export default class ContractForm extends React.Component<
             {(PendingWith === "Immediate Supervisor" ||
               PendingWith === "HR Training and Development Division" ||
               PendingWith === "SSIMS Reviewer" ||
-              PendingWith === "SSIMS Manager") && (
+              PendingWith === "SSIMS Manager") && redirection == true &&(
               <div>
                 <div
                   style={{

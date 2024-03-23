@@ -136,6 +136,7 @@ export default class ShiftReport extends React.Component<
             cleaning: listItems?.CleaningWork,
             vehicleStatus: listItems?.VehiclesStatus,
             handOverChecklist: listItems?.HandOver,
+            PendingWith: listItems?.pendingWith,
           });
           console.log("Res listItems", listItems);
           console.log(
@@ -255,6 +256,7 @@ export default class ShiftReport extends React.Component<
       handOverChecklist,
       vehicleStatus,
       cleaning,
+      PendingWith,
     } = this.state;
 
     if (people.length < 1) {
@@ -287,6 +289,7 @@ export default class ShiftReport extends React.Component<
                   CleaningWork: cleaning,
                   VehiclesStatus: vehicleStatus,
                   HandOver: handOverChecklist,
+                  pendingWith:PendingWith,
                 }),
               }
             : {
@@ -301,6 +304,7 @@ export default class ShiftReport extends React.Component<
                   CleaningWork: cleaning,
                   VehiclesStatus: vehicleStatus,
                   HandOver: handOverChecklist,
+                  pendingWith:PendingWith
                 }),
               };
         let data = window.location.href.split("=");
@@ -356,16 +360,16 @@ export default class ShiftReport extends React.Component<
       finalData = items;
     }
     console.log("handle", finalData, items);
-
     this.setState({
       Assignpeople: peopleData[0].secondaryText,
     });
-
     const emails = finalData.map((item: any) => item.secondaryText);
+
     this.setState({
-      pendingApprover: emails || "",
+      pendingApprover: emails[0] || "",
     });
   };
+
   public getDetails() {
     const { context } = this.props;
     context.msGraphClientFactory
@@ -428,12 +432,13 @@ export default class ShiftReport extends React.Component<
       comments: comments || "",
     });
     if (PendingWith === "Assign to follow up") {
+      const { pendingApprover } = this.state;
       body = JSON.stringify({
         Status: Type,
         pendingWith: PendingWith,
         comments: comments || "",
-        userEmail: this.state.pendingApprover.map((approver: any) => approver.email),
-        pendingApprover: this.state.pendingApprover.map((approver: any) => approver.email),
+        userEmail: pendingApprover,
+        pendingApprover: pendingApprover,
       });
     }
     const updateInteraction = await postData(context, postUrl, headers, body);
@@ -796,7 +801,6 @@ export default class ShiftReport extends React.Component<
                 </label>
               </div>
               <RichTextEditor
-              
                 handleSubmit={""}
                 // disabled={redirection}
                 readonly={redirection}
@@ -912,10 +916,11 @@ export default class ShiftReport extends React.Component<
                 </button>
               </div>
             )}
-           
-              <div>
-                {(PendingWith === "Security Manager" ||
-                  PendingWith === "Assign to follow up") && redirection  == true && (
+
+            <div>
+              {(PendingWith === "Security Manager" ||
+                PendingWith === "Assign to follow up") &&
+                redirection == true && (
                   <div>
                     <div
                       style={{
@@ -945,154 +950,8 @@ export default class ShiftReport extends React.Component<
                     />
                   </div>
                 )}
-                {PendingWith === "Security Manager" && redirection == true && (
-                  <div>
-                    <div className="d-flex justify-content-end mb-2 gap-3">
-                      <button
-                        className="px-4 py-2 text-white"
-                        style={{ backgroundColor: "#223771" }}
-                        type="button"
-                        onClick={() => {
-                          const { approverComment } = this.state;
-
-                          if (PendingWith === "Security Manager") {
-                            this.onApproveReject(
-                              "Approve",
-                              "Completed",
-                              approverComment
-                            );
-                          } else {
-                            this.onApproveReject(
-                              "Approve",
-                              "Completed",
-                              approverComment
-                            );
-                          }
-                        }}
-                      >
-                        {language === "En" ? "Approve" : "يعتمد"}
-                      </button>
-                      <button
-                        className="px-4 py-2 text-white"
-                        style={{ backgroundColor: "#223771" }}
-                        type="button"
-                        onClick={() => {
-                          const { approverComment } = this.state;
-
-                          if (PendingWith === "Security Manager") {
-                            this.onApproveReject(
-                              "Archive",
-                              "Archive by Security Manager )",
-                              approverComment
-                            );
-                          } else {
-                            this.onApproveReject(
-                              "Archive",
-                              "Archive by Assigned User",
-                              approverComment
-                            );
-                          }
-                        }}
-                      >
-                        {language === "En" ? "Archive" : "أرشيف"}
-                      </button>
-                      <button
-                        className="px-4 py-2 text-white"
-                        style={{ backgroundColor: "#223771" }}
-                        type="button"
-                        onClick={() => {
-                          const { approverComment } = this.state;
-                          this.getDetails();
-                          if (PendingWith === "Security Manager") {
-                            this.onApproveReject(
-                              "Return To User",
-                              "Return To User",
-                              approverComment
-                            );
-                          } else {
-                            this.onApproveReject(
-                              "Return To User",
-                              "Return To User",
-                              approverComment
-                            );
-                          }
-                        }}
-                      >
-                        {language === "En"
-                          ? "Return To User"
-                          : "العودة إلى المستخدم"}
-                      </button>
-                      <button
-                        className="px-4 py-2 text-white"
-                        style={{ backgroundColor: "#223771" }}
-                        type="button"
-                        onClick={() => {
-                          this.setState({ showAssignToFollowUpDetails: true });
-                        }}
-                      >
-                        {language === "En"
-                          ? "Assign to follow up"
-                          : "تكليف بالمتابعة"}
-                      </button>
-                    </div>
-                    {showAssignToFollowUpDetails && (
-                      <div className="d-flex justify-content-end">
-                        <div
-                          className="d-flex justify-content-between"
-                          style={{
-                            fontSize: "1em",
-                            fontFamily: "Open Sans",
-                            fontWeight: "600",
-                            width: "24.5%",
-                            backgroundColor: "#F0F0F0",
-                          }}
-                        >
-                          <label className="ps-2 py-2" htmlFor="Assign To">
-                            {language === "En" ? "Assign To" : "باسم"}
-                          </label>
-                        </div>
-                        <PeoplePicker
-                          context={context as any}
-                          personSelectionLimit={1}
-                          showtooltip={true}
-                          required={true}
-                          onChange={(i: any) => {
-                            this.handleAssign(i);
-                          }}
-                          showHiddenInUI={false}
-                          principalTypes={[PrincipalType.User]}
-                          resolveDelay={1000}
-                          ensureUser={true}
-                        />
-                        <button
-                          className="px-4 py-2 text-white"
-                          style={{ backgroundColor: "#223771" }}
-                          type="button"
-                          onClick={() => {
-                            const { approverComment } = this.state;
-                            if (!this.state.Assignpeople) {
-                              alert(
-                                "Please select a user to assign to follow up."
-                              );
-                              return;
-                            }
-
-                            this.onApproveReject(
-                              "Assign to follow up",
-                              "Assign to follow up",
-                              approverComment
-                            );
-
-                            this.setState({ isAssignToFollowUp: false });
-                          }}
-                        >
-                          {language === "En" ? "Submit" : "يُقدِّم"}
-                        </button>
-                      </div>
-                    )}
-                  </div>
-                )}
-                {PendingWith === "Assign to follow up" && redirection == true && (
+              {PendingWith === "Security Manager" && redirection == true && (
+                <div>
                   <div className="d-flex justify-content-end mb-2 gap-3">
                     <button
                       className="px-4 py-2 text-white"
@@ -1101,16 +960,22 @@ export default class ShiftReport extends React.Component<
                       onClick={() => {
                         const { approverComment } = this.state;
 
-                        this.onApproveReject(
-                          "Return To Security Manager",
-                          "Security Manager",
-                          approverComment
-                        );
+                        if (PendingWith === "Security Manager") {
+                          this.onApproveReject(
+                            "Approve",
+                            "Completed",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Approve",
+                            "Completed",
+                            approverComment
+                          );
+                        }
                       }}
                     >
-                      {language === "En"
-                        ? "Return To Security Manager"
-                        : "العودة إلى المستخدم"}
+                      {language === "En" ? "Approve" : "يعتمد"}
                     </button>
                     <button
                       className="px-4 py-2 text-white"
@@ -1119,19 +984,158 @@ export default class ShiftReport extends React.Component<
                       onClick={() => {
                         const { approverComment } = this.state;
 
-                        this.onApproveReject(
-                          "Archive",
-                          "Archive by Assigned User",
-                          approverComment
-                        );
+                        if (PendingWith === "Security Manager") {
+                          this.onApproveReject(
+                            "Archive",
+                            "Archive by Security Manager",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Archive",
+                            "Archive by Assigned User",
+                            approverComment
+                          );
+                        }
                       }}
                     >
                       {language === "En" ? "Archive" : "أرشيف"}
                     </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
+                        this.getDetails();
+                        if (PendingWith === "Security Manager") {
+                          this.onApproveReject(
+                            "Return To User",
+                            "Return To User",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Return To User",
+                            "Return To User",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En"
+                        ? "Return To User"
+                        : "العودة إلى المستخدم"}
+                    </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        this.setState({ showAssignToFollowUpDetails: true });
+                      }}
+                    >
+                      {language === "En"
+                        ? "Assign to follow up"
+                        : "تكليف بالمتابعة"}
+                    </button>
                   </div>
-                )}
-              </div>
-        
+                  {showAssignToFollowUpDetails && (
+                    <div className="d-flex justify-content-end">
+                      <div
+                        className="d-flex justify-content-between"
+                        style={{
+                          fontSize: "1em",
+                          fontFamily: "Open Sans",
+                          fontWeight: "600",
+                          width: "24.5%",
+                          backgroundColor: "#F0F0F0",
+                        }}
+                      >
+                        <label className="ps-2 py-2" htmlFor="Assign To">
+                          {language === "En" ? "Assign To" : "باسم"}
+                        </label>
+                      </div>
+                      <PeoplePicker
+                        context={context as any}
+                        personSelectionLimit={1}
+                        showtooltip={true}
+                        required={true}
+                        onChange={(i: any) => {
+                          this.handleAssign(i);
+                        }}
+                        showHiddenInUI={false}
+                        principalTypes={[PrincipalType.User]}
+                        resolveDelay={1000}
+                        ensureUser={true}
+                      />
+                      <button
+                        className="px-4 py-2 text-white"
+                        style={{ backgroundColor: "#223771" }}
+                        type="button"
+                        onClick={() => {
+                          const { approverComment } = this.state;
+                          if (!this.state.Assignpeople) {
+                            alert(
+                              "Please select a user to assign to follow up."
+                            );
+                            return;
+                          }
+
+                          this.onApproveReject(
+                            "Assign to follow up",
+                            "Assign to follow up",
+                            approverComment
+                          );
+
+                          this.setState({ isAssignToFollowUp: false });
+                        }}
+                      >
+                        {language === "En" ? "Submit" : "يُقدِّم"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              )}
+              {PendingWith === "Assign to follow up" && redirection == true && (
+                <div className="d-flex justify-content-end mb-2 gap-3">
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      const { approverComment } = this.state;
+
+                      this.onApproveReject(
+                        "Return To Security Manager",
+                        "Security Manager",
+                        approverComment
+                      );
+                    }}
+                  >
+                    {language === "En"
+                      ? "Return To Security Manager"
+                      : "العودة إلى المستخدم"}
+                  </button>
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      const { approverComment } = this.state;
+
+                      this.onApproveReject(
+                        "Archive",
+                        "Archive by Assigned User",
+                        approverComment
+                      );
+                    }}
+                  >
+                    {language === "En" ? "Archive" : "أرشيف"}
+                  </button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </CommunityLayout>
