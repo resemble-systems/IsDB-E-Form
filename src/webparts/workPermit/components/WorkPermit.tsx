@@ -110,6 +110,7 @@ export default class WorkPermit extends React.Component<
             braze: listItems?.Braze == "true" ? true : false,
             weld: listItems?.Weld == "true" ? true : false,
             cut: listItems?.Cut == "true" ? true : false,
+            PendingWith: listItems?.pendingWith,
           });
           console.log("Res listItems", listItems);
         });
@@ -169,7 +170,7 @@ export default class WorkPermit extends React.Component<
                   Braze: braze,
                   Weld: weld,
                   Cut: cut,
-                  FMSDCApprover: JSON.stringify(FMSDCApprover),
+                  FMSDCApprover: JSON.stringify(pendingApprover),
                   pendingApprover: JSON.stringify(pendingApprover),
                   pendingWith: pendingWith,
                 }),
@@ -237,7 +238,7 @@ export default class WorkPermit extends React.Component<
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
-    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Key-Request')/items('${itemId}')`;
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Work-Permit')/items('${itemId}')`;
     const headers = {
       "X-HTTP-Method": "MERGE",
       "If-Match": "*",
@@ -245,13 +246,16 @@ export default class WorkPermit extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
       comments: comments || "",
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
-    // if (updateInteraction) this.getBasicBlogs();
+    if (updateInteraction) {
+      alert("you have successully" + Type + "!");
+      window.history.go(-1);
+    }
   };
   public render(): React.ReactElement<IWorkPermitProps> {
     let bootstarp5CSS =
@@ -279,7 +283,7 @@ export default class WorkPermit extends React.Component<
       PendingWith,
     } = this.state;
     const { context } = this.props;
-
+    console.log("PendingWith", PendingWith);
     return (
       <CommunityLayout
         self={this}
@@ -474,7 +478,10 @@ export default class WorkPermit extends React.Component<
                     </div>
                   </div>
                 ) : (
-                  <div>
+                  <div
+                    className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2"
+                    style={{ paddingLeft: "12px" }}
+                  >
                     <InputFeild
                       type="text"
                       disabled={redirection}
