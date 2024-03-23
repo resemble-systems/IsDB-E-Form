@@ -87,7 +87,7 @@ export default class WorkPermit extends React.Component<
         .then((res: SPHttpClientResponse) => {
           return res.json();
         })
-        
+
         .then((listItems: any) => {
           const extractedEmail = listItems?.pendingApprover.replace(
             /^"(.*)"$/,
@@ -341,22 +341,22 @@ export default class WorkPermit extends React.Component<
                 inputFeild={inputFeild.name}
                 self={this}
               />
-               {!redirection ? (
-              <InputFeild
-                type="datetime-local"
-                label={
-                  <>
-                    {language === "En" ? "Request Date" : "تاريخ الطلب"}
-                    <span className="text-danger">*</span>
-                  </>
-                }
-                disabled={redirection}
-                name="date"
-                state={inputFeild}
-                inputFeild={inputFeild.date}
-                self={this}
-              />
-               ) : (
+              {!redirection ? (
+                <InputFeild
+                  type="datetime-local"
+                  label={
+                    <>
+                      {language === "En" ? "Request Date" : "تاريخ الطلب"}
+                      <span className="text-danger">*</span>
+                    </>
+                  }
+                  disabled={redirection}
+                  name="date"
+                  state={inputFeild}
+                  inputFeild={inputFeild.date}
+                  self={this}
+                />
+              ) : (
                 <InputFeild
                   type="text"
                   disabled={redirection}
@@ -389,18 +389,18 @@ export default class WorkPermit extends React.Component<
                 inputFeild={inputFeild.number}
                 self={this}
               />
-             {!redirection ? (
-              <InputFeild
-                type="datetime-local"
-                disabled={redirection}
-                label={
-                  language === "En" ? "Commencement Date" : "تاريخ التوحيد"
-                }
-                name="commonDate"
-                state={inputFeild}
-                inputFeild={inputFeild.commonDate}
-                self={this}
-              />
+              {!redirection ? (
+                <InputFeild
+                  type="datetime-local"
+                  disabled={redirection}
+                  label={
+                    language === "En" ? "Commencement Date" : "تاريخ التوحيد"
+                  }
+                  name="commonDate"
+                  state={inputFeild}
+                  inputFeild={inputFeild.commonDate}
+                  self={this}
+                />
               ) : (
                 <InputFeild
                   type="text"
@@ -432,61 +432,65 @@ export default class WorkPermit extends React.Component<
                   inputFeild={inputFeild.area}
                   self={this}
                 />
-               
-               {!redirection ? ( 
-               <div>
-                <div
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="Description">
-                    {language === "En" ? "FMSDC Supervisor" : "نيابة عن"}
-                    <span className="text-danger">*</span>
-                  </label>
-                </div>
 
-                <div
-                  style={{ marginLeft: "10px", width: "25%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={false}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerItems(i);
-                    }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-                  />
-                </div>
-                </div>
-                 ) : (
+                {!redirection ? (
+                  <div
+                    className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2"
+                    style={{ paddingLeft: "12px" }}
+                  >
+                    <div
+                      style={{
+                        fontSize: "1em",
+                        fontFamily: "Open Sans",
+                        fontWeight: "600",
+                        width: "50%",
+                        backgroundColor: "#F0F0F0",
+                      }}
+                    >
+                      <label className="ps-2 py-2" htmlFor="Description">
+                        {language === "En" ? "FMSDC Supervisor" : "نيابة عن"}
+                        <span className="text-danger">*</span>
+                      </label>
+                    </div>
+
+                    <div
+                      style={{ marginLeft: "10px", width: "50%" }}
+                      className={"custom-people-picker"}
+                    >
+                      <PeoplePicker
+                        context={context as any}
+                        disabled={false}
+                        personSelectionLimit={1}
+                        showtooltip={true}
+                        required={true}
+                        onChange={(i: any) => {
+                          this.onChangePeoplePickerItems(i);
+                        }}
+                        showHiddenInUI={false}
+                        principalTypes={[PrincipalType.User]}
+                        resolveDelay={1000}
+                        ensureUser={true}
+                      />
+                    </div>
+                  </div>
+                ) : (
                   <div>
                     <InputFeild
                       type="text"
                       disabled={redirection}
-                      label=  {language === "En" ? "FMSDC Supervisor" : "نيابة عن"}
+                      label={
+                        language === "En" ? "FMSDC Supervisor" : "نيابة عن"
+                      }
                       name="on behalf of"
                       state={inputFeild}
                       inputFeild={inputFeild.pendingApprover}
                       self={this}
                     />
                   </div>
-               )}
+                )}
               </div>
-
             </div>
-            <div >
+            <div>
               <div
                 style={{
                   fontSize: "1em",
@@ -507,9 +511,8 @@ export default class WorkPermit extends React.Component<
                 </label>
               </div>
               <RichTextEditor
-             readonly={redirection}
+                readonly={redirection}
                 handleSubmit={""}
-                
                 // disabled={redirection}
                 handleChange={(content: any) => {
                   this.setState({
@@ -642,7 +645,7 @@ export default class WorkPermit extends React.Component<
             )}
             {(PendingWith === "FMSDC (Approver)" ||
               PendingWith === "Head of Safety and Security") &&
-              redirection === true && (
+              redirection == true && (
                 <div>
                   <div
                     style={{
