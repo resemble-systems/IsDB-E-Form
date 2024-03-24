@@ -79,6 +79,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="w-50 ps-2"
             id={label}
             name={name}
+            disabled={disabled}
             defaultValue={options[0]}
             style={{
               border: "none",
@@ -116,6 +117,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             type={type}
             id={label}
             name={name}
+            disabled={disabled}
             multiple={false}
             /* value={fileData} */
             onChange={handleFileChange}
@@ -127,6 +129,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={type}
+                disabled={disabled}
                 id={"Yes"}
                 name={name}
                 value={inputFeild}
@@ -142,9 +145,11 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={type}
+                
                 id={"No"}
                 name={name}
                 value={inputFeild}
+                disabled={disabled}
                 onClick={() => {
                   self.setState({
                     inputFeild: { ...state, visitorNotify: "No" },

@@ -5,7 +5,7 @@ import InputFeild from "./InputFeild";
 import "./index.css";
 import type { IVisitorsFormProps } from "./IVisitorsFormProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
-import { Select } from "antd";
+import { Select, Switch } from "antd";
 import {
   SPHttpClient,
   ISPHttpClientOptions,
@@ -38,9 +38,10 @@ interface IVisitorsFormState {
   peopleData: any;
   people: any;
   visitedEmployeeEmailID: any;
-  redirection:any;
-  approverComment:any;
-  PendingWith:any;
+  redirection: any;
+  approverComment: any;
+  checked: any;
+  PendingWith: any;
 }
 
 export default class VisitorsForm extends React.Component<
@@ -94,9 +95,10 @@ export default class VisitorsForm extends React.Component<
       peopleData: [],
       people: [],
       visitedEmployeeEmailID: "",
-      approverComment:"",
-      redirection:false,
-      PendingWith:"Receptionist"
+      approverComment: "",
+      redirection: false,
+      checked: false,
+      PendingWith: "Receptionist",
     };
   }
   public componentDidMount() {
@@ -113,7 +115,7 @@ export default class VisitorsForm extends React.Component<
     this.getDetails();
     this.getVisitRequest();
     this.getnames();
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       context.spHttpClient
         .get(
           `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -150,6 +152,7 @@ export default class VisitorsForm extends React.Component<
               visitorVisitTime: new Date(listItems?.Visitorvisithour),
               visitorNotify: listItems?.Visitornotify,
               visitorRemarks: listItems?.Visitorremarks,
+              PendingWith: listItems?.pendingWith,
             },
 
             visitorPhoto: listItems.AttachmentJSON
@@ -207,10 +210,10 @@ export default class VisitorsForm extends React.Component<
         });
     }
   }
- 
+
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments, visitorPhoto, visitorIdProof } =
+    const { inputFeild, postAttachments, visitorPhoto, visitorIdProof,  PendingWith, } =
       this.state;
     const visitorname = this.state.inputFeild.visitorName;
     console.log(
@@ -295,6 +298,7 @@ export default class VisitorsForm extends React.Component<
           Consecutive: this.state.consecutive.toString(),
           Sheduledtime: this.state.sheduledTime.toString(),
           AttachmentJSON: JSON.stringify(this.state.attachmentJson),
+          pendingWith: PendingWith,
         }),
       };
       const postResponse = await context.spHttpClient.post(
@@ -463,7 +467,7 @@ export default class VisitorsForm extends React.Component<
       return [];
     }
   }
-  
+
   public getnames() {
     const { context } = this.props;
     context.msGraphClientFactory
@@ -598,10 +602,10 @@ export default class VisitorsForm extends React.Component<
       inputFeild: {
         ...this.state.inputFeild,
         visitedEmployeeID: finalData[0].id.toString(),
-        visitedEmployeeName:userDetails.displayName,
-        visitedEmployeeEntity:userDetails.jobTitle,
-        visitedEmployeePhone:userDetails.mobilePhone,
-        visitedEmployeeGrade:""
+        visitedEmployeeName: userDetails.displayName,
+        visitedEmployeeEntity: userDetails.jobTitle,
+        visitedEmployeePhone: userDetails.mobilePhone,
+        visitedEmployeeGrade: "",
       },
     });
   };
@@ -621,13 +625,21 @@ export default class VisitorsForm extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
       comments: comments || "",
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
+    if (updateInteraction) {
+      alert("The form has been succesfully " + PendingWith + "!");
+      window.history.go(-1);
+    }
     // if (updateInteraction) this.getBasicBlogs();
+  };
+  public onChange = (checked: boolean) => {
+    console.log(`Switch to ${checked}`);
+    this.setState({ checked, redirection: false });
   };
   public render(): React.ReactElement<IVisitorsFormProps> {
     let bootstarp5CSS =
@@ -657,7 +669,7 @@ export default class VisitorsForm extends React.Component<
       postAttachments,
       attachmentJson,
       redirection,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
 
@@ -761,6 +773,12 @@ export default class VisitorsForm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
+          {PendingWith === "Receptionist" && (
+              <div className="">
+                Edit
+                <Switch onChange={this.onChange} />
+              </div>
+            )}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -879,7 +897,6 @@ export default class VisitorsForm extends React.Component<
               />
             </div>
             <div className="row mb-4">
-              
               <div className="d-flex justify-content-start py-2 ps-2">
                 <div
                   className="d-flex justify-content-between"
@@ -1271,38 +1288,37 @@ export default class VisitorsForm extends React.Component<
                 autoComplete={autoComplete}
                 self={this}
                 type="textArea"
-               
                 label={language === "En" ? "Remarks" : "ملاحظات"}
                 name="visitorRemarks"
                 state={inputFeild}
                 inputFeild={inputFeild.visitorRemarks}
               />
             </div>
-            { redirection == false && (
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
-           )}
-            {PendingWith === "Receptionist" && (
+            {redirection == false && (
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
+                  }}
+                >
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+            )}
+            {PendingWith === "Receptionist" && redirection == true && (
               <div>
                 <div
                   style={{
@@ -1328,7 +1344,7 @@ export default class VisitorsForm extends React.Component<
                     this.setState({ approverComment: e.target.value })
                   }
                 />
-                
+
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
@@ -1337,7 +1353,7 @@ export default class VisitorsForm extends React.Component<
                     onClick={() => {
                       const { approverComment } = this.state;
 
-                      if (PendingWith=== "Receptionist") {
+                      if (PendingWith === "Receptionist") {
                         this.onApproveReject(
                           "Approve",
                           "Completed",
@@ -1356,10 +1372,10 @@ export default class VisitorsForm extends React.Component<
                   </button>
                   <button
                     className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
+                    style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      const {  approverComment } = this.state;
+                      const { approverComment } = this.state;
 
                       if (PendingWith === "Receptionist") {
                         this.onApproveReject(
@@ -1367,8 +1383,7 @@ export default class VisitorsForm extends React.Component<
                           "Rejected by Receptionist",
                           approverComment
                         );
-                      } 
-                      else {
+                      } else {
                         this.onApproveReject(
                           "Reject",
                           "Rejected",
@@ -1379,7 +1394,6 @@ export default class VisitorsForm extends React.Component<
                   >
                     {language === "En" ? "Reject" : "أرشيف"}
                   </button>
-                 
                 </div>
               </div>
             )}

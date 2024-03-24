@@ -79,6 +79,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="w-50 ps-2"
             id={label}
             name={name}
+            disabled={disabled}
             defaultValue={options[0]}
             style={{
               border: "none",
@@ -115,6 +116,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             className="w-100 ps-2"
             type={type}
             id={label}
+            disabled={disabled}
             name={name}
             multiple={false}
             /* value={fileData} */
@@ -128,6 +130,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 className=""
                 type={type}
                 id={"Yes"}
+                disabled={disabled}
                 name={name}
                 value={inputFeild}
                 onClick={() => {
@@ -143,6 +146,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 className=""
                 type={type}
                 id={"No"}
+                disabled={disabled}
                 name={name}
                 value={inputFeild}
                 onClick={() => {
@@ -159,6 +163,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             <div className="d-flex gap-1 align-items-center">
               <input
                 className=""
+                disabled={disabled}
                 type={"radio"}
                 id={"BuisnessVisit"}
                 name={name}
@@ -176,6 +181,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={"radio"}
+                disabled={disabled}
                 id={"PersonalVisit"}
                 name={name}
                 value={inputFeild}

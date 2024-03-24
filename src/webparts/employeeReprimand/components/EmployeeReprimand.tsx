@@ -477,7 +477,7 @@ export default class EmployeeReprimand extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
       comments: comments || "",
     });
 

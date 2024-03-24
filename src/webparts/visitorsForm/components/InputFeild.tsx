@@ -119,6 +119,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
             type={type}
             id={label}
             name={name}
+            disabled={disabled}
             multiple={false}
             /* value={fileData} */
             onChange={handleFileChange}
@@ -132,6 +133,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 type={type}
                 id={"Yes"}
                 name={name}
+                disabled={disabled}
                 value={inputFeild}
                 onClick={() => {
                   self.setState({
@@ -148,6 +150,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 id={"No"}
                 name={name}
                 value={inputFeild}
+                disabled={disabled}
                 onClick={() => {
                   self.setState({
                     inputFeild: { ...state, visitorNotify: "No" },
@@ -166,6 +169,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 id={"BuisnessVisit"}
                 name={name}
                 value={inputFeild}
+                disabled={disabled}
                 checked
                 onClick={() => {
                   self.setState({
@@ -183,6 +187,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
                 className=""
                 type={"radio"}
                 id={"PersonalVisit"}
+                disabled={disabled}
                 name={name}
                 value={inputFeild}
                 onClick={() => {

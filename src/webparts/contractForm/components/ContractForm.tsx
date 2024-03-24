@@ -29,7 +29,7 @@ interface IContractFormState {
   redirection: any;
   checked: any;
   approverComment: any;
-  PendingWith:any;
+  PendingWith: any;
 }
 
 export default class ContractForm extends React.Component<
@@ -63,7 +63,6 @@ export default class ContractForm extends React.Component<
         requestorValidityFrom: "",
         requestorValidityTo: "",
         requestorRemarks: "",
-        
       },
       requestorIdProof: "",
       requestorPhoto: "",
@@ -77,7 +76,7 @@ export default class ContractForm extends React.Component<
       redirection: false,
       checked: false,
       approverComment: "",
-      PendingWith:"Immediate Supervisor"
+      PendingWith: "Immediate Supervisor",
     };
   }
   public componentDidMount() {
@@ -92,7 +91,7 @@ export default class ContractForm extends React.Component<
       });
     }
     this.getDetails();
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       context.spHttpClient
         .get(
           `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('Contractor-Form')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -129,6 +128,7 @@ export default class ContractForm extends React.Component<
               requestorValidityFrom: listItems?.requestorValidityFrom,
               requestorValidityTo: listItems?.requestorValidityTo,
               requestorRemarks: listItems?.requestorRemarks,
+              PendingWith: listItems?.pendingWith,
             },
             requestorContract: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
@@ -203,7 +203,7 @@ export default class ContractForm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments, requestorIdProof, requestorPhoto } =
+    const { inputFeild, postAttachments, requestorIdProof, requestorPhoto,  PendingWith, } =
       this.state;
 
     const validityFrom = this.state.inputFeild.requestorValidityFrom;
@@ -310,6 +310,7 @@ export default class ContractForm extends React.Component<
           ).toString(),
           requestorRemarks: inputFeild.requestorRemarks,
           AttachmentJSON: JSON.stringify(this.state.attachmentJson),
+          pendingWith: PendingWith
         }),
       };
       console.log(inputFeild.requestType, "requestType");
@@ -353,7 +354,6 @@ export default class ContractForm extends React.Component<
           requestorValidityFrom: "",
           requestorValidityTo: "",
           requestorRemarks: "",
-         
         },
         requestorIdProof: "",
         requestorPhoto: "",
@@ -425,12 +425,16 @@ export default class ContractForm extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
       comments: comments || "",
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
+    if (updateInteraction) {
+      alert("you have successully" + Type + "!");
+      window.history.go(-1);
+    }
     // if (updateInteraction) this.getBasicBlogs();
   };
   public onChange = (checked: boolean) => {
@@ -462,7 +466,7 @@ export default class ContractForm extends React.Component<
       requestorPhotoJSON,
       attachmentJson,
       redirection,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -1117,114 +1121,115 @@ export default class ContractForm extends React.Component<
             {(PendingWith === "Immediate Supervisor" ||
               PendingWith === "HR Training and Development Division" ||
               PendingWith === "SSIMS Reviewer" ||
-              PendingWith === "SSIMS Manager") && redirection == true &&(
-              <div>
-                <div
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="approverComment">
-                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
-                  </label>
-                </div>
-                <textarea
-                  className="form-control mb-2 mt-2"
-                  rows={3}
-                  placeholder={
-                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
-                  }
-                  value={this.state.approverComment}
-                  onChange={(e) =>
-                    this.setState({ approverComment: e.target.value })
-                  }
-                />
-                <div className="d-flex justify-content-end mb-2 gap-3">
-                  <button
-                    className="px-4 py-2"
-                    style={{ backgroundColor: "#223771" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
-
-                      if (PendingWith === "Immediate Supervisor") {
-                        this.onApproveReject(
-                          "Approve",
-                          "HR Training and Development Division",
-                          approverComment
-                        );
-                      } else if (
-                        PendingWith ===
-                        "HR Training and Development Division"
-                      ) {
-                        this.onApproveReject(
-                          "Approve",
-                          "SSIMS Reviewer",
-                          approverComment
-                        );
-                      } else if (PendingWith === "SSIMS Reviewer") {
-                        this.onApproveReject(
-                          "Approve",
-                          "SSIMS Manager",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Approve",
-                          "Completed",
-                          approverComment
-                        );
-                      }
+              PendingWith === "SSIMS Manager") &&
+              redirection == true && (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
                     }}
                   >
-                    {language === "En" ? "Approve" : "يعتمد"}
-                  </button>
-                  <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
+                    <label className="ps-2 py-2" htmlFor="approverComment">
+                      {language === "En"
+                        ? "Approver Comment"
+                        : "تعليقات الموافق"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    value={this.state.approverComment}
+                    onChange={(e) =>
+                      this.setState({ approverComment: e.target.value })
+                    }
+                  />
+                  <div className="d-flex justify-content-end mb-2 gap-3">
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
 
-                      if (PendingWith === "Immediate Supervisor") {
-                        this.onApproveReject(
-                          "Reject",
-                          "Rejected by HR Training and Development Division)",
-                          approverComment
-                        );
-                      } else if (
-                        PendingWith ===
-                        "HR Training and Development Division"
-                      ) {
-                        this.onApproveReject(
-                          "Rejected",
-                          "Rejected by HR Training and Development Division",
-                          approverComment
-                        );
-                      } else if (PendingWith === "SSIMS Reviewer") {
-                        this.onApproveReject(
-                          "Rejected",
-                          "Rejected SSIMS Reviewer",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Rejected",
-                          "Rejected by SSIMS Manager",
-                          approverComment
-                        );
-                      }
-                    }}
-                  >
-                    {language === "En" ? "Reject" : "أرشيف"}
-                  </button>
+                        if (PendingWith === "Immediate Supervisor") {
+                          this.onApproveReject(
+                            "Approve",
+                            "HR Training and Development Division",
+                            approverComment
+                          );
+                        } else if (
+                          PendingWith === "HR Training and Development Division"
+                        ) {
+                          this.onApproveReject(
+                            "Approve",
+                            "SSIMS Reviewer",
+                            approverComment
+                          );
+                        } else if (PendingWith === "SSIMS Reviewer") {
+                          this.onApproveReject(
+                            "Approve",
+                            "SSIMS Manager",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Approve",
+                            "Completed",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Approve" : "يعتمد"}
+                    </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
+
+                        if (PendingWith === "Immediate Supervisor") {
+                          this.onApproveReject(
+                            "Reject",
+                            "Rejected by Immediate Supervisor",
+                            approverComment
+                          );
+                        } else if (
+                          PendingWith === "HR Training and Development Division"
+                        ) {
+                          this.onApproveReject(
+                            "Rejected",
+                            "Rejected by HR Training and Development Division",
+                            approverComment
+                          );
+                        } else if (PendingWith === "SSIMS Reviewer") {
+                          this.onApproveReject(
+                            "Rejected",
+                            "Rejected SSIMS Reviewer",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Rejected",
+                            "Rejected by SSIMS Manager",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Reject" : "أرشيف"}
+                    </button>
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
           </form>
         </div>
       </CommunityLayout>

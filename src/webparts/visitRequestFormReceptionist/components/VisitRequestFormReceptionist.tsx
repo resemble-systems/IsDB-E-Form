@@ -3,7 +3,7 @@ import styles from "./VisitRequestFormReceptionist.module.sass";
 import type { IVisitRequestFormReceptionistProps } from "./IVisitRequestFormReceptionistProps";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { SPComponentLoader } from "@microsoft/sp-loader";
-import { Select } from "antd";
+import { Select, Switch } from "antd";
 import InputFeild from "./InputFeild";
 import "./index.css";
 import {
@@ -38,9 +38,10 @@ interface IVisitRequestFormReceptionistState {
   people: any;
   visitedEmployeeEmailID: any;
   autoComplete: any;
-  redirection:any;
-  approverComment:any;
-  PendingWith:any;
+  redirection: any;
+  checked:any;
+  approverComment: any;
+  PendingWith: any;
 }
 
 export default class VisitorsForm extends React.Component<
@@ -86,6 +87,7 @@ export default class VisitorsForm extends React.Component<
       language: "En",
       Category: "English",
       checkBox: false,
+      checked:false,
       nameSelected: "",
       nameOptions: [],
       postAttachments: [],
@@ -96,9 +98,9 @@ export default class VisitorsForm extends React.Component<
       peopleData: [],
       people: [],
       visitedEmployeeEmailID: "",
-      approverComment:"",
-      redirection:false,
-      PendingWith:"Receptionist"
+      approverComment: "",
+      redirection: false,
+      PendingWith: "Receptionist",
     };
   }
   public componentDidMount() {
@@ -114,7 +116,7 @@ export default class VisitorsForm extends React.Component<
     }
     this.getDetails();
     this.getVisitRequest();
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       context.spHttpClient
         .get(
           `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -151,6 +153,7 @@ export default class VisitorsForm extends React.Component<
               visitorVisitTime: listItems?.Visitorvisithour,
               visitorNotify: listItems?.Visitornotify,
               visitorRemarks: listItems?.Visitorremarks,
+              PendingWith: listItems?.pendingWith,
             },
             visitorPhoto: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
@@ -179,7 +182,8 @@ export default class VisitorsForm extends React.Component<
 
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments,visitorPhoto,visitorIdProof } = this.state;
+    const { inputFeild, postAttachments, visitorPhoto, visitorIdProof,  PendingWith, } =
+      this.state;
 
     const checkEmail = (Email: string) => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -194,7 +198,7 @@ export default class VisitorsForm extends React.Component<
       console.log(isValidNumber, mobileNumberRegex, "mobile numbers testing");
       return isValidNumber;
     };
-    
+
     const visitTime = this.state.inputFeild.visitorVisitTime;
 
     if (
@@ -222,87 +226,88 @@ export default class VisitorsForm extends React.Component<
     } else if (!visitorPhoto) {
       alert("Please Attach the Photo!");
     } else {
-    const headers: any = {
-      "X-HTTP-Method": "POST",
-      "If-Match": "*",
-    };
-    const spHttpClintOptions: ISPHttpClientOptions = {
-      headers,
-      body: JSON.stringify({
-        Title: inputFeild.staffName,
-        Grade: inputFeild.grade,
-        Staff_id: inputFeild.staffId,
-        Department: inputFeild.Department,
-        OfficeLocation: inputFeild.officeLocation,
-        Officephone: inputFeild.officeNumber,
-        Mobilenumber: inputFeild.mobileNumber,
-        Immediatesupervisor: inputFeild.immediateSupervisor,
-        Onbehalfof: inputFeild.onBehalfOf,
-        Visitedemployee: inputFeild.visitedEmployeeName,
-        Visitedemployeeid: inputFeild.visitedEmployeeID,
-        Visitedentity: inputFeild.visitedEmployeeEntity,
-        Visitedemployeephone: inputFeild.visitedEmployeePhone,
-        Visitedemployeestaffgrade: inputFeild.visitedEmployeeGrade,
-        Visitorname: inputFeild.visitorName,
-        Visitormobileno: inputFeild.visitorMobileNumber,
-        Visitoremailaddress: inputFeild.visitorEmailId,
-        Visitornationality: inputFeild.visitorNationality,
-        Visitororgtype: inputFeild.visitorOrgType,
-        Visitorrelatedorganization: inputFeild.visitorRelatedOrg,
-        Visitorpurposeofvisit: inputFeild.visitorPurposeOfVisit,
-        Visitorvisithour: inputFeild.visitorVisitTime,
-        Visitornotify: inputFeild.visitorNotify,
-        Visitorremarks: inputFeild.visitorRemarks,
-        Filledby: context.pageContext.user.displayName,
-        Filledbytype: "Receptionist",
-        Consecutive: this.state.consecutive.toString(),
-        Sheduledtime: this.state.sheduledTime.toString(),
-        AttachmentJSON: JSON.stringify(this.state.attachmentJson),
-      }),
-    };
-    const postResponse = await context.spHttpClient.post(
-      `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items`,
-      SPHttpClient.configurations.v1,
-      spHttpClintOptions
-    );
-    if (postResponse.ok) {
-      const postData = await postResponse.json();
-      console.log("visitor Created", postData);
-      this.upload(postData.ID, postAttachments);
-    } else {
-      alert("visitor form Failed.");
-      console.log("Post Failed", postResponse);
+      const headers: any = {
+        "X-HTTP-Method": "POST",
+        "If-Match": "*",
+      };
+      const spHttpClintOptions: ISPHttpClientOptions = {
+        headers,
+        body: JSON.stringify({
+          Title: inputFeild.staffName,
+          Grade: inputFeild.grade,
+          Staff_id: inputFeild.staffId,
+          Department: inputFeild.Department,
+          OfficeLocation: inputFeild.officeLocation,
+          Officephone: inputFeild.officeNumber,
+          Mobilenumber: inputFeild.mobileNumber,
+          Immediatesupervisor: inputFeild.immediateSupervisor,
+          Onbehalfof: inputFeild.onBehalfOf,
+          Visitedemployee: inputFeild.visitedEmployeeName,
+          Visitedemployeeid: inputFeild.visitedEmployeeID,
+          Visitedentity: inputFeild.visitedEmployeeEntity,
+          Visitedemployeephone: inputFeild.visitedEmployeePhone,
+          Visitedemployeestaffgrade: inputFeild.visitedEmployeeGrade,
+          Visitorname: inputFeild.visitorName,
+          Visitormobileno: inputFeild.visitorMobileNumber,
+          Visitoremailaddress: inputFeild.visitorEmailId,
+          Visitornationality: inputFeild.visitorNationality,
+          Visitororgtype: inputFeild.visitorOrgType,
+          Visitorrelatedorganization: inputFeild.visitorRelatedOrg,
+          Visitorpurposeofvisit: inputFeild.visitorPurposeOfVisit,
+          Visitorvisithour: inputFeild.visitorVisitTime,
+          Visitornotify: inputFeild.visitorNotify,
+          Visitorremarks: inputFeild.visitorRemarks,
+          Filledby: context.pageContext.user.displayName,
+          Filledbytype: "Receptionist",
+          Consecutive: this.state.consecutive.toString(),
+          Sheduledtime: this.state.sheduledTime.toString(),
+          AttachmentJSON: JSON.stringify(this.state.attachmentJson),
+          pendingWith: PendingWith,
+        }),
+      };
+      const postResponse = await context.spHttpClient.post(
+        `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items`,
+        SPHttpClient.configurations.v1,
+        spHttpClintOptions
+      );
+      if (postResponse.ok) {
+        const postData = await postResponse.json();
+        console.log("visitor Created", postData);
+        this.upload(postData.ID, postAttachments);
+      } else {
+        alert("visitor form Failed.");
+        console.log("Post Failed", postResponse);
+      }
+      window.history.go(-1);
+      this.setState({
+        inputFeild: {
+          staffName: "",
+          grade: "",
+          staffId: "",
+          Department: "",
+          officeLocation: "",
+          officeNumber: "",
+          mobileNumber: "",
+          immediateSupervisor: "",
+          onBehalfOf: "",
+          visitedEmployeeName: "",
+          visitedEmployeeID: "",
+          visitedEmployeeEntity: "",
+          visitedEmployeePhone: "",
+          visitedEmployeeGrade: "",
+          visitorName: "",
+          visitorMobileNumber: "",
+          visitorEmailId: "",
+          visitorNationality: "",
+          visitorOrgType: "",
+          visitorRelatedOrg: "",
+          visitorPurposeOfVisit: "",
+          visitorVisitTime: "",
+          visitorNotify: "",
+          visitorRemarks: "",
+        },
+      });
     }
-    window.history.go(-1);
-    this.setState({
-      inputFeild: {
-        staffName: "",
-        grade: "",
-        staffId: "",
-        Department: "",
-        officeLocation: "",
-        officeNumber: "",
-        mobileNumber: "",
-        immediateSupervisor: "",
-        onBehalfOf: "",
-        visitedEmployeeName: "",
-        visitedEmployeeID: "",
-        visitedEmployeeEntity: "",
-        visitedEmployeePhone: "",
-        visitedEmployeeGrade: "",
-        visitorName: "",
-        visitorMobileNumber: "",
-        visitorEmailId: "",
-        visitorNationality: "",
-        visitorOrgType: "",
-        visitorRelatedOrg: "",
-        visitorPurposeOfVisit: "",
-        visitorVisitTime: "",
-        visitorNotify: "",
-        visitorRemarks: "",
-      },
-    });
-  }
   };
 
   public componentDidUpdate(
@@ -531,10 +536,10 @@ export default class VisitorsForm extends React.Component<
       inputFeild: {
         ...this.state.inputFeild,
         visitedEmployeeID: finalData[0].id,
-        visitedEmployeeName:userDetails.displayName,
-        visitedEmployeeEntity:userDetails.jobTitle,
-        visitedEmployeePhone:userDetails.mobilePhone,
-        visitedEmployeeGrade:""
+        visitedEmployeeName: userDetails.displayName,
+        visitedEmployeeEntity: userDetails.jobTitle,
+        visitedEmployeePhone: userDetails.mobilePhone,
+        visitedEmployeeGrade: "",
       },
     });
   };
@@ -554,13 +559,21 @@ export default class VisitorsForm extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
       comments: comments || "",
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
+    if (updateInteraction) {
+      alert("The form has been succesfully " + PendingWith + "!");
+      window.history.go(-1);
+    }
     // if (updateInteraction) this.getBasicBlogs();
+  };
+  public onChange = (checked: boolean) => {
+    console.log(`Switch to ${checked}`);
+    this.setState({ checked, redirection: false });
   };
   public render(): React.ReactElement<IVisitRequestFormReceptionistProps> {
     let bootstarp5CSS =
@@ -590,7 +603,7 @@ export default class VisitorsForm extends React.Component<
       postAttachments,
       attachmentJson,
       redirection,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
     // const handleSearch = (newValue: string) => {
@@ -693,6 +706,12 @@ export default class VisitorsForm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
+          {PendingWith === "Receptionist" && (
+              <div className="">
+                Edit
+                <Switch onChange={this.onChange} />
+              </div>
+            )}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -1161,30 +1180,30 @@ export default class VisitorsForm extends React.Component<
               />
             </div>
             {redirection == false && (
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
-              )}
-                {PendingWith === "Receptionist" && (
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
+                  }}
+                >
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+            )}
+            {PendingWith === "Receptionist" && redirection == true && (
               <div>
                 <div
                   style={{
@@ -1210,7 +1229,7 @@ export default class VisitorsForm extends React.Component<
                     this.setState({ approverComment: e.target.value })
                   }
                 />
-                
+
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
@@ -1238,7 +1257,7 @@ export default class VisitorsForm extends React.Component<
                   </button>
                   <button
                     className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
+                    style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
                       const { approverComment } = this.state;
@@ -1249,8 +1268,7 @@ export default class VisitorsForm extends React.Component<
                           "Receptionist by Employee )",
                           approverComment
                         );
-                      } 
-                      else {
+                      } else {
                         this.onApproveReject(
                           "Reject",
                           "Reject by Receptionist",
@@ -1261,7 +1279,6 @@ export default class VisitorsForm extends React.Component<
                   >
                     {language === "En" ? "Reject" : "أرشيف"}
                   </button>
-                 
                 </div>
               </div>
             )}

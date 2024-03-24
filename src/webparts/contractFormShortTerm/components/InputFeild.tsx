@@ -79,6 +79,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           <select
             className="w-50 ps-2"
             id={label}
+            disabled={disabled}
             name={name}
             defaultValue={options[0]}
             style={{
@@ -103,6 +104,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
         ) : type === "textArea" ? (
           <textarea
             id={label}
+
             disabled={disabled}
             name={name}
             // dangerouslySetInnerHTML={innerhtml}
@@ -115,6 +117,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
           <input
             className="w-100 ps-2"
             type={type}
+            disabled={disabled}
             id={label}
             name={name}
             multiple={false}
@@ -128,6 +131,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={type}
+                disabled={disabled}
                 id={"Yes"}
                 name={name}
                 value={inputFeild}
@@ -143,6 +147,7 @@ export default class InputFeild extends React.Component<IInputFeildProps, {}> {
               <input
                 className=""
                 type={type}
+                disabled={disabled}
                 id={"No"}
                 name={name}
                 value={inputFeild}

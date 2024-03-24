@@ -26,10 +26,10 @@ interface IContractFormShortTermState {
   requestorIdProofJSON: any;
   requestorPhotoJSON: any;
   requestorContractJSON: any;
-  redirection:any;
-  checked:any;
-  approverComment:any;
-  PendingWith:any;
+  redirection: any;
+  checked: any;
+  approverComment: any;
+  PendingWith: any;
 }
 
 export default class ContractFormShortTerm extends React.Component<
@@ -76,10 +76,10 @@ export default class ContractFormShortTerm extends React.Component<
       requestorIdProofJSON: {},
       requestorPhotoJSON: {},
       requestorContractJSON: {},
-      redirection:false,
-      checked:false,
-      approverComment:"",
-      PendingWith:"Immediate Supervisor"
+      redirection: false,
+      checked: false,
+      approverComment: "",
+      PendingWith: "Immediate Supervisor",
     };
   }
   public componentDidMount() {
@@ -94,7 +94,7 @@ export default class ContractFormShortTerm extends React.Component<
       });
     }
     this.getDetails();
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       context.spHttpClient
         .get(
           `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('Contractor-Form')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -131,6 +131,7 @@ export default class ContractFormShortTerm extends React.Component<
               requestorValidityFrom: listItems?.requestorValidityFrom,
               requestorValidityTo: listItems?.requestorValidityTo,
               requestorRemarks: listItems?.requestorRemarks,
+              PendingWith: listItems?.pendingWith,
             },
             requestorContract: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
@@ -209,7 +210,8 @@ export default class ContractFormShortTerm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments,requestorIdProof,requestorPhoto } = this.state;
+    const { inputFeild, postAttachments, requestorIdProof, requestorPhoto,  PendingWith, } =
+      this.state;
     console.log("Request Type", inputFeild.requestType);
     const validityFrom = this.state.inputFeild.requestorValidityFrom;
     const validityTo = this.state.inputFeild.requestorValidityTo;
@@ -244,9 +246,9 @@ export default class ContractFormShortTerm extends React.Component<
       );
     } else if (checkMobileNo(inputFeild.requestorMobileNo)) {
       alert("Invalid Mobile Number!");
-    
-    // } else if (!inputFeild.requestorJobTittle) {
-    //   alert("Please enter the Job title!");
+
+      // } else if (!inputFeild.requestorJobTittle) {
+      //   alert("Please enter the Job title!");
     } else if (
       !inputFeild.requestorRelatedEdu ||
       inputFeild.requestorRelatedEdu?.length < 3 ||
@@ -261,11 +263,10 @@ export default class ContractFormShortTerm extends React.Component<
       alert("Please enter the From date!");
     } else if (!validityTo) {
       alert("Please enter the To date!");
-    }else if(!requestorIdProof) {
+    } else if (!requestorIdProof) {
       alert("Please Attach the IdProof!");
-    
-    }else if(!requestorPhoto) {
-      alert("Please Attach the Photo!")
+    } else if (!requestorPhoto) {
+      alert("Please Attach the Photo!");
     } else if (
       validityFrom &&
       validityTo &&
@@ -273,7 +274,7 @@ export default class ContractFormShortTerm extends React.Component<
     ) {
       alert("Validity From must be earlier than Validity To");
     } else if (!nationalIDExpiryDate) {
-      alert("Please enter the National ID expiry date!");               
+      alert("Please enter the National ID expiry date!");
     } else {
       const headers: any = {
         "X-HTTP-Method": "POST",
@@ -312,6 +313,7 @@ export default class ContractFormShortTerm extends React.Component<
           ).toString(),
           requestorRemarks: inputFeild.requestorRemarks,
           AttachmentJSON: JSON.stringify(this.state.attachmentJson),
+          pendingWith: PendingWith,
         }),
       };
       const postResponse = await context.spHttpClient.post(
@@ -423,17 +425,21 @@ export default class ContractFormShortTerm extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
       comments: comments || "",
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
     // if (updateInteraction) this.getBasicBlogs();
+    if (updateInteraction) {
+      alert("you have successully" + Type + "!");
+      window.history.go(-1);
+    }
   };
   public onChange = (checked: boolean) => {
     console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection:false });
+    this.setState({ checked, redirection: false });
   };
   public render(): React.ReactElement<IContractFormShortTermProps> {
     let bootstarp5CSS =
@@ -462,7 +468,7 @@ export default class ContractFormShortTerm extends React.Component<
       requestorPhotoJSON,
       attachmentJson,
       redirection,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -569,11 +575,12 @@ export default class ContractFormShortTerm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-          {PendingWith === "SSIMS Reviewer" && (
-          <div className="">
-            Edit<Switch  onChange={this.onChange} />
-            </div>
-          )}
+            {PendingWith === "SSIMS Reviewer" && (
+              <div className="">
+                Edit
+                <Switch onChange={this.onChange} />
+              </div>
+            )}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -611,7 +618,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
-                  disabled={redirection}
+                disabled={redirection}
                 label={language === "En" ? "Grade" : "درجة"}
                 name="grade"
                 state={inputFeild}
@@ -622,7 +629,7 @@ export default class ContractFormShortTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                  disabled={redirection}
+                disabled={redirection}
                 label={language === "En" ? "ID Number" : "رقم الهوية"}
                 name="staffId"
                 state={inputFeild}
@@ -631,7 +638,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
-                  disabled={redirection}
+                disabled={redirection}
                 label={language === "En" ? "Department" : "قسم "}
                 name="Department"
                 state={inputFeild}
@@ -642,7 +649,7 @@ export default class ContractFormShortTerm extends React.Component<
             <div className="row">
               <InputFeild
                 type="text"
-                  disabled={redirection}
+                disabled={redirection}
                 label={
                   language === "En" ? "Phone Extension " : "تحويلة الهاتف "
                 }
@@ -653,7 +660,7 @@ export default class ContractFormShortTerm extends React.Component<
               />
               <InputFeild
                 type="text"
-                  disabled={redirection}
+                disabled={redirection}
                 label={language === "En" ? "Mobile Number " : "رقم الموبايل "}
                 name="mobileNumber"
                 state={inputFeild}
@@ -669,7 +676,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -688,7 +695,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -705,7 +712,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row mb-4">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -719,7 +726,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -744,7 +751,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -758,7 +765,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -774,7 +781,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -789,7 +796,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="select"
                 label={
                   <>
@@ -812,7 +819,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -826,7 +833,7 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorNationalId}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="date"
                 label={
@@ -844,7 +851,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="select"
                 options={["JT-1", "JT-2", "JT-3", "JT-4"]}
@@ -859,7 +866,7 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorJobTittle}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="text"
                 label={language === "En" ? "Location of work " : "موقع العمل "}
@@ -870,7 +877,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -886,7 +893,7 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorRelatedEdu}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -902,7 +909,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="date"
                 label={
                   <>
@@ -916,7 +923,7 @@ export default class ContractFormShortTerm extends React.Component<
                 self={this}
               />
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="date"
                 label={
                   <>
@@ -932,7 +939,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="file"
                 label={
                   <>
@@ -975,7 +982,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="file"
                 label={
                   <>
@@ -1018,7 +1025,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="file"
                 label={
                   language === "En"
@@ -1059,7 +1066,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 type="radio"
                 label={
                   language === "En"
@@ -1074,7 +1081,7 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-              disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="textArea"
                 label={language === "En" ? "Remarks " : "ملاحظات "}
@@ -1084,128 +1091,124 @@ export default class ContractFormShortTerm extends React.Component<
               />
             </div>
             {redirection == false && (
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
-             )}
-   {(PendingWith === "Immediate Supervisor" ||
-              PendingWith === "SSIMS Reviewer" ||
-              PendingWith === "SSIMS Manager") && (
-              <div>
-                <div
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
                   }}
                 >
-                  <label className="ps-2 py-2" htmlFor="approverComment">
-                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
-                  </label>
-                </div>
-                <textarea
-                  className="form-control mb-2 mt-2"
-                  rows={3}
-                  placeholder={
-                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
-                  }
-                  value={this.state.approverComment}
-                  onChange={(e) =>
-                    this.setState({ approverComment: e.target.value })
-                  }
-                />
-                <div className="d-flex justify-content-end mb-2 gap-3">
-                  <button
-                    className="px-4 py-2"
-                    style={{ backgroundColor: "#223771" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
-
-                      if (PendingWith === "Immediate Supervisor") {
-                        this.onApproveReject(
-                          "Approve",
-                          "SSIMS Reviewer",
-                          approverComment
-                        );
-                     
-                      }
-                  else if(PendingWith === "SSIMS Reviewer")
-                    {
-                      this.onApproveReject(
-                        "Approve",
-                        "SSIMS Manager",
-                        approverComment
-                      );
-                    }
-                    else{
-                      this.onApproveReject(
-                        "Approve",
-                        "Completed",
-                        approverComment)
-                    }
-                    }}
-                  >
-                    {language === "En" ? "Approve" : "يعتمد"}
-                  </button>
-                  <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
-                    type="button"
-                    onClick={() => {
-                      const {  approverComment } = this.state;
-
-                      if (PendingWith === "Immediate Supervisor") {
-                        this.onApproveReject(
-                          "Reject",
-                          "Rejected by SSIMS Reviewer",
-                          approverComment
-                        );
-                     
-                      }
-                  else if(PendingWith === "SSIMS Reviewer")
-                    {
-                      this.onApproveReject(
-                        "Rejected",
-                        "Rejected SSIMS Reviewer",
-                        approverComment
-                      );
-                    }
-                    else{
-                      this.onApproveReject(
-                        "Rejected",
-                        "Rejected by SSIMS Manager",
-                        approverComment)
-                    }
-                    }}
-                  >
-                    {language === "En" ? "Reject" : "أرشيف"}
-                  </button>
-                 
-                </div>
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
               </div>
             )}
+            {(PendingWith === "Immediate Supervisor" ||
+              PendingWith === "SSIMS Reviewer" ||
+              PendingWith === "SSIMS Manager") &&
+              redirection == true && (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
+                    <label className="ps-2 py-2" htmlFor="approverComment">
+                      {language === "En"
+                        ? "Approver Comment"
+                        : "تعليقات الموافق"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    value={this.state.approverComment}
+                    onChange={(e) =>
+                      this.setState({ approverComment: e.target.value })
+                    }
+                  />
+                  <div className="d-flex justify-content-end mb-2 gap-3">
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
+
+                        if (PendingWith === "Immediate Supervisor") {
+                          this.onApproveReject(
+                            "Approve",
+                            "SSIMS Reviewer",
+                            approverComment
+                          );
+                        } else if (PendingWith === "SSIMS Reviewer") {
+                          this.onApproveReject(
+                            "Approve",
+                            "SSIMS Manager",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Approve",
+                            "Completed",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Approve" : "يعتمد"}
+                    </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{  backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
+
+                        if (PendingWith === "Immediate Supervisor") {
+                          this.onApproveReject(
+                            "Reject",
+                            "Rejected by Immediate Supervisor",
+                            approverComment
+                          );
+                        } else if (PendingWith === "SSIMS Reviewer") {
+                          this.onApproveReject(
+                            "Rejected",
+                            "Rejected SSIMS Reviewer",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Rejected",
+                            "Rejected by SSIMS Manager",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Reject" : "أرشيف"}
+                    </button>
+                  </div>
+                </div>
+              )}
           </form>
         </div>
       </CommunityLayout>

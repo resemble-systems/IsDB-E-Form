@@ -32,10 +32,10 @@ interface IVisitRequestFormVisitorState {
   visitorIdProofJSON: any;
   visitorPhotoJSON: any;
   isModalOpen: any;
-  redirection:any;
-  checked:any;
-  approverComment:any;
-  PendingWith:any;
+  redirection: any;
+  checked: any;
+  approverComment: any;
+  PendingWith: any;
 }
 
 export default class VisitRequestFormVisitor extends React.Component<
@@ -81,10 +81,10 @@ export default class VisitRequestFormVisitor extends React.Component<
       visitorIdProofJSON: {},
       visitorPhotoJSON: {},
       isModalOpen: false,
-      redirection:false,
-      checked:false,
-      approverComment:"",
-      PendingWith:"Employee"
+      redirection: false,
+      checked: false,
+      approverComment: "",
+      PendingWith: "Employee",
     };
   }
   public componentDidMount() {
@@ -101,7 +101,7 @@ export default class VisitRequestFormVisitor extends React.Component<
     }
     // this.getDetails();
     this.getVisitRequest();
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       context.spHttpClient
         .get(
           `${context.pageContext.site.absoluteUrl}/_api/web/lists/GetByTitle('VisitorRequestForm')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -139,6 +139,7 @@ export default class VisitRequestFormVisitor extends React.Component<
               visitorVisitTime: listItems?.Visitorvisithour,
               visitorNotify: listItems?.Visitornotify,
               visitorRemarks: listItems?.Visitorremarks,
+              PendingWith: listItems?.pendingWith,
             },
             visitorPhoto: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
@@ -167,7 +168,7 @@ export default class VisitRequestFormVisitor extends React.Component<
 
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments, conditionCheckBox } = this.state;
+    const { inputFeild, postAttachments, conditionCheckBox,  PendingWith, } = this.state;
     const checkEmail = (Email: string) => {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       const isValidEmail = emailRegex.test(Email);
@@ -253,6 +254,7 @@ export default class VisitRequestFormVisitor extends React.Component<
           Consecutive: this.state.consecutive.toString(),
           Sheduledtime: this.state.sheduledTime.toString(),
           AttachmentJSON: JSON.stringify(this.state.attachmentJson),
+          pendingWith: PendingWith,
         }),
       };
       const postResponse = await context.spHttpClient.post(
@@ -511,7 +513,7 @@ export default class VisitRequestFormVisitor extends React.Component<
   };
   public onChange = (checked: boolean) => {
     console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection:false });
+    this.setState({ checked, redirection: false });
   };
 
   public render(): React.ReactElement<IVisitRequestFormVisitorProps> {
@@ -537,7 +539,7 @@ export default class VisitRequestFormVisitor extends React.Component<
       postAttachments,
       language,
       redirection,
-      PendingWith
+      PendingWith,
     } = this.state;
     const { context } = this.props;
 
@@ -621,11 +623,12 @@ export default class VisitRequestFormVisitor extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-          {PendingWith === "Employee" && (
-          <div className="">
-            Edit<Switch  onChange={this.onChange} />
-            </div>
-          )}
+            {PendingWith === "Employee" && (
+              <div className="">
+                Edit
+                <Switch onChange={this.onChange} />
+              </div>
+            )}
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -681,7 +684,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="text"
                 label={
@@ -695,7 +698,7 @@ export default class VisitRequestFormVisitor extends React.Component<
                 inputFeild={inputFeild.visitorEmailId}
               />
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="select"
                 label={language === "En" ? "Nationality" : "جنسية"}
                 name="visitorNationality"
@@ -707,7 +710,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="text"
                 label={
                   <>
@@ -723,15 +726,15 @@ export default class VisitRequestFormVisitor extends React.Component<
                 self={this}
               />
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="datetime-local"
                 label={
                   <>
-                  {language === "En"
-                    ? "Anticipated Visit Time"
-                    : "وقت الزيارة المتوقع"}
-                  <span className="text-danger">*</span>
-                </>
+                    {language === "En"
+                      ? "Anticipated Visit Time"
+                      : "وقت الزيارة المتوقع"}
+                    <span className="text-danger">*</span>
+                  </>
                 }
                 name="visitorVisitTime"
                 state={inputFeild}
@@ -742,7 +745,7 @@ export default class VisitRequestFormVisitor extends React.Component<
 
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="select"
                 options={["Business Visit", "Personal Visit"]}
                 label={language === "En" ? "Purpose of Visit" : "غرض الزيارة"}
@@ -754,7 +757,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="file"
                 label={
                   language === "En" ? "Attach ID Proof" : "إرفاق إثبات الهوية"
@@ -792,7 +795,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="file"
                 label={
                   language === "En"
@@ -832,7 +835,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="radio"
                 label={
                   language === "En"
@@ -847,7 +850,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 self={this}
                 type="textArea"
                 label={language === "En" ? "Remarks" : "ملاحظات"}
@@ -878,148 +881,150 @@ export default class VisitRequestFormVisitor extends React.Component<
               </a>
             </div>
             {redirection == false && (
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
-  )}
-     {(PendingWith === "Employee" || PendingWith === "Receptionist") && (
-              <div>
-                <div
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
                   }}
                 >
-                  <label className="ps-2 py-2" htmlFor="approverComment">
-                    {language === "En" ? "Approver Comment" : "تعليقات الموافق"}
-                  </label>
-                </div>
-                <textarea
-                  className="form-control mb-2 mt-2"
-                  rows={3}
-                  placeholder={
-                    language === "En" ? "Add a comment..." : "أضف تعليقا..."
-                  }
-                  value={this.state.approverComment}
-                  onChange={(e) =>
-                    this.setState({ approverComment: e.target.value })
-                  }
-                />
-                <div className="d-flex justify-content-end mb-2 gap-3">
-                  <button
-                    className="px-4 py-2"
-                    style={{ backgroundColor: "#223771" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
-
-                      if (PendingWith === "Employee") {
-                        this.onApproveReject(
-                          "Approve",
-                          "Receptionist",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Approve",
-                          "Completed",
-                          approverComment
-                        );
-                      }
-                    }}
-                  >
-                    {language === "En" ? "Approve" : "يعتمد"}
-                  </button>
-                  <button
-                    className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
-
-                      if (PendingWith === "Employee") {
-                        this.onApproveReject(
-                          "Reject",
-                          "Rejected by Employee",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Reject",
-                          "Reject by Receptionist",
-                          approverComment
-                        );
-                      }
-                    }}
-                  >
-                    {language === "En" ? "Reject" : "أرشيف"}
-                  </button>
-                 
-                </div>
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
               </div>
             )}
+            {(PendingWith === "Employee" || PendingWith === "Receptionist") &&
+              redirection == true && (
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
+                    <label className="ps-2 py-2" htmlFor="approverComment">
+                      {language === "En"
+                        ? "Approver Comment"
+                        : "تعليقات الموافق"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    value={this.state.approverComment}
+                    onChange={(e) =>
+                      this.setState({ approverComment: e.target.value })
+                    }
+                  />
+                  <div className="d-flex justify-content-end mb-2 gap-3">
+                    <button
+                      className="px-4 py-2"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
+
+                        if (PendingWith === "Employee") {
+                          this.onApproveReject(
+                            "Approve",
+                            "Receptionist",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Approve",
+                            "Completed",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Approve" : "يعتمد"}
+                    </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#E5E5E5" }}
+                      type="button"
+                      onClick={() => {
+                        const { approverComment } = this.state;
+
+                        if (PendingWith === "Employee") {
+                          this.onApproveReject(
+                            "Reject",
+                            "Rejected by Employee",
+                            approverComment
+                          );
+                        } else {
+                          this.onApproveReject(
+                            "Reject",
+                            "Reject by Receptionist",
+                            approverComment
+                          );
+                        }
+                      }}
+                    >
+                      {language === "En" ? "Reject" : "أرشيف"}
+                    </button>
+                  </div>
+                </div>
+              )}
 
             <Modal
-             bodyStyle={{ padding: "25px 50px 25px 50px" }}
-             width={750}
-             footer={null}
-             closable={false}
-             visible={this.state.isModalOpen}
-            ><h4 className="align-items-center">Terms And Conditions</h4>
+              bodyStyle={{ padding: "25px 50px 25px 50px" }}
+              width={750}
+              footer={null}
+              closable={false}
+              visible={this.state.isModalOpen}
+            >
+              <h4 className="align-items-center">Terms And Conditions</h4>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <div className="campaign_model_footer d-flex justify-content-end align-items-center">
-                    <button
-                      className={`me-2 border-0 px-5 text-capitalize`}
-                      style={{ color: "#808080",height: "40px"}}
-                      onClick={() =>
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox: false
-                        })
-                      }
-                    >
-                      Don't agree
-                    </button>
-                    <button
-                      className={`border-0 px-5 text-white text-capitalize`}
-                      style={{ backgroundColor: "#223771",height: "40px" }}
-                      onClick={() => {
-                       
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox:true
-                        });
-                      }}
-                    >
-                      Agree
-                    </button>
-                  </div>
+                <button
+                  className={`me-2 border-0 px-5 text-capitalize`}
+                  style={{ color: "#808080", height: "40px" }}
+                  onClick={() =>
+                    this.setState({
+                      isModalOpen: false,
+                      conditionCheckBox: false,
+                    })
+                  }
+                >
+                  Don't agree
+                </button>
+                <button
+                  className={`border-0 px-5 text-white text-capitalize`}
+                  style={{ backgroundColor: "#223771", height: "40px" }}
+                  onClick={() => {
+                    this.setState({
+                      isModalOpen: false,
+                      conditionCheckBox: true,
+                    });
+                  }}
+                >
+                  Agree
+                </button>
+              </div>
             </Modal>
           </form>
         </div>
