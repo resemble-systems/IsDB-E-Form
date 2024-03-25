@@ -6,7 +6,7 @@ import InputFeild from "./InputFeild";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
-import { Select, Switch } from "antd";
+import { Select, } from "antd";
 import "./index.css";
 import { Web } from "sp-pnp-js";
 import {
@@ -27,7 +27,6 @@ interface IContractFormShortTermState {
   requestorPhotoJSON: any;
   requestorContractJSON: any;
   redirection: any;
-  checked: any;
   approverComment: any;
   PendingWith: any;
 }
@@ -77,7 +76,6 @@ export default class ContractFormShortTerm extends React.Component<
       requestorPhotoJSON: {},
       requestorContractJSON: {},
       redirection: false,
-      checked: false,
       approverComment: "",
       PendingWith: "Immediate Supervisor",
     };
@@ -437,10 +435,7 @@ export default class ContractFormShortTerm extends React.Component<
       window.history.go(-1);
     }
   };
-  public onChange = (checked: boolean) => {
-    console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection: false });
-  };
+  
   public render(): React.ReactElement<IContractFormShortTermProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -575,12 +570,7 @@ export default class ContractFormShortTerm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-            {PendingWith === "SSIMS Reviewer" && (
-              <div className="">
-                Edit
-                <Switch onChange={this.onChange} />
-              </div>
-            )}
+            
             <Select
               style={{ width: "200px" }}
               bordered={false}

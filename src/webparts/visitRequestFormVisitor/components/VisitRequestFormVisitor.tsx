@@ -4,7 +4,7 @@ import type { IVisitRequestFormVisitorProps } from "./IVisitRequestFormVisitorPr
 import styles from "./VisitRequestFormVisitor.module.sass";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import InputFeild from "./InputFeild";
-import { Select, Modal, Switch } from "antd";
+import { Select, Modal, } from "antd";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import {
   SPHttpClient,
@@ -33,7 +33,6 @@ interface IVisitRequestFormVisitorState {
   visitorPhotoJSON: any;
   isModalOpen: any;
   redirection: any;
-  checked: any;
   approverComment: any;
   PendingWith: any;
 }
@@ -82,7 +81,6 @@ export default class VisitRequestFormVisitor extends React.Component<
       visitorPhotoJSON: {},
       isModalOpen: false,
       redirection: false,
-      checked: false,
       approverComment: "",
       PendingWith: "Employee",
     };
@@ -511,10 +509,6 @@ export default class VisitRequestFormVisitor extends React.Component<
     console.log(updateInteraction);
     // if (updateInteraction) this.getBasicBlogs();
   };
-  public onChange = (checked: boolean) => {
-    console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection: false });
-  };
 
   public render(): React.ReactElement<IVisitRequestFormVisitorProps> {
     let bootstarp5CSS =
@@ -623,12 +617,7 @@ export default class VisitRequestFormVisitor extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-            {PendingWith === "Employee" && (
-              <div className="">
-                Edit
-                <Switch onChange={this.onChange} />
-              </div>
-            )}
+          
             <Select
               style={{ width: "200px" }}
               bordered={false}

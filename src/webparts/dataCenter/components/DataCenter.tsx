@@ -35,7 +35,16 @@ export default class DataCenter extends React.Component<
   public constructor(props: IDataCenterProps, state: IDataCenterState) {
     super(props);
     this.state = {
-      inputFeild: {},
+      inputFeild: {
+        requestType:"",  
+        organizationType:"",
+        Name:"",
+        company:"",
+        ID:"",
+        mobile:"",
+        visitDate:"",
+        escortID:"",
+      },
       language: "En",
       conditionCheckBox: false,
       description: "",
@@ -58,13 +67,14 @@ export default class DataCenter extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       this.getData(itemId);
     }
   }
 
   public getData(itemId: any) {
     const { context } = this.props;
+    const { inputFeild } = this.state;
     context.spHttpClient
       .get(
         `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('DataCenterAccess')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
@@ -76,7 +86,16 @@ export default class DataCenter extends React.Component<
       .then((listItems: any) => {
         console.log("listItems", listItems);
         this.setState({
-          inputFeild: {},
+          inputFeild: {
+            ...inputFeild,
+            requestType: listItems?.RequestType,
+            Name: listItems?.Title,
+            Id:listItems?.EmployeeID,
+            company: listItems.Company,
+            mobile: listItems.Mobile,
+            escortID: listItems.EscortID,
+            visitDate: listItems?.VisitDate
+          },
         });
         console.log("Res listItems", listItems);
       });
@@ -247,7 +266,7 @@ export default class DataCenter extends React.Component<
                       name="organizationType"
                       options={["Internal", "External"]}
                       state={inputFeild}
-                      inputFeild={inputFeild.requestType}
+                      inputFeild={inputFeild.organizationType}
                       self={this}
                     />
                   </div>

@@ -369,6 +369,7 @@ export default class ShiftReport extends React.Component<
     this.setState({
       pendingApprover: emails[0] || "",
     });
+    console.log("emails", emails);
   };
 
   public getDetails() {
@@ -434,6 +435,7 @@ export default class ShiftReport extends React.Component<
     });
     if (PendingWith === "Assign to follow up") {
       const { pendingApprover } = this.state;
+      this.setState({ pendingApprover: pendingApprover });
       body = JSON.stringify({
         Status: Type,
         pendingWith: PendingWith,

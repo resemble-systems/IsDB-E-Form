@@ -686,7 +686,7 @@ export default class GatePass extends React.Component<
                     }}
                   />
                 </div>
-                {checkBox ? (
+                {checkBox && (
                   <div className="my-2">
                     <Table
                       columns={columns}
@@ -791,7 +791,8 @@ export default class GatePass extends React.Component<
                       </button>
                     </div>
                   </div>
-                ) : (
+                )}
+                 {!checkBox && (
                   <div>
                     <div>
                       <div

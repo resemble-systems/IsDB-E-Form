@@ -3,7 +3,7 @@ import styles from "./VisitRequestFormReceptionist.module.sass";
 import type { IVisitRequestFormReceptionistProps } from "./IVisitRequestFormReceptionistProps";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { SPComponentLoader } from "@microsoft/sp-loader";
-import { Select, Switch } from "antd";
+import { Select } from "antd";
 import InputFeild from "./InputFeild";
 import "./index.css";
 import {
@@ -39,7 +39,6 @@ interface IVisitRequestFormReceptionistState {
   visitedEmployeeEmailID: any;
   autoComplete: any;
   redirection: any;
-  checked:any;
   approverComment: any;
   PendingWith: any;
 }
@@ -87,7 +86,6 @@ export default class VisitorsForm extends React.Component<
       language: "En",
       Category: "English",
       checkBox: false,
-      checked:false,
       nameSelected: "",
       nameOptions: [],
       postAttachments: [],
@@ -571,10 +569,7 @@ export default class VisitorsForm extends React.Component<
     }
     // if (updateInteraction) this.getBasicBlogs();
   };
-  public onChange = (checked: boolean) => {
-    console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection: false });
-  };
+
   public render(): React.ReactElement<IVisitRequestFormReceptionistProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -706,12 +701,7 @@ export default class VisitorsForm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-          {PendingWith === "Receptionist" && (
-              <div className="">
-                Edit
-                <Switch onChange={this.onChange} />
-              </div>
-            )}
+         
             <Select
               style={{ width: "200px" }}
               bordered={false}

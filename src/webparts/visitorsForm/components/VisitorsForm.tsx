@@ -5,7 +5,7 @@ import InputFeild from "./InputFeild";
 import "./index.css";
 import type { IVisitorsFormProps } from "./IVisitorsFormProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
-import { Select, Switch } from "antd";
+import { Select, } from "antd";
 import {
   SPHttpClient,
   ISPHttpClientOptions,
@@ -40,7 +40,6 @@ interface IVisitorsFormState {
   visitedEmployeeEmailID: any;
   redirection: any;
   approverComment: any;
-  checked: any;
   PendingWith: any;
 }
 
@@ -97,7 +96,6 @@ export default class VisitorsForm extends React.Component<
       visitedEmployeeEmailID: "",
       approverComment: "",
       redirection: false,
-      checked: false,
       PendingWith: "Receptionist",
     };
   }
@@ -637,10 +635,7 @@ export default class VisitorsForm extends React.Component<
     }
     // if (updateInteraction) this.getBasicBlogs();
   };
-  public onChange = (checked: boolean) => {
-    console.log(`Switch to ${checked}`);
-    this.setState({ checked, redirection: false });
-  };
+
   public render(): React.ReactElement<IVisitorsFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -773,12 +768,7 @@ export default class VisitorsForm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-          {PendingWith === "Receptionist" && (
-              <div className="">
-                Edit
-                <Switch onChange={this.onChange} />
-              </div>
-            )}
+        
             <Select
               style={{ width: "200px" }}
               bordered={false}
