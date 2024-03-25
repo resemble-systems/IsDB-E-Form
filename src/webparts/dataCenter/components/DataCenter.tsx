@@ -164,7 +164,7 @@ export default class DataCenter extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
@@ -435,7 +435,7 @@ export default class DataCenter extends React.Component<
               redirection == true && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
-                    className="px-4 py-2"
+                    className="px-4 py-2 text-white"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
@@ -450,7 +450,7 @@ export default class DataCenter extends React.Component<
                   </button>
                   <button
                     className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
+                    style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
                       if (PendingWith === "Data Center Owner") {

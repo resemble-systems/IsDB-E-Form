@@ -18,6 +18,7 @@ import {
 import { Web } from "sp-pnp-js";
 import { postData } from "../../../Services/Services";
 
+
 interface IEmployeeReprimandState {
   inputFeild: any;
   language: any;
@@ -317,9 +318,9 @@ export default class EmployeeReprimand extends React.Component<
 
     // if (conditionCheckBox == false) {
     //   alert("Please Agree the Terms and Conditions!");
-    if (people.length < 1) {
-      alert("User Name cannot be blank!");
-    } else {
+    // if (Position.length < 1) {
+    //   alert("User Name cannot be blank!");
+    // } else {
       let peopleArr = people;
       console.log("people on submit", peopleArr, people);
       // peopleArr?.map(async (post: any) => {
@@ -414,7 +415,7 @@ export default class EmployeeReprimand extends React.Component<
         console.log("Response", Response);
       }
       // });
-    }
+    
   };
 
   public onChangePeoplePickerItems = async (items: any) => {

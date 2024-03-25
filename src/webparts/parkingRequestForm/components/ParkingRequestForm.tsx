@@ -14,6 +14,7 @@ import {
 } from "@microsoft/sp-http";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { Web } from "sp-pnp-js";
+import { postData } from "../../../Services/Services";
 
 interface IParkingRequestFormState {
   requestorInfo: any;
@@ -30,6 +31,7 @@ interface IParkingRequestFormState {
   driverIdProofJSON: any;
   conditionCheckBox: any;
   disable: boolean;
+  PendingWith:any;
 }
 
 export default class ParkingRequestForm extends React.Component<
@@ -80,6 +82,7 @@ export default class ParkingRequestForm extends React.Component<
       driverIdProofJSON: {},
       conditionCheckBox: false,
       disable: false,
+      PendingWith:"SSIMS Reviewer",
     };
   }
 
@@ -89,7 +92,7 @@ export default class ParkingRequestForm extends React.Component<
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
 
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       console.log("call the edit function....");
       this.getData(itemId);
       this.setState({
@@ -148,6 +151,7 @@ export default class ParkingRequestForm extends React.Component<
 
   public getData(itemId: any) {
     const { context } = this.props;
+  
     // const {  parkingInfo, vehicleInfo } = this.state;
     console.log("Get data=====>");
     context.spHttpClient
@@ -172,6 +176,7 @@ export default class ParkingRequestForm extends React.Component<
             staffExtension: listItems?.staffExtension,
             mobileNumber: listItems?.mobileNumber,
             relatedEntity: listItems?.relatedEntity,
+            PendingWith:listItems?.pendingWith
           },
           parkingInfo: {
             // ...parkingInfo,
@@ -237,6 +242,7 @@ export default class ParkingRequestForm extends React.Component<
       vehicleInfo,
       conditionCheckBox,
       postAttachments,
+      PendingWith
     } = this.state;
     const plateNumber = (number: any) => {
       const regex = /^[A-Za-z]{3}\d{4}$/;
@@ -318,6 +324,7 @@ export default class ParkingRequestForm extends React.Component<
           comments: vehicleInfo.comments,
           AttachmentJSON: JSON.stringify(this.state.attachmentJson),
           RequestorValidityTo: vehicleInfo.requestorValidityTo,
+          pendingWith: PendingWith
         }),
       };
       console.log(parkingInfo.requestType, "requestType");
@@ -414,7 +421,33 @@ export default class ParkingRequestForm extends React.Component<
     alert("You have successfully submitted!");
     window.history.go(-1);
   }
+  public onApproveReject: (
+    Type: string,
+    PendingWith: string,
+  
+  ) => void = async (Type: string, PendingWith: string) => {
+    const { context } = this.props;
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Parking-Request')/items('${itemId}')`;
+    const headers = {
+      "X-HTTP-Method": "MERGE",
+      "If-Match": "*",
+    };
 
+    let body: string = JSON.stringify({
+      status: Type,
+      pendingWith: PendingWith,
+    });
+
+    const updateInteraction = await postData(context, postUrl, headers, body);
+    console.log(updateInteraction);
+    if (updateInteraction) {
+      alert("you have successully" + Type + "!");
+      window.history.go(-1);
+    }
+    // if (updateInteraction) this.getBasicBlogs();
+  };
   public render(): React.ReactElement<IParkingRequestFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -445,6 +478,7 @@ export default class ParkingRequestForm extends React.Component<
       conditionCheckBox,
       attachmentJson,
       disable,
+      PendingWith,
     } = this.state;
     const { context } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
@@ -687,7 +721,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <ParkingInfo
                 type="select"
-                disabled={disable}
+                disabled={disable || parkingInfo.parkingType !== ""}
                 label={
                   <>
                     {language === "En" ? "Request Type " : "نوع الطلب "}
@@ -696,6 +730,7 @@ export default class ParkingRequestForm extends React.Component<
                 }
                 name="requestType"
                 options={[
+                  "",
                   "Permanent Entry Permission",
                   "Temporary Entry Permission",
                 ]}
@@ -722,7 +757,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <ParkingInfo
                 type="select"
-                disabled={disable}
+                disabled={disable || parkingInfo.requestType !== ""}
                 label={
                   <>
                     {language === "En" ? "Parking Type" : "نوع موقف السيارات"}
@@ -730,7 +765,7 @@ export default class ParkingRequestForm extends React.Component<
                   </>
                 }
                 name="parkingType"
-                options={["Public", "Reserved"]}
+                options={["","Public", "Reserved"]}
                 state={parkingInfo}
                 parkingInfo={parkingInfo.parkingType}
                 self={this}
@@ -1006,6 +1041,7 @@ export default class ParkingRequestForm extends React.Component<
                 <span className="text-danger">*</span>
               </label>
             </div>
+            { disable == false && (
             <div className="d-flex justify-content-end mb-2 gap-3">
               <button
                 className="px-4 py-2"
@@ -1028,6 +1064,62 @@ export default class ParkingRequestForm extends React.Component<
                 {language === "En" ? "Submit" : "إرسال"}
               </button>
             </div>
+            )}
+            {PendingWith == "SSIMS Reviewer" && disable == true &&(
+               <div className="d-flex justify-content-end mb-2 gap-3">
+               <button
+                 className="px-4 py-2 text-white"
+                 style={{ backgroundColor: "#223771" }}
+                 type="button"
+                 onClick={() => {
+                  if (PendingWith === "SSIMS Reviewer") {
+                    this.onApproveReject("Approve", "Completed");
+                  }
+                }}
+               >
+                 {language === "En" ? "Approve" : "يعتمد"}
+               </button>
+               <button
+                 className="px-4 py-2 text-white"
+                 style={{ backgroundColor: "#223771" }}
+                 type="button"
+                 onClick={() => {
+
+                   if (PendingWith === "SSIMS Reviewer") {
+                     this.onApproveReject(
+                       "Reject",
+                       "Rejected by SSIMS Reviewer",
+                       
+                     );
+                  
+                   }
+                 }}
+               >
+                 {language === "En" ? "Reject" : "أرشيف"}
+               </button>
+               
+             </div>
+            )}
+             {PendingWith == "SSIMS Reviewer" && disable == true && parkingInfo.parkingType && (
+              <button
+                 className="px-4 py-2 text-white"
+                 style={{ backgroundColor: "#223771" }}
+                 type="button"
+                 onClick={() => {
+
+                   if (PendingWith === "SSIMS Reviewer") {
+                     this.onApproveReject(
+                       "Add to waiting list",
+                       "Added to waiting list",
+                       
+                     );
+                  
+                   }
+                 }}
+               >
+                 {language === "En" ? "Add To Waiting List" : "أرشيف"}
+               </button>
+             )}
           </form>
         </div>
       </CommunityLayout>
