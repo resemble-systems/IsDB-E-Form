@@ -49,6 +49,10 @@ interface IEmployeeReprimandState {
   approverComment: any;
   checked: any;
   PendingWith: any;
+  Assignpeople: any;
+  isAssignToFollowUp: any;
+  showAssignToFollowUpDetails: boolean;
+  pendingApprover: any;
 }
 export default class EmployeeReprimand extends React.Component<
   IEmployeeReprimandProps,
@@ -66,6 +70,7 @@ export default class EmployeeReprimand extends React.Component<
         id: "",
         position: "",
         otherViolation: "",
+      
       },
       language: "En",
       requestTypeData: [],
@@ -96,6 +101,10 @@ export default class EmployeeReprimand extends React.Component<
       approverComment: "",
       checked: false,
       PendingWith: "SSIMS Reviewer",
+      showAssignToFollowUpDetails: false,
+      Assignpeople: [],
+      pendingApprover: "",
+      isAssignToFollowUp: false,
     };
   }
 
@@ -475,20 +484,55 @@ export default class EmployeeReprimand extends React.Component<
       "If-Match": "*",
     };
 
-    let body: string = JSON.stringify({
-      status: Type,
+    let body: string;
+    body = JSON.stringify({
+      Status: Type,
       pendingWith: PendingWith,
       comments: comments || "",
     });
-
+    if (PendingWith === "Assign to follow up") {
+      const { pendingApprover } = this.state;
+      body = JSON.stringify({
+        Status: Type,
+        pendingWith: PendingWith,
+        comments: comments || "",
+      
+        pendingApprover: pendingApprover,
+      });
+    }
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
+    if (updateInteraction) {
+      alert("The form has been succesfully " + PendingWith + "!");
+      window.history.go(-1);
+    }
     // if (updateInteraction) this.getBasicBlogs();
   };
   // public onChange = (checked: boolean) => {
   //   console.log(`Switch to ${checked}`);
   //   this.setState({ checked, redirection: false });
   // };
+  public handleAssign = (items: any) => {
+    const { peopleData } = this.state;
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log("handle", finalData, items);
+    this.setState({
+      Assignpeople: peopleData[0].secondaryText,
+    });
+    const emails = finalData.map((item: any) => item.secondaryText);
+
+    this.setState({
+      pendingApprover: emails[0] || "",
+    });
+  };
   public render(): React.ReactElement<IEmployeeReprimandProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -518,6 +562,7 @@ export default class EmployeeReprimand extends React.Component<
       fileInfos,
       commentsPost,
       PendingWith,
+      showAssignToFollowUpDetails
     } = this.state;
     const { context } = this.props;
     console.log("attachments", attachments);
@@ -995,30 +1040,7 @@ export default class EmployeeReprimand extends React.Component<
                     }
                   />
                   <div className="d-flex justify-content-end mb-2 gap-3">
-                    {/* <button
-                    className="px-4 py-2"
-                    style={{ backgroundColor: "#223771" }}
-                    type="button"
-                    onClick={() => {
-                      const { approverComment } = this.state;
-
-                      if (PendingWith === "SSIMS Reviewer") {
-                        this.onApproveReject(
-                          "Approve",
-                          "Completed",
-                          approverComment
-                        );
-                      } else {
-                        this.onApproveReject(
-                          "Approve",
-                          "Completed",
-                          approverComment
-                        );
-                      }
-                    }}
-                  >
-                    {language === "En" ? "Approve" : "يعتمد"}
-                  </button> */}
+                   
                     <button
                       className="px-4 py-2 text-white"
                       style={{ backgroundColor: "#E5E5E5" }}
@@ -1043,6 +1065,73 @@ export default class EmployeeReprimand extends React.Component<
                     >
                       {language === "En" ? "Archive" : "أرشيف"}
                     </button>
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#E5E5E5" }}
+                      type="button"
+                      onClick={() => {
+                        this.setState({ showAssignToFollowUpDetails: true });
+                      }}
+                    >
+                      {language === "En"
+                        ? "To Notify"
+                        : "إشعار آخرين"}
+                    </button>
+                    {showAssignToFollowUpDetails && (
+                    <div className="d-flex justify-content-end">
+                      <div
+                        className="d-flex justify-content-between"
+                        style={{
+                          fontSize: "1em",
+                          fontFamily: "Open Sans",
+                          fontWeight: "600",
+                          width: "24.5%",
+                          backgroundColor: "#F0F0F0",
+                        }}
+                      >
+                        <label className="ps-2 py-2" htmlFor="Assign To">
+                          {language === "En" ? "Assign To" : "باسم"}
+                        </label>
+                      </div>
+                      <PeoplePicker
+                        context={context as any}
+                        personSelectionLimit={1}
+                        showtooltip={true}
+                        required={true}
+                        onChange={(i: any) => {
+                          this.handleAssign(i);
+                        }}
+                        showHiddenInUI={false}
+                        principalTypes={[PrincipalType.User]}
+                        resolveDelay={1000}
+                        ensureUser={true}
+                      />
+                      <button
+                        className="px-4 py-2 text-white"
+                        style={{ backgroundColor: "#223771" }}
+                        type="button"
+                        onClick={() => {
+                          const { approverComment } = this.state;
+                          if (!this.state.Assignpeople) {
+                            alert(
+                              "Please select a user to Notify."
+                            );
+                            return;
+                          }
+
+                          this.onApproveReject(
+                            "To Notify",
+                            "To Notify",
+                            approverComment
+                          );
+
+                          this.setState({ isAssignToFollowUp: false });
+                        }}
+                      >
+                        {language === "En" ? "Submit" : "يُقدِّم"}
+                      </button>
+                    </div>
+                  )}
                   </div>
                 </div>
               )}

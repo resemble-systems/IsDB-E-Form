@@ -2,7 +2,7 @@ import * as React from "react";
 import type { IGatePassProps } from "./IGatePassProps";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
-import { Input, InputNumber, Popconfirm, Select, Table,Modal } from "antd";
+import { Input, InputNumber, Popconfirm, Select, Table, Modal } from "antd";
 import "./index.css";
 import InputFeild from "./InputFeild";
 import {
@@ -11,17 +11,17 @@ import {
   SPHttpClient,
   SPHttpClientResponse,
 } from "@microsoft/sp-http";
- import {
+import {
   PeoplePicker,
   PrincipalType,
-} from "@pnp/spfx-controls-react/lib/PeoplePicker"; 
+} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import { postData } from "../../../Services/Services";
 
 interface IGatePassState {
   inputFeild: any;
   language: any;
   requestTypeData: any;
-  entityData: any;
+  // entityData: any;
   checkBox: any;
   people: any;
   peopleData: any;
@@ -35,8 +35,12 @@ interface IGatePassState {
   addDetails: any;
   nameOptions: Array<{ value: string; label: string; email: string }>;
   nameSelected: any;
-  isModalOpen:any;
-  PendingWith:any;
+  isModalOpen: any;
+  PendingWith: any;
+  QuantityPost: any;
+  DescriptionPost: any;
+  SerialPost: any;
+  ModelPost: any;
 }
 
 export default class GatePass extends React.Component<
@@ -47,12 +51,12 @@ export default class GatePass extends React.Component<
     super(props);
     this.state = {
       inputFeild: {
-        requestType: "Maintanance",
-        entity: "Entity - 1",
+        requestType: "Repair",
+        // entity: "Entity - 1",
       },
       language: "En",
       requestTypeData: [],
-      entityData: [],
+      // entityData: [],
       checkBox: false,
       people: [],
       peopleData: [],
@@ -71,8 +75,12 @@ export default class GatePass extends React.Component<
       nameSelected: [],
       showAdd: false,
       addDetails: { Model: "", Serial: "", Description: "", Quantity: 0 },
-      isModalOpen:false,
-      PendingWith:"Approver"
+      isModalOpen: false,
+      PendingWith: "on behalf of",
+      QuantityPost: "",
+      DescriptionPost: "",
+      SerialPost: "",
+      ModelPost: "",
     };
   }
 
@@ -87,7 +95,8 @@ export default class GatePass extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?itemID") != -1) {
+    this.getDetails();
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       this.getAdmin(itemId);
     }
     context.spHttpClient
@@ -107,24 +116,25 @@ export default class GatePass extends React.Component<
         });
         console.log("requestTypeData", requestTypeData);
       });
-    context.spHttpClient
-      .get(
-        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Visited-Entity')/items`,
-        SPHttpClient.configurations.v1
-      )
-      .then((res: SPHttpClientResponse) => {
-        return res.json();
-      })
-      .then((listItems: any) => {
-        let filterData = listItems.value?.map((data: any) => {
-          return data.Title;
-        });
-        this.setState({
-          entityData: filterData,
-        });
-        console.log("filterData", filterData);
-      });
-  }
+    }
+  //   context.spHttpClient
+  //     .get(
+  //       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Visited-Entity')/items`,
+  //       SPHttpClient.configurations.v1
+  //     )
+  //     .then((res: SPHttpClientResponse) => {
+  //       return res.json();
+  //     })
+  //     .then((listItems: any) => {
+  //       let filterData = listItems.value?.map((data: any) => {
+  //         return data.Title;
+  //       });
+  //       this.setState({
+  //         entityData: filterData,
+  //       });
+  //       console.log("filterData", filterData);
+  //     });
+  // }
 
   public getNames(nameSearch: string) {
     const { context } = this.props;
@@ -192,12 +202,19 @@ export default class GatePass extends React.Component<
         console.log("extractedEmail", extractedEmail);
 
         this.setState({
-          
           inputFeild: {
             ...inputFeild,
             requestType: listItems?.Title,
             entity: listItems?.VisitedEntity,
             OnBehalfOfEmail: extractedEmail,
+            name: listItems?.Name,
+            extension: listItems?.Extension,
+            Department: listItems?.Department,
+            position: listItems?.Position,
+            QuantityPost:listItems?.Quantity,
+            ModelPost:listItems?.Model,
+            SerialPost:listItems?.SerialNumber,
+            DescriptionPost:listItems?.Description,
           },
           tableData: TableData,
           people: PeopleData,
@@ -208,72 +225,128 @@ export default class GatePass extends React.Component<
 
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, conditionCheckBox, people, tableData, checkBox } =
-      this.state;
+    const {
+      inputFeild,
+      conditionCheckBox,
+      people,
+      tableData,
+      checkBox,
+      PendingWith,
+    } = this.state;
 
     if (conditionCheckBox == false) {
       alert("Please Agree the Terms and Conditions!");
     } else if (checkBox && tableData?.length < 1) {
       alert("Equipments data cannot be blank!");
     } else if (people.length < 1) {
-      alert("User Name cannot be blank!");
+      alert("on behalf of cannot be blank!");
     } else {
       let peopleArr = people;
       console.log("people on submit", peopleArr, people);
-       peopleArr?.map((post: any) => {
-         console.log("post on submit", post);
+      peopleArr?.map((post: any) => {
+        console.log("post on submit", post);
 
-      const headers: any = {
-        "X-HTTP-Method": "MERGE",
-        "If-Match": "*",
-        "Content-Type": "application/json;odata=nometadata",
-      };
-      const spHttpClintOptions: ISPHttpClientOptions =
-        window.location.href.indexOf("?itemID") != -1
-          ? {
-              headers,
-              body: JSON.stringify({
-                Title: inputFeild.requestType,
-                VisitedEntity: inputFeild.entity,
-                CheckBox: checkBox.toString(),
-                TableData: JSON.stringify(tableData),
-                OnBehalfOfName: JSON.stringify(peopleArr),
+        const headers: any = {
+          "X-HTTP-Method": "MERGE",
+          "If-Match": "*",
+          "Content-Type": "application/json;odata=nometadata",
+        };
+        const spHttpClintOptions: ISPHttpClientOptions =
+          window.location.href.indexOf("?itemID") != -1
+            ? {
+                headers,
+                body: JSON.stringify({
+                  Name: inputFeild.name,
+                  Extension: inputFeild.extension,
+                  Department: inputFeild.Department,
+                  Position: inputFeild.position,
+                  Title: inputFeild.requestType,
+                  VisitedEntity: inputFeild.entity,
+                  QuantityPost: inputFeild.QuantityPost,
+                  DescriptionPost: inputFeild.DescriptionPost,
+                  SerialPost: inputFeild.SerialPost,
+                  ModelPost: inputFeild.ModelPost,
+                  CheckBox: checkBox.toString(),
+                  TableData: JSON.stringify(tableData),
+                  OnBehalfOfName: JSON.stringify(peopleArr),
                   OnBehalfOfEmail: JSON.stringify(post.secondaryText),
-              }),
-            }
-          : {
-              body: JSON.stringify({
-                Title: inputFeild.requestType,
-                VisitedEntity: inputFeild.entity,
-                CheckBox: checkBox.toString(),
-                TableData: JSON.stringify(tableData),
-                OnBehalfOfName: JSON.stringify(peopleArr),
+                  pendingWith: PendingWith,
+                }),
+              }
+            : {
+                body: JSON.stringify({
+                  Name: inputFeild.name,
+                  Extension: inputFeild.extension,
+                  Department: inputFeild.Department,
+                  Position: inputFeild.position,
+                  Title: inputFeild.requestType,
+                  VisitedEntity: inputFeild.entity,
+                  QuantityPost: inputFeild.QuantityPost,
+                  DescriptionPost: inputFeild.DescriptionPost,
+                  SerialPost: inputFeild.SerialPost,
+                  ModelPost: inputFeild.ModelPost,
+                  CheckBox: checkBox.toString(),
+                  TableData: JSON.stringify(tableData),
+                  OnBehalfOfName: JSON.stringify(peopleArr),
                   OnBehalfOfEmail: JSON.stringify(post.secondaryText),
-              }),
-            };
+                  pendingWith: PendingWith,
+                }),
+              };
 
-      let data = window.location.href.split("=");
-      let itemId = data[data.length - 1];
+        let data = window.location.href.split("=");
+        let itemId = data[data.length - 1];
 
-      let url =
-        window.location.href.indexOf("?itemID") != -1
-          ? `/_api/web/lists/GetByTitle('Gate-Pass')/items('${itemId}')`
-          : "/_api/web/lists/GetByTitle('Gate-Pass')/items";
+        let url =
+          window.location.href.indexOf("?itemID") != -1
+            ? `/_api/web/lists/GetByTitle('Gate-Pass')/items('${itemId}')`
+            : "/_api/web/lists/GetByTitle('Gate-Pass')/items";
 
-      context.spHttpClient
-        .post(
-          `${context.pageContext.web.absoluteUrl}${url}`,
-          SPHttpClient.configurations.v1,
-          spHttpClintOptions
-        )
-        .then((res) => {
-          console.log("RES POST", res);
-          alert(`You have successfully submitted`);
-          window.history.go(-1);
-        });
+        context.spHttpClient
+          .post(
+            `${context.pageContext.web.absoluteUrl}${url}`,
+            SPHttpClient.configurations.v1,
+            spHttpClintOptions
+          )
+          .then((res) => {
+            console.log("RES POST", res);
+            alert(`You have successfully submitted`);
+            window.history.go(-1);
+          });
       });
     }
   };
+  public getDetails() {
+    const { context } = this.props;
+    context.msGraphClientFactory
+      .getClient("3")
+      .then((grahpClient: MSGraphClientV3): void => {
+        grahpClient
+          .api(`/users/${context.pageContext.user.email}`)
+          .version("v1.0")
+          .select("*")
+
+          .get((error: any, user: any, rawResponse?: any) => {
+            if (error) {
+              console.log("User Error Msg:", error);
+
+              return;
+            }
+
+            console.log("Selected User Details", user);
+
+            this.setState({
+              inputFeild: {
+                ...InputFeild,
+                name: user.displayName,
+                // Department: user.department,
+                // officeNumber: user.mobilePhone,
+                // mobileNumber: user.mobilePhone,
+                // officeLocation: user.officeLocation,
+              },
+            });
+          });
+      });
+  }
   public onChangePeoplePickerItems = (items: any) => {
     const { peopleData } = this.state;
     console.log("item in peoplepicker", items);
@@ -306,7 +379,7 @@ export default class GatePass extends React.Component<
 
     let body: string = JSON.stringify({
       status: Type,
-      PendingWith: PendingWith,
+      pendingWith: PendingWith,
     });
 
     const updateInteraction = await postData(context, postUrl, headers, body);
@@ -330,14 +403,18 @@ export default class GatePass extends React.Component<
       requestTypeData,
       inputFeild,
       language,
-      entityData,
+      // entityData,
       checkBox,
       conditionCheckBox,
       tableData,
       showAdd,
       addDetails,
       PendingWith,
-      redirection
+      redirection,
+      ModelPost,
+      SerialPost,
+      DescriptionPost,
+      QuantityPost,
     } = this.state;
     const { context } = this.props;
 
@@ -438,49 +515,96 @@ export default class GatePass extends React.Component<
               style={{ backgroundColor: "#223771" }}
             >
               {language === "En"
+                ? " Requestor Information"
+                : "معلومات مقدم الطلب"}
+            </div>
+            <div className="row">
+              <InputFeild
+                self={this}
+                disabled={redirection}
+                type="text"
+                label={language === "En" ? "Name" : "اسم الموظفين"}
+                name="name"
+                state={inputFeild}
+                inputFeild={inputFeild.name}
+              />
+              <InputFeild
+                type="text"
+                disabled={redirection}
+                label={language === "En" ? "Position" : "المسمى الوظيفي"}
+                name="position"
+                state={inputFeild}
+                inputFeild={inputFeild.position}
+                self={this}
+              />
+            </div>
+            <div className="row">
+              <InputFeild
+                type="text"
+                disabled={redirection}
+                label={language === "En" ? "Extension" : "رقم الهوية"}
+                name="extension"
+                state={inputFeild}
+                inputFeild={inputFeild.extension}
+                self={this}
+              />
+              <InputFeild
+                type="text"
+                disabled={redirection}
+                label={language === "En" ? "Department" : "قسم"}
+                name="Department"
+                state={inputFeild}
+                inputFeild={inputFeild.Department}
+                self={this}
+              />
+            </div>
+            <div
+              className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
+              style={{ backgroundColor: "#223771" }}
+            >
+              {language === "En"
                 ? "On Behalf Of Information"
                 : "نيابة عن المعلومات"}
             </div>
             <div className="row mb-2">
-            {!redirection ? (
-              <div className="d-flex py-2">
-                <div
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="Description">
-                    {language === "En" ? "On Behalf Of" : "نيابة عن"}
-                    <span className="text-danger">*</span>
-                  </label>
-                </div>
-
-                <div
-                  style={{ marginLeft: "10px", width: "25%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={false}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerItems(i);
+              {!redirection ? (
+                <div className="d-flex py-2">
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
                     }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-                  />
+                  >
+                    <label className="ps-2 py-2" htmlFor="Description">
+                      {language === "En" ? "On Behalf Of" : "نيابة عن"}
+                      <span className="text-danger">*</span>
+                    </label>
+                  </div>
+
+                  <div
+                    style={{ marginLeft: "10px", width: "25%" }}
+                    className={"custom-people-picker"}
+                  >
+                    <PeoplePicker
+                      context={context as any}
+                      disabled={false}
+                      personSelectionLimit={1}
+                      showtooltip={true}
+                      required={true}
+                      onChange={(i: any) => {
+                        this.onChangePeoplePickerItems(i);
+                      }}
+                      showHiddenInUI={false}
+                      principalTypes={[PrincipalType.User]}
+                      resolveDelay={1000}
+                      ensureUser={true}
+                    />
+                  </div>
                 </div>
-               
-              </div>
-               ) : (
+              ) : (
                 <div>
                   <InputFeild
                     type="text"
@@ -502,11 +626,11 @@ export default class GatePass extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-               disabled={redirection}
+                disabled={redirection}
                 type="select"
                 label={
                   language === "En"
-                    ? "Reson To Take Goods"
+                    ? "Reason To Take Goods"
                     : "ريسون لأخذ البضائع"
                 }
                 name="requestType"
@@ -515,8 +639,8 @@ export default class GatePass extends React.Component<
                 inputFeild={inputFeild.requestType}
                 self={this}
               />
-              <InputFeild
-               disabled={redirection}
+              {/* <InputFeild
+                disabled={redirection}
                 type="select"
                 label={language === "En" ? "Original Entity " : "الكيان الأصلي"}
                 name="entity"
@@ -524,7 +648,7 @@ export default class GatePass extends React.Component<
                 state={inputFeild}
                 inputFeild={inputFeild.entity}
                 self={this}
-              />
+              /> */}
             </div>
             <div className="row mb-2">
               <div className="d-flex">
@@ -562,114 +686,236 @@ export default class GatePass extends React.Component<
                     }}
                   />
                 </div>
-              </div>
-              {checkBox && (
-                <div className="my-2">
-                  <Table
-                    columns={columns}
-                    dataSource={tableData}
-                    size="middle"
-                    className="mb-2"
-                    pagination={this.state.paginationData}
-                    scroll={{ y: 300 }}
-                  />
-                  {showAdd && (
-                    <div className="d-flex gap-3 mb-2">
-                      <Input
-                        required
-                        name="Model"
-                        placeholder="Please enter Model"
-                        onChange={handleChange}
-                      />
-                      <Input
-                        required
-                        name="Serial"
-                        placeholder="Please enter Serial"
-                        onChange={handleChange}
-                      />
-                      <Input
-                        required
-                        name="Description"
-                        placeholder="Please enter Description"
-                        onChange={handleChange}
-                      />
-                      <InputNumber
-                        style={{ width: "100%" }}
-                        required
-                        name="Quantity"
-                        placeholder="Please enter Quantity"
-                        min={0}
-                        onChange={(value: number) => {
-                          this.setState({
-                            addDetails: { ...addDetails, Quantity: value },
-                          });
-                        }}
-                      />
+                {checkBox ? (
+                  <div className="my-2">
+                    <Table
+                      columns={columns}
+                      dataSource={tableData}
+                      size="middle"
+                      className="mb-2"
+                      pagination={this.state.paginationData}
+                      scroll={{ y: 300 }}
+                    />
+                    {showAdd && (
+                      <div className="d-flex gap-3 mb-2">
+                        <Input
+                          required
+                          name="Model"
+                          placeholder="Please enter Model"
+                          onChange={handleChange}
+                        />
+                        <Input
+                          required
+                          name="Serial"
+                          placeholder="Please enter Serial"
+                          onChange={handleChange}
+                        />
+                        <Input
+                          required
+                          name="Description"
+                          placeholder="Please enter Description"
+                          onChange={handleChange}
+                        />
+                        <InputNumber
+                          style={{ width: "100%" }}
+                          required
+                          name="Quantity"
+                          placeholder="Please enter Quantity"
+                          min={0}
+                          onChange={(value: number) => {
+                            this.setState({
+                              addDetails: { ...addDetails, Quantity: value },
+                            });
+                          }}
+                        />
+                        <button
+                          className="px-4 py-2 text-white"
+                          style={{ backgroundColor: "#223771" }}
+                          type="button"
+                          onClick={() => {
+                            const { Model, Description, Serial, Quantity } =
+                              addDetails;
+                            if (Model?.length < 3) alert("Enter valid Model");
+                            else if (Description?.length < 3)
+                              alert("Enter valid Description");
+                            else if (Serial?.length < 3)
+                              alert("Enter valid Serial");
+                            else if (Quantity == 0)
+                              alert("Enter valid Quantity");
+                            else {
+                              this.setState({ showAdd: false });
+                              const getTableContent = (tableContent: any) => {
+                                console.log("tableContent", tableContent);
+                                const tableData = tableContent?.map(
+                                  (data: {
+                                    key: any;
+                                    Model: any;
+                                    Description: any;
+                                    Serial: any;
+                                    Quantity: any;
+                                  }) => ({
+                                    key: data.key,
+                                    Model: data.Model,
+                                    Description: data.Description,
+                                    Serial: data.Serial,
+                                    Quantity: data.Quantity,
+                                  })
+                                );
+                                this.setState({ addDetails: {} });
+                                return tableData;
+                              };
+                              this.setState({
+                                tableData: getTableContent([
+                                  ...tableData,
+                                  { ...addDetails, key: tableData?.length + 1 },
+                                ]),
+                              });
+                            }
+                          }}
+                        >
+                          {language === "En" ? "Add" : "جمع"}
+                        </button>
+                      </div>
+                    )}
+
+                    <div className="d-flex justify-content-end">
                       <button
                         className="px-4 py-2 text-white"
                         style={{ backgroundColor: "#223771" }}
                         type="button"
                         onClick={() => {
-                          const { Model, Description, Serial, Quantity } =
-                            addDetails;
-                          if (Model?.length < 3) alert("Enter valid Model");
-                          else if (Description?.length < 3)
-                            alert("Enter valid Description");
-                          else if (Serial?.length < 3)
-                            alert("Enter valid Serial");
-                          else if (Quantity == 0) alert("Enter valid Quantity");
-                          else {
-                            this.setState({ showAdd: false });
-                            const getTableContent = (tableContent: any) => {
-                              console.log("tableContent", tableContent);
-                              const tableData = tableContent?.map(
-                                (data: {
-                                  key: any;
-                                  Model: any;
-                                  Description: any;
-                                  Serial: any;
-                                  Quantity: any;
-                                }) => ({
-                                  key: data.key,
-                                  Model: data.Model,
-                                  Description: data.Description,
-                                  Serial: data.Serial,
-                                  Quantity: data.Quantity,
-                                })
-                              );
-                              this.setState({ addDetails: {} });
-                              return tableData;
-                            };
-                            this.setState({
-                              tableData: getTableContent([
-                                ...tableData,
-                                { ...addDetails, key: tableData?.length + 1 },
-                              ]),
-                            });
-                          }
+                          this.setState({ showAdd: true });
                         }}
                       >
-                         {language === "En"
-                      ? "Add" : "جمع"}
+                        {language === "En" ? "Add New" : "إضافة جديد"}
                       </button>
                     </div>
-                  )}
-
-                  <div className="d-flex justify-content-end">
-                    <button
-                      className="px-4 py-2 text-white"
-                      style={{ backgroundColor: "#223771" }}
-                      type="button"
-                      onClick={() => {
-                        this.setState({ showAdd: true });
-                      }}
-                    >
-                      {language === "En"
-                      ? "Add New" : "إضافة جديد"}
-                    </button>
                   </div>
-                </div>
-              )}
+                ) : (
+                  <div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "1em",
+                          fontFamily: "Open Sans",
+                          fontWeight: "600",
+                          width: "24.5%",
+                          backgroundColor: "#F0F0F0",
+                        }}
+                      >
+                        <label className="ps-2 py-2" htmlFor="quantity">
+                          {language === "En" ? "Quantity" : "الكمية"}
+                        </label>
+                      </div>
+                      <textarea
+                        className="form-control mb-2 mt-2"
+                        disabled={redirection}
+                        rows={3}
+                        placeholder={
+                          language === "En"
+                            ? "Add a comment..."
+                            : "أضف تعليقا..."
+                        }
+                        required
+                        value={QuantityPost}
+                        onChange={(e) =>
+                          this.setState({ QuantityPost: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "1em",
+                          fontFamily: "Open Sans",
+                          fontWeight: "600",
+                          width: "24.5%",
+                          backgroundColor: "#F0F0F0",
+                        }}
+                      >
+                        <label className="ps-2 py-2" htmlFor="description">
+                          {language === "En" ? "Description" : "الكمية"}
+                        </label>
+                      </div>
+                      <textarea
+                        className="form-control mb-2 mt-2"
+                        disabled={redirection}
+                        rows={3}
+                        placeholder={
+                          language === "En"
+                            ? "Add a comment..."
+                            : "أضف تعليقا..."
+                        }
+                        required
+                        value={DescriptionPost}
+                        onChange={(e) =>
+                          this.setState({ DescriptionPost: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "1em",
+                          fontFamily: "Open Sans",
+                          fontWeight: "600",
+                          width: "24.5%",
+                          backgroundColor: "#F0F0F0",
+                        }}
+                      >
+                        <label className="ps-2 py-2" htmlFor="model">
+                          {language === "En" ? "Model" : "الموديل"}
+                        </label>
+                      </div>
+                      <textarea
+                        className="form-control mb-2 mt-2"
+                        disabled={redirection}
+                        rows={3}
+                        placeholder={
+                          language === "En"
+                            ? "Add a comment..."
+                            : "أضف تعليقا..."
+                        }
+                        required
+                        value={ModelPost}
+                        onChange={(e) =>
+                          this.setState({ ModelPost: e.target.value })
+                        }
+                      />
+                    </div>
+                    <div>
+                      <div
+                        style={{
+                          fontSize: "1em",
+                          fontFamily: "Open Sans",
+                          fontWeight: "600",
+                          width: "24.5%",
+                          backgroundColor: "#F0F0F0",
+                        }}
+                      >
+                        <label className="ps-2 py-2" htmlFor="serial">
+                          {language === "En" ? "Serial" : "الرقم التسلسلي"}
+                        </label>
+                      </div>
+                      <textarea
+                        className="form-control mb-2 mt-2"
+                        disabled={redirection}
+                        rows={3}
+                        placeholder={
+                          language === "En"
+                            ? "Add a comment..."
+                            : "أضف تعليقا..."
+                        }
+                        required
+                        value={SerialPost}
+                        onChange={(e) =>
+                          this.setState({ SerialPost: e.target.value })
+                        }
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
@@ -683,7 +929,10 @@ export default class GatePass extends React.Component<
                 }}
               />
               <label className={`ps-4`}>
-              <a href="#" onClick={() => this.setState({ isModalOpen: true })}>
+                <a
+                  href="#"
+                  onClick={() => this.setState({ isModalOpen: true })}
+                >
                   {" "}
                   {language === "En"
                     ? "I agree to Terms & Conditions"
@@ -692,42 +941,41 @@ export default class GatePass extends React.Component<
                 <span className="text-danger">*</span>
               </label>
             </div>
-            {redirection == false &&(
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
-)}
-            {(PendingWith === "SSIMS Manager" || PendingWith === "Approver") && redirection == true   && (
+            {redirection == false && (
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
+                  }}
+                >
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+            )}
+            {(PendingWith === "SSIMS Manager" || PendingWith === "on behalf of") &&
+              redirection == true && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
                     className="px-4 py-2"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
-                      if(PendingWith === "Approver"){
-
+                      if (PendingWith === "on behalf of") {
                         this.onApproveReject("Approve", "SSIMS Manager");
-                      }
-                      else{
+                      } else {
                         this.onApproveReject("Approve", "Completed");
                       }
                     }}
@@ -739,58 +987,59 @@ export default class GatePass extends React.Component<
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      if(PendingWith === "Approver"){
-                      this.onApproveReject("Reject", "Rejected by SSIMS Manager");
-                    }
-                    else{
-                      this.onApproveReject("Reject", "Rejected by Manager");
-                    }
+                      if (PendingWith === "on behalf of") {
+                        this.onApproveReject(
+                          "Reject",
+                          "Rejected by Approver"
+                        );
+                      } else {
+                        this.onApproveReject("Reject", "Rejected by Manager");
+                      }
                     }}
-                    
                   >
                     {language === "En" ? "Reject" : "يرفض"}
                   </button>
                 </div>
               )}
             <Modal
-             bodyStyle={{ padding: "25px 50px 25px 50px" }}
-             width={750}
-             footer={null}
-             closable={false}
-             visible={this.state.isModalOpen}
-            ><h4 className="align-items-center">Terms And Conditions</h4>
+              bodyStyle={{ padding: "25px 50px 25px 50px" }}
+              width={750}
+              footer={null}
+              closable={false}
+              visible={this.state.isModalOpen}
+            >
+              <h4 className="align-items-center">Terms And Conditions</h4>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <p>Some contents...</p>
               <div className="campaign_model_footer d-flex justify-content-end align-items-center">
-                    <button
-                      className={`me-2 border-0 px-5 text-capitalize`}
-                      style={{ color: "#808080",height: "40px"}}
-                      onClick={() =>
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox: false
-                        })
-                      }
-                    >
-                      Don't agree
-                    </button>
-                    <button
-                      className={`border-0 px-5 text-white text-capitalize`}
-                      style={{ backgroundColor: "#223771",height: "40px" }}
-                      onClick={() => {
-                       
-                        this.setState({
-                          isModalOpen: false,
-                          conditionCheckBox:true
-                        });
-                      }}
-                    >
-                      Agree
-                    </button>
-                  </div>
+                <button
+                  className={`me-2 border-0 px-5 text-capitalize`}
+                  style={{ color: "#808080", height: "40px" }}
+                  onClick={() =>
+                    this.setState({
+                      isModalOpen: false,
+                      conditionCheckBox: false,
+                    })
+                  }
+                >
+                  Don't agree
+                </button>
+                <button
+                  className={`border-0 px-5 text-white text-capitalize`}
+                  style={{ backgroundColor: "#223771", height: "40px" }}
+                  onClick={() => {
+                    this.setState({
+                      isModalOpen: false,
+                      conditionCheckBox: true,
+                    });
+                  }}
+                >
+                  Agree
+                </button>
+              </div>
             </Modal>
           </form>
         </div>

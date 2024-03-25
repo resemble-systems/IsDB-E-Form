@@ -103,6 +103,7 @@ export default class ShiftReport extends React.Component<
         redirection: true,
       });
     }
+    
     if (window.location.href.indexOf("?#viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
