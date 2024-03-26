@@ -116,7 +116,7 @@ export default class GatePass extends React.Component<
         });
         console.log("requestTypeData", requestTypeData);
       });
-    }
+  }
   //   context.spHttpClient
   //     .get(
   //       `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Visited-Entity')/items`,
@@ -195,10 +195,9 @@ export default class GatePass extends React.Component<
           ? JSON.parse(listItems?.OnBehalfOfEmail)
           : [];
         console.log("JSON DATA", TableData, PeopleData);
-        const extractedEmail = listItems?.OnBehalfOfEmail.replace(
-          /^"(.*)"$/,
-          "$1"
-        );
+        const extractedEmail = listItems?.OnBehalfOfEmail
+          ? listItems.OnBehalfOfEmail.replace(/^"(.*)"$/, "$1")
+          : "";
         console.log("extractedEmail", extractedEmail);
 
         this.setState({
@@ -211,10 +210,10 @@ export default class GatePass extends React.Component<
             extension: listItems?.Extension,
             Department: listItems?.Department,
             position: listItems?.Position,
-            QuantityPost:listItems?.Quantity,
-            ModelPost:listItems?.Model,
-            SerialPost:listItems?.SerialNumber,
-            DescriptionPost:listItems?.Description,
+            QuantityPost: listItems?.Quantity,
+            ModelPost: listItems?.Model,
+            SerialPost: listItems?.SerialNumber,
+            DescriptionPost: listItems?.Description,
           },
           tableData: TableData,
           people: PeopleData,
@@ -686,6 +685,7 @@ export default class GatePass extends React.Component<
                     }}
                   />
                 </div>
+                </div>
                 {checkBox && (
                   <div className="my-2">
                     <Table
@@ -793,133 +793,124 @@ export default class GatePass extends React.Component<
                   </div>
                 )}
               
-              </div>
-              </div>
-              {!checkBox && (
-                  <div>
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "1em",
-                          fontFamily: "Open Sans",
-                          fontWeight: "600",
-                          width: "24.5%",
-                          backgroundColor: "#F0F0F0",
-                        }}
-                      >
-                        <label className="ps-2 py-2" htmlFor="quantity">
-                          {language === "En" ? "Quantity" : "الكمية"}
-                        </label>
-                      </div>
-                      <textarea
-                        className="form-control mb-2 mt-2"
-                        disabled={redirection}
-                        rows={3}
-                        placeholder={
-                          language === "En"
-                            ? "Add a comment..."
-                            : "أضف تعليقا..."
-                        }
-                        required
-                        value={QuantityPost}
-                        onChange={(e) =>
-                          this.setState({ QuantityPost: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "1em",
-                          fontFamily: "Open Sans",
-                          fontWeight: "600",
-                          width: "24.5%",
-                          backgroundColor: "#F0F0F0",
-                        }}
-                      >
-                        <label className="ps-2 py-2" htmlFor="description">
-                          {language === "En" ? "Description" : "الكمية"}
-                        </label>
-                      </div>
-                      <textarea
-                        className="form-control mb-2 mt-2"
-                        disabled={redirection}
-                        rows={3}
-                        placeholder={
-                          language === "En"
-                            ? "Add a comment..."
-                            : "أضف تعليقا..."
-                        }
-                        required
-                        value={DescriptionPost}
-                        onChange={(e) =>
-                          this.setState({ DescriptionPost: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "1em",
-                          fontFamily: "Open Sans",
-                          fontWeight: "600",
-                          width: "24.5%",
-                          backgroundColor: "#F0F0F0",
-                        }}
-                      >
-                        <label className="ps-2 py-2" htmlFor="model">
-                          {language === "En" ? "Model" : "الموديل"}
-                        </label>
-                      </div>
-                      <textarea
-                        className="form-control mb-2 mt-2"
-                        disabled={redirection}
-                        rows={3}
-                        placeholder={
-                          language === "En"
-                            ? "Add a comment..."
-                            : "أضف تعليقا..."
-                        }
-                        required
-                        value={ModelPost}
-                        onChange={(e) =>
-                          this.setState({ ModelPost: e.target.value })
-                        }
-                      />
-                    </div>
-                    <div>
-                      <div
-                        style={{
-                          fontSize: "1em",
-                          fontFamily: "Open Sans",
-                          fontWeight: "600",
-                          width: "24.5%",
-                          backgroundColor: "#F0F0F0",
-                        }}
-                      >
-                        <label className="ps-2 py-2" htmlFor="serial">
-                          {language === "En" ? "Serial" : "الرقم التسلسلي"}
-                        </label>
-                      </div>
-                      <textarea
-                        className="form-control mb-2 mt-2"
-                        disabled={redirection}
-                        rows={3}
-                        placeholder={
-                          language === "En"
-                            ? "Add a comment..."
-                            : "أضف تعليقا..."
-                        }
-                        required
-                        value={SerialPost}
-                        onChange={(e) =>
-                          this.setState({ SerialPost: e.target.value })
-                        }
-                      />
-                    </div>
+            </div>
+            {!checkBox && (
+              <div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
+                    <label className="ps-2 py-2" htmlFor="quantity">
+                      {language === "En" ? "Quantity" : "الكمية"}
+                    </label>
                   </div>
-                )}
-          
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    disabled={redirection}
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    required
+                    value={QuantityPost}
+                    onChange={(e) =>
+                      this.setState({ QuantityPost: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
+                    <label className="ps-2 py-2" htmlFor="description">
+                      {language === "En" ? "Description" : "الكمية"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    disabled={redirection}
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    required
+                    value={DescriptionPost}
+                    onChange={(e) =>
+                      this.setState({ DescriptionPost: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
+                    <label className="ps-2 py-2" htmlFor="model">
+                      {language === "En" ? "Model" : "الموديل"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    disabled={redirection}
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    required
+                    value={ModelPost}
+                    onChange={(e) =>
+                      this.setState({ ModelPost: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
+                    <label className="ps-2 py-2" htmlFor="serial">
+                      {language === "En" ? "Serial" : "الرقم التسلسلي"}
+                    </label>
+                  </div>
+                  <textarea
+                    className="form-control mb-2 mt-2"
+                    disabled={redirection}
+                    rows={3}
+                    placeholder={
+                      language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                    }
+                    required
+                    value={SerialPost}
+                    onChange={(e) =>
+                      this.setState({ SerialPost: e.target.value })
+                    }
+                  />
+                </div>
+              </div>
+            )}
+
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"
@@ -968,7 +959,8 @@ export default class GatePass extends React.Component<
                 </button>
               </div>
             )}
-            {(PendingWith === "SSIMS Manager" || PendingWith === "on behalf of") &&
+            {(PendingWith === "SSIMS Manager" ||
+              PendingWith === "on behalf of") &&
               redirection == true && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
@@ -991,10 +983,7 @@ export default class GatePass extends React.Component<
                     type="button"
                     onClick={() => {
                       if (PendingWith === "on behalf of") {
-                        this.onApproveReject(
-                          "Reject",
-                          "Rejected by Approver"
-                        );
+                        this.onApproveReject("Reject", "Rejected by Approver");
                       } else {
                         this.onApproveReject("Reject", "Rejected by Manager");
                       }
