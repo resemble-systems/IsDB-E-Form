@@ -721,7 +721,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <ParkingInfo
                 type="select"
-                disabled={disable || parkingInfo.parkingType !== ""}
+                disabled={disable}
                 label={
                   <>
                     {language === "En" ? "Request Type " : "نوع الطلب "}
@@ -737,12 +737,13 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.requestType}
                 self={this}
+              
                 onChange={(value:any) => {
                   this.setState((prevState) => ({
                     parkingInfo: {
                       ...prevState.parkingInfo,
                       requestType: value,
-                      parkingType: value !== "" ? "" : prevState.parkingInfo.parkingType,
+                      parkingType: "", // Reset parking type when request type changes
                     },
                   }));
                 }}
@@ -768,7 +769,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row">
               <ParkingInfo
                 type="select"
-                disabled={disable || parkingInfo.requestType !== ""}
+                disabled={disable}
                 label={
                   <>
                     {language === "En" ? "Parking Type" : "نوع موقف السيارات"}
@@ -779,13 +780,14 @@ export default class ParkingRequestForm extends React.Component<
                 options={["","Public", "Reserved"]}
                 state={parkingInfo}
                 parkingInfo={parkingInfo.parkingType}
+               
                 self={this}
                 onChange={(value:any) => {
                   this.setState((prevState) => ({
                     parkingInfo: {
                       ...prevState.parkingInfo,
                       parkingType: value,
-                      requestType: value !== "" ? "" : prevState.parkingInfo.requestType,
+                      requestType: "", 
                     },
                   }));
                 }}

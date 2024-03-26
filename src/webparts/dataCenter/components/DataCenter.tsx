@@ -94,7 +94,8 @@ export default class DataCenter extends React.Component<
             company: listItems.Company,
             mobile: listItems.Mobile,
             escortID: listItems.EscortID,
-            visitDate: listItems?.VisitDate
+            visitDate: listItems?.VisitDate,
+            PendingWith: listItems?.pendingWith,
           },
         });
         console.log("Res listItems", listItems);
