@@ -792,7 +792,10 @@ export default class GatePass extends React.Component<
                     </div>
                   </div>
                 )}
-                 {!checkBox && (
+              
+              </div>
+              </div>
+              {!checkBox && (
                   <div>
                     <div>
                       <div
@@ -916,8 +919,7 @@ export default class GatePass extends React.Component<
                     </div>
                   </div>
                 )}
-              </div>
-            </div>
+          
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
                 className="form-check"

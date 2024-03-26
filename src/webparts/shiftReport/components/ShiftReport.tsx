@@ -361,16 +361,19 @@ export default class ShiftReport extends React.Component<
       finalData = items;
     }
     console.log("handle", finalData, items);
-    this.setState({
-      Assignpeople: peopleData[0].secondaryText,
-    });
-    const emails = finalData.map((item: any) => item.secondaryText);
+    
+    const Assignpeople = finalData.length > 0 ? finalData[0].secondaryText : "";
+    const pendingApprover = finalData.length > 0 ? finalData[0].secondaryText : "";
 
     this.setState({
-      pendingApprover: emails[0] || "",
+      Assignpeople: Assignpeople,
+      pendingApprover: pendingApprover,
     });
-    console.log("emails", emails);
-  };
+
+    console.log("Assignpeople", Assignpeople);
+    console.log("pendingApprover", pendingApprover);
+};
+
 
   public getDetails() {
     const { context } = this.props;

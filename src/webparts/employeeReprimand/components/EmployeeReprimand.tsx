@@ -341,7 +341,7 @@ export default class EmployeeReprimand extends React.Component<
                 OtherViolation: inputFeild.otherViolation,
                 VisitorID: inputFeild.id,
                 Department: inputFeild.department,
-                OnBehalfOfName: JSON.stringify(peopleArr),
+                // OnBehalfOfName: JSON.stringify(peopleArr),
                 OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
                 Comments: commentsPost,
                 CandleCheckBox: candleCheckBox.toString(),
@@ -362,7 +362,7 @@ export default class EmployeeReprimand extends React.Component<
                 OtherViolation: inputFeild.otherViolation,
                 VisitorID: inputFeild.id,
                 Department: inputFeild.department,
-                OnBehalfOfName: JSON.stringify(peopleArr),
+                // OnBehalfOfName: JSON.stringify(peopleArr),
                 OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
                 Comments: commentsPost,
                 CandleCheckBox: candleCheckBox.toString(),
@@ -630,24 +630,26 @@ export default class EmployeeReprimand extends React.Component<
                   inputFeild={inputFeild.department}
                 />
                 {!redirection ? (
-                  <div>
-                <div
-                  className="d-flex justify-content-between"
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
+                  <div
+                  className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2"
+                  style={{ paddingLeft: "12px" }}
                 >
+                  <div
+                    style={{
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "50%",
+                      backgroundColor: "#F0F0F0",
+                    }}
+                  >
                   <label className="ps-2 py-2" htmlFor="onBehalfOf">
                     {language === "En" ? "Violator" : "منتهك"}
                     {/* <span className="text-danger">*</span> */}
                   </label>
                 </div>
                 <div
-                  style={{ marginLeft: "10px", width: "25%" }}
+                  style={{ marginLeft: "10px", width: "50%" }}
                   className={"custom-people-picker"}
                 >
                   <PeoplePicker

@@ -9,6 +9,7 @@ interface IParkingInfoProps {
   self: any;
   options?: any;
   disabled: boolean;
+  onChange:any;
 }
 
 export default class ParkingInfo extends React.Component<
@@ -16,7 +17,7 @@ export default class ParkingInfo extends React.Component<
   {}
 > {
   public render(): React.ReactElement<IParkingInfoProps> {
-    const { label, parkingInfo, type, name, state, self, options, disabled } =
+    const { label, parkingInfo, type, name, state, self, options, disabled, } =
       this.props;
 
     const handleChange = (event: { target: { name: any; value: any } }) => {
@@ -70,7 +71,7 @@ export default class ParkingInfo extends React.Component<
               overflow: "hidden",
               textOverflow: "ellipsis",
             }}
-            onChange={handleChange}
+           
           >
             {options?.map(
               (

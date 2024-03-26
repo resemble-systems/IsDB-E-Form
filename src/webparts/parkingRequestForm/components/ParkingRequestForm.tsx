@@ -737,6 +737,16 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.requestType}
                 self={this}
+                onChange={(value:any) => {
+                  this.setState((prevState) => ({
+                    parkingInfo: {
+                      ...prevState.parkingInfo,
+                      requestType: value,
+                      parkingType: value !== "" ? "" : prevState.parkingInfo.parkingType,
+                    },
+                  }));
+                }}
+               
               />
               <ParkingInfo
                 type="select"
@@ -752,6 +762,7 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.requestedBuilding}
                 self={this}
+                onChange={""}
               />
             </div>
             <div className="row">
@@ -769,6 +780,15 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.parkingType}
                 self={this}
+                onChange={(value:any) => {
+                  this.setState((prevState) => ({
+                    parkingInfo: {
+                      ...prevState.parkingInfo,
+                      parkingType: value,
+                      requestType: value !== "" ? "" : prevState.parkingInfo.requestType,
+                    },
+                  }));
+                }}
               />
               <ParkingInfo
                 type="select"
@@ -784,6 +804,7 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.parkingArea}
                 self={this}
+                onChange={""}
               />
             </div>
             <div className="row mb-4">
@@ -800,6 +821,7 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.validityFrom}
                 self={this}
+                onChange={""}
               />
               <ParkingInfo
                 type="date"
@@ -814,6 +836,7 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.validityTo}
                 self={this}
+                onChange={""}
               />
             </div>
             <div
