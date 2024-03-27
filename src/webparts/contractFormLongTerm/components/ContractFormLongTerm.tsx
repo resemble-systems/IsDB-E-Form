@@ -412,6 +412,7 @@ export default class ContractFormLongTerm extends React.Component<
     comments: string
   ) => void = async (Type: string, PendingWith: string, comments?: string) => {
     const { context } = this.props;
+    console.log(PendingWith,Type,"pendingWithSet")
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
     const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Contractor-Form')/items('${itemId}')`;
@@ -419,13 +420,13 @@ export default class ContractFormLongTerm extends React.Component<
       "X-HTTP-Method": "MERGE",
       "If-Match": "*",
     };
-
+ 
     let body: string = JSON.stringify({
       status: Type,
       pendingWith: PendingWith,
       comments: comments || "",
     });
-
+   
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
     if (updateInteraction) {
@@ -1142,8 +1143,8 @@ export default class ContractFormLongTerm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment } = this.state;
-
+                        const { approverComment} = this.state;
+                       console.log(PendingWith,"PendingWithbutton")
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(
                             "Approve",
@@ -1178,7 +1179,7 @@ export default class ContractFormLongTerm extends React.Component<
                       style={{  backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment } = this.state;
+                        const { approverComment} = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(

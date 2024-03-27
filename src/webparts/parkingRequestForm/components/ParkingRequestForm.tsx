@@ -743,8 +743,10 @@ export default class ParkingRequestForm extends React.Component<
                     parkingInfo: {
                       ...prevState.parkingInfo,
                       requestType: value,
-                      parkingType: "", // Reset parking type when request type changes
+                      parkingType: "", 
+                      
                     },
+                    
                   }));
                 }}
                

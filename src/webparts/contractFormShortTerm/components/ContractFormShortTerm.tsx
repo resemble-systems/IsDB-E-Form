@@ -1141,7 +1141,7 @@ export default class ContractFormShortTerm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment } = this.state;
+                        const { approverComment,PendingWith  } = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(
@@ -1171,7 +1171,7 @@ export default class ContractFormShortTerm extends React.Component<
                       style={{  backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment } = this.state;
+                        const { approverComment,PendingWith } = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(

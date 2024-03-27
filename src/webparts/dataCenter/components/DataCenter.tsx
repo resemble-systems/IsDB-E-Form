@@ -441,6 +441,7 @@ export default class DataCenter extends React.Component<
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
+                      const {PendingWith } = this.state;
                       if (PendingWith === "Data Center Owner") {
                         this.onApproveReject("Approve", "SSIMS Manager");
                       } else {

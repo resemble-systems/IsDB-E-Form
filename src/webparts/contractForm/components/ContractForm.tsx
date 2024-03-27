@@ -472,7 +472,7 @@ export default class ContractForm extends React.Component<
         inputFeild,
         requestorContract,
         requestorIdProof,
-        requestorPhoto
+        requestorPhoto,PendingWith
       );
     };
 
@@ -1146,8 +1146,8 @@ export default class ContractForm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment } = this.state;
-
+                        const { approverComment,PendingWith } = this.state;
+                          console.log(PendingWith ,"PendingWith")
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(
                             "Approve",
@@ -1184,7 +1184,7 @@ export default class ContractForm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment } = this.state;
+                        const { approverComment,PendingWith } = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(
