@@ -132,18 +132,18 @@ export default class EmployeeReprimand extends React.Component<
           return res.json();
         })
         .then((listItems: any) => {
-          const extractedEmail = listItems?.OnBehalfOfEmail.replace(
-            /^"(.*)"$/,
-            "$1"
-          );
-          console.log("extractedEmail", extractedEmail);
+          // const extractedEmail = listItems?.OnBehalfOfEmail.replace(
+          //   /^"(.*)"$/,
+          //   "$1"
+          // );
+          // console.log("extractedEmail", extractedEmail);
 
           this.setState({
             inputFeild: {
               ...inputFeild,
               position: listItems?.Title,
               violator: listItems?.Violator,
-              OnBehalfOfEmail: extractedEmail,
+              // OnBehalfOfEmail: extractedEmail,
               otherViolation: listItems?.OtherViolation,
               id: listItems?.VisitorID,
               department: listItems?.Department,
@@ -489,14 +489,14 @@ export default class EmployeeReprimand extends React.Component<
     body = JSON.stringify({
       Status: Type,
       pendingWith: PendingWith,
-      comments: comments || "",
+      approverComments: comments || "",
     });
-    if (PendingWith === "Assign to follow up") {
+    if (PendingWith === "To Notify") {
       const { pendingApprover } = this.state;
       body = JSON.stringify({
         Status: Type,
         pendingWith: PendingWith,
-        comments: comments || "",
+        approverComments: comments || "",
       
         pendingApprover: pendingApprover,
       });
@@ -525,15 +525,18 @@ export default class EmployeeReprimand extends React.Component<
       finalData = items;
     }
     console.log("handle", finalData, items);
-    this.setState({
-      Assignpeople: peopleData[0].secondaryText,
-    });
-    const emails = finalData.map((item: any) => item.secondaryText);
+    
+    const Assignpeople = finalData.length > 0 ? finalData[0].secondaryText : "";
+    const pendingApprover = finalData.length > 0 ? finalData[0].secondaryText : "";
 
     this.setState({
-      pendingApprover: emails[0] || "",
+      Assignpeople: Assignpeople,
+      pendingApprover: pendingApprover,
     });
-  };
+
+    console.log("Assignpeople", Assignpeople);
+    console.log("pendingApprover", pendingApprover);
+};
   public render(): React.ReactElement<IEmployeeReprimandProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -670,39 +673,24 @@ export default class EmployeeReprimand extends React.Component<
                   />
                 </div>
                 </div>
+                 
+                    
                  ) : (
                   <div>
                     <InputFeild
                       type="text"
                       disabled={redirection}
-                      label={language === "En" ? "On behalf of" : "نيابة عن"}
-                      name="on behalf of"
+                      label={language === "En" ? "Violator" : "نيابة عن"}
+                      name="violator"
                       state={inputFeild}
-                      inputFeild={inputFeild.OnBehalfOfEmail}
+                      inputFeild={inputFeild.violator}
                       self={this}
                     />
                   </div>
                 )}
-                {/* <div className={"custom-people-picker"}>
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={redirection}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerViolator(i);
-                    }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-
-                    // styles={{ peoplePicker: { border: 'none' } }}
-                  />
-                </div> */}
-              </div>
+                   </div>
             </div>
+          
             <div className="row">
               <InputFeild
                 self={this}
