@@ -25,7 +25,12 @@ export default class ParkingInfo extends React.Component<
       if (regex.test(event.target.value)) {
         self.setState({ inputFeild: { ...state, [event.target.name]: "" } });
         alert("Enter valid String");
-      } else {
+      // }  else if (type === "select") { // Add an additional condition for select elements
+      //   self.setState({
+      //     parkingInfo: { ...state, [name]: event.target.value },
+      //   });
+      } 
+      else {
         self.setState({
           parkingInfo: { ...state, [event.target.name]: event.target.value },
         });
@@ -65,6 +70,8 @@ export default class ParkingInfo extends React.Component<
             id={label}
             disabled={disabled}
             name={name}
+            value={parkingInfo}
+            onChange={handleChange}
             style={{
               border: "none",
               whiteSpace: "nowrap",

@@ -507,7 +507,11 @@ export default class VisitRequestFormVisitor extends React.Component<
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
-    // if (updateInteraction) this.getBasicBlogs();
+    if (updateInteraction) {
+      this.setState({ PendingWith: PendingWith });
+      alert("you have successully" + Type + "!");
+      window.history.go(-1);
+    }
   };
 
   public render(): React.ReactElement<IVisitRequestFormVisitorProps> {
@@ -534,6 +538,8 @@ export default class VisitRequestFormVisitor extends React.Component<
       language,
       redirection,
       PendingWith,
+      consecutive,
+      sheduledTime,
     } = this.state;
     const { context } = this.props;
 
@@ -640,6 +646,15 @@ export default class VisitRequestFormVisitor extends React.Component<
               style={{ backgroundColor: "#223771" }}
             >
               {language === "En" ? "Visitor Information" : "معلومات للزوار"}
+            </div>
+            <div className="d-flex">
+            
+              {sheduledTime == false && redirection && (
+                <span className="text-danger mx-2"> Not in scheduled time</span>
+              )}
+              {consecutive == true && redirection && (
+                <span className="text-danger"> Continuous three-day visit</span>
+              )}
             </div>
             <div className="row">
               <InputFeild

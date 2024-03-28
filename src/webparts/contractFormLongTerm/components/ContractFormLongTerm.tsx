@@ -106,6 +106,7 @@ export default class ContractFormLongTerm extends React.Component<
         .then((listItems: any) => {
           console.log("listItems.value Edit News", listItems);
           this.setState({
+            PendingWith:listItems?.pendingWith,
             inputFeild: {
               staffName: listItems?.Title,
               grade: listItems?.Grade,
@@ -131,7 +132,7 @@ export default class ContractFormLongTerm extends React.Component<
               requestorValidityFrom: listItems?.requestorValidityFrom,
               requestorValidityTo: listItems?.requestorValidityTo,
               requestorRemarks: listItems?.requestorRemarks,
-              PendingWith: listItems?.pendingWith
+              
             },
             requestorContract: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
@@ -170,6 +171,7 @@ export default class ContractFormLongTerm extends React.Component<
           });
         });
     }
+    console.log(this.state,"stateissue")
   }
   public getDetails() {
     const { context } = this.props;
@@ -208,7 +210,7 @@ export default class ContractFormLongTerm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments, requestorIdProof, requestorPhoto,  PendingWith, } =
+    const { inputFeild, postAttachments, requestorIdProof, requestorPhoto,PendingWith } =
       this.state;
     const validityFrom = this.state.inputFeild.requestorValidityFrom;
     const validityTo = this.state.inputFeild.requestorValidityTo;
@@ -430,6 +432,8 @@ export default class ContractFormLongTerm extends React.Component<
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
     if (updateInteraction) {
+      this.setState({ PendingWith: PendingWith });
+
       alert("you have successully" + Type + "!");
       window.history.go(-1);
     }
@@ -542,6 +546,7 @@ export default class ContractFormLongTerm extends React.Component<
     };
 
     console.log("Attachments", postAttachments);
+    console.log(PendingWith,"PendingWithbutton")
     console.log(
       "Target Name",
       requestorIdProofJSON,
@@ -549,7 +554,7 @@ export default class ContractFormLongTerm extends React.Component<
       requestorPhotoJSON,
       attachmentJson
     );
-
+ 
     return (
       <CommunityLayout
         self={this}

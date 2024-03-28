@@ -564,6 +564,7 @@ export default class VisitorsForm extends React.Component<
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
     if (updateInteraction) {
+      this.setState({ PendingWith: PendingWith });
       alert("The form has been succesfully " + PendingWith + "!");
       window.history.go(-1);
     }
@@ -599,6 +600,8 @@ export default class VisitorsForm extends React.Component<
       attachmentJson,
       redirection,
       PendingWith,
+      consecutive,
+      sheduledTime,
     } = this.state;
     const { context } = this.props;
     // const handleSearch = (newValue: string) => {
@@ -953,6 +956,15 @@ export default class VisitorsForm extends React.Component<
               style={{ backgroundColor: "#223771" }}
             >
               {language === "En" ? "Visitor Information" : "معلومات للزوار"}
+            </div>
+            <div className="d-flex">
+              
+              {sheduledTime == false && redirection && (
+                <span className="text-danger mx-2"> Not in scheduled time</span>
+              )}
+              {consecutive == true && redirection && (
+                <span className="text-danger"> Continuous three-day visit</span>
+              )}
             </div>
             <div className="row">
               <InputFeild

@@ -57,9 +57,9 @@ export default class ParkingRequestForm extends React.Component<
         relatedEntity: "",
       },
       parkingInfo: {
-        requestType: "Permanent Parking",
+        requestType: "",
         requestedBuilding: "Permanent",
-        parkingType: "Public",
+        parkingType: "",
         parkingArea: "Public",
         validityFrom: "",
         validityTo: "",
@@ -251,20 +251,20 @@ export default class ParkingRequestForm extends React.Component<
       return !isValidNumber;
     };
 
-    const validityFrom = this.state.parkingInfo.validityFrom;
-    const validityTo = this.state.parkingInfo.validityTo;
+    // const validityFrom = this.state.parkingInfo.validityFrom;
+    // const validityTo = this.state.parkingInfo.validityTo;
     if (conditionCheckBox == false) {
       alert("Please Agree the Terms and Conditions!");
-    } else if (!validityFrom) {
-      alert("Please enter the From date!");
-    } else if (!validityTo) {
-      alert("Please enter the To date!");
-    } else if (
-      validityFrom &&
-      validityTo &&
-      new Date(validityFrom) > new Date(validityTo)
-    ) {
-      alert("Validity From must be earlier than Validity To");
+    // } else if (!validityFrom) {
+    //   alert("Please enter the From date!");
+    // } else if (!validityTo) {
+    //   alert("Please enter the To date!");
+    // } else if (
+    //   validityFrom &&
+    //   validityTo &&
+    //   new Date(validityFrom) > new Date(validityTo)
+    // ) {
+    //   alert("Validity From must be earlier than Validity To");
     } else if (!vehicleInfo.carName) {
       alert("Please enter the Car Name!");
     } else if (!vehicleInfo.plateNumber) {
@@ -291,6 +291,10 @@ export default class ParkingRequestForm extends React.Component<
       alert("Please Attach the Driver ID!");
     } else if (!attachCarRegistration) {
       alert("Please Attach the Car Registration!");
+    }else if (parkingInfo.requestType && parkingInfo.parkingType) {
+        alert("Please select either ID Type or Request Type, not both!");
+        return;
+      
     } else {
       const headers: any = {
         "X-HTTP-Method": "POST",
@@ -737,18 +741,18 @@ export default class ParkingRequestForm extends React.Component<
                 state={parkingInfo}
                 parkingInfo={parkingInfo.requestType}
                 self={this}
-              
-                onChange={(value:any) => {
-                  this.setState((prevState) => ({
-                    parkingInfo: {
-                      ...prevState.parkingInfo,
-                      requestType: value,
-                      parkingType: "", 
+              onChange={""}
+                // onChange={(value:any) => {
+                //   this.setState((prevState) => ({
+                //     parkingInfo: {
+                //       ...prevState.parkingInfo,
+                //       requestType: value,
+                //       parkingType: "", 
                       
-                    },
+                //     },
                     
-                  }));
-                }}
+                //   }));
+                // }}
                
               />
               <ParkingInfo
@@ -779,20 +783,23 @@ export default class ParkingRequestForm extends React.Component<
                   </>
                 }
                 name="parkingType"
-                options={["","Public", "Reserved"]}
+                options={["",
+                "Public", 
+                "Reserved"]}
                 state={parkingInfo}
                 parkingInfo={parkingInfo.parkingType}
                
                 self={this}
-                onChange={(value:any) => {
-                  this.setState((prevState) => ({
-                    parkingInfo: {
-                      ...prevState.parkingInfo,
-                      parkingType: value,
-                      requestType: "", 
-                    },
-                  }));
-                }}
+                onChange={""}
+                // onChange={(value:any) => {
+                //   this.setState((prevState) => ({
+                //     parkingInfo: {
+                //       ...prevState.parkingInfo,
+                //       parkingType: value,
+                //       requestType: "", 
+                //     },
+                //   }));
+                // }}
               />
               <ParkingInfo
                 type="select"
@@ -814,7 +821,7 @@ export default class ParkingRequestForm extends React.Component<
             <div className="row mb-4">
               <ParkingInfo
                 type="date"
-                disabled={disable}
+                disabled={parkingInfo.requestType === "Permanent Entry Permission" ? true : disable}
                 label={
                   <>
                     {language === "En" ? "Validity From" : "الصلاحية من"}
@@ -829,7 +836,7 @@ export default class ParkingRequestForm extends React.Component<
               />
               <ParkingInfo
                 type="date"
-                disabled={disable}
+                disabled={parkingInfo.requestType === "Permanent Entry Permission" ? true : disable}
                 label={
                   <>
                     {language === "En" ? "Validity To" : "الصلاحية إلى"}
@@ -1137,7 +1144,7 @@ export default class ParkingRequestForm extends React.Component<
                    if (PendingWith === "SSIMS Reviewer") {
                      this.onApproveReject(
                        "Add to waiting list",
-                       "Added to waiting list",
+                       "SSIMS Reviewer",
                        
                      );
                   

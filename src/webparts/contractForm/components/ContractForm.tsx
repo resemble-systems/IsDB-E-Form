@@ -5,7 +5,7 @@ import InputFeild from "./InputFeild";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
-import { Select, } from "antd";
+import { Select } from "antd";
 import { Web } from "sp-pnp-js";
 import "./index.css";
 import {
@@ -126,8 +126,8 @@ export default class ContractForm extends React.Component<
               requestorValidityFrom: listItems?.requestorValidityFrom,
               requestorValidityTo: listItems?.requestorValidityTo,
               requestorRemarks: listItems?.requestorRemarks,
-              PendingWith: listItems?.pendingWith,
             },
+            PendingWith: listItems?.pendingWith,
             requestorContract: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
                   ?.filter(
@@ -165,6 +165,7 @@ export default class ContractForm extends React.Component<
           });
         });
     }
+    console.log(this.state, "stateissue");
   }
 
   public getDetails() {
@@ -201,8 +202,13 @@ export default class ContractForm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments, requestorIdProof, requestorPhoto,  PendingWith, } =
-      this.state;
+    const {
+      inputFeild,
+      postAttachments,
+      requestorIdProof,
+      requestorPhoto,
+      PendingWith,
+    } = this.state;
 
     const validityFrom = this.state.inputFeild.requestorValidityFrom;
     const validityTo = this.state.inputFeild.requestorValidityTo;
@@ -308,7 +314,7 @@ export default class ContractForm extends React.Component<
           ).toString(),
           requestorRemarks: inputFeild.requestorRemarks,
           AttachmentJSON: JSON.stringify(this.state.attachmentJson),
-          pendingWith: PendingWith
+          pendingWith: PendingWith,
         }),
       };
       console.log(inputFeild.requestType, "requestType");
@@ -430,12 +436,13 @@ export default class ContractForm extends React.Component<
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
     if (updateInteraction) {
+      this.setState({ PendingWith: PendingWith });
       alert("you have successully" + Type + "!");
       window.history.go(-1);
     }
     // if (updateInteraction) this.getBasicBlogs();
   };
- 
+
   public render(): React.ReactElement<IContractFormProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -463,6 +470,7 @@ export default class ContractForm extends React.Component<
       redirection,
       PendingWith,
     } = this.state;
+    console.log(PendingWith, "PendingWith");
     const { context } = this.props;
     const handleSubmit = (event: { preventDefault: () => void }) => {
       event.preventDefault();
@@ -472,7 +480,7 @@ export default class ContractForm extends React.Component<
         inputFeild,
         requestorContract,
         requestorIdProof,
-        requestorPhoto,PendingWith
+        requestorPhoto
       );
     };
 
@@ -568,7 +576,6 @@ export default class ContractForm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-           
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -647,7 +654,7 @@ export default class ContractForm extends React.Component<
                 self={this}
               />
               <InputFeild
-                disabled={redirection}
+                disabled={PendingWith === "SSIMS Reviewer" && !redirection}
                 type="text"
                 label={language === "En" ? "Mobile Number " : "رقم الموبايل "}
                 name="mobileNumber"
@@ -664,7 +671,9 @@ export default class ContractForm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-                disabled={redirection}
+                disabled={
+                  PendingWith === "SSIMS Reviewer" ? false : redirection
+                }
                 type="select"
                 label={
                   <>
@@ -683,7 +692,9 @@ export default class ContractForm extends React.Component<
                 self={this}
               />
               <InputFeild
-                disabled={redirection}
+                disabled={
+                  PendingWith === "SSIMS Reviewer" ? false : redirection
+                }
                 type="select"
                 label={
                   <>
@@ -700,7 +711,9 @@ export default class ContractForm extends React.Component<
             </div>
             <div className="row mb-4">
               <InputFeild
-                disabled={redirection}
+                disabled={
+                  PendingWith === "SSIMS Reviewer" ? false : redirection
+                }
                 type="text"
                 label={
                   <>
@@ -714,7 +727,9 @@ export default class ContractForm extends React.Component<
                 self={this}
               />
               <InputFeild
-                disabled={redirection}
+                disabled={
+                  PendingWith === "SSIMS Reviewer" ? false : redirection
+                }
                 type="select"
                 label={
                   <>
@@ -1146,8 +1161,8 @@ export default class ContractForm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment,PendingWith } = this.state;
-                          console.log(PendingWith ,"PendingWith")
+                        const { approverComment, PendingWith } = this.state;
+                        console.log(PendingWith, "PendingWith");
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(
                             "Approve",
@@ -1184,7 +1199,7 @@ export default class ContractForm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment,PendingWith } = this.state;
+                        const { approverComment, PendingWith } = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(

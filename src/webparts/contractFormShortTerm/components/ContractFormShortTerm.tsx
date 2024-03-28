@@ -168,6 +168,7 @@ export default class ContractFormShortTerm extends React.Component<
           });
         });
     }
+    console.log(this.state,"stateissue")
   }
   public getDetails() {
     const { context } = this.props;
@@ -431,6 +432,7 @@ export default class ContractFormShortTerm extends React.Component<
     console.log(updateInteraction);
     // if (updateInteraction) this.getBasicBlogs();
     if (updateInteraction) {
+      this.setState({ PendingWith: PendingWith });
       alert("you have successully" + Type + "!");
       window.history.go(-1);
     }
@@ -676,6 +678,7 @@ export default class ContractFormShortTerm extends React.Component<
                 }
                 name="requestType"
                 options={[
+                  
                   "Short Term Contract",
                   "Long Term Contract",
                   "Trainee",

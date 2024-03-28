@@ -119,7 +119,7 @@ export default class EmployeeReprimand extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
