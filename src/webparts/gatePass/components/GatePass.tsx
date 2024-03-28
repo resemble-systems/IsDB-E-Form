@@ -215,6 +215,7 @@ export default class GatePass extends React.Component<
             SerialPost: listItems?.SerialNumber,
             DescriptionPost: listItems?.Description,
           },
+          PendingWith: listItems?.pendingWith,
           tableData: TableData,
           people: PeopleData,
           checkBox: listItems?.CheckBox,
@@ -242,7 +243,7 @@ export default class GatePass extends React.Component<
     } else {
       let peopleArr = people;
       console.log("people on submit", peopleArr, people);
-      peopleArr?.map((post: any) => {
+      peopleArr?.map(async (post: any) => {
         console.log("post on submit", post);
 
         const headers: any = {
@@ -336,7 +337,7 @@ export default class GatePass extends React.Component<
               inputFeild: {
                 ...InputFeild,
                 name: user.displayName,
-                // Department: user.department,
+                Department: user.department,
                 // officeNumber: user.mobilePhone,
                 // mobileNumber: user.mobilePhone,
                 // officeLocation: user.officeLocation,
@@ -382,8 +383,15 @@ export default class GatePass extends React.Component<
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
-    // if (updateInteraction) this.getBasicBlogs();
+    if (updateInteraction) {
+      this.setState({ PendingWith: PendingWith }, () => {
+        alert("The form has been successfully " + Type + "!");
+        window.history.go(-1);
+      });
+    }
+    console.log("pendingwithonapproval",this.state.PendingWith)
   };
+
   public render(): React.ReactElement<IGatePassProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -415,7 +423,7 @@ export default class GatePass extends React.Component<
       QuantityPost,
     } = this.state;
     const { context } = this.props;
-
+    console.log(PendingWith, "PendingWith");
     // const handleSearch = (newValue: string) => {
     //   let nameSearch = newValue;
     //   console.log("nameSearch", nameSearch);
@@ -961,13 +969,16 @@ export default class GatePass extends React.Component<
               redirection == true && (
                 <div className="d-flex justify-content-end mb-2 gap-3">
                   <button
-                    className="px-4 py-2"
+                    className="px-4 py-2 text-white"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
+                      const { PendingWith } = this.state;
+
+                      console.log(PendingWith, "PendingWithbtn");
                       if (PendingWith === "on behalf of") {
                         this.onApproveReject("Approve", "SSIMS Manager");
-                      } else {
+                      } else if (PendingWith === "SSIMS Manager") {
                         this.onApproveReject("Approve", "Completed");
                       }
                     }}
@@ -976,12 +987,15 @@ export default class GatePass extends React.Component<
                   </button>
                   <button
                     className="px-4 py-2 text-white"
-                    style={{ backgroundColor: "#E5E5E5" }}
+                    style={{ backgroundColor: "#223771" }}
                     type="button"
                     onClick={() => {
+                      const { PendingWith } = this.state;
+                      console.log(PendingWith, "PendingWith");
+
                       if (PendingWith === "on behalf of") {
                         this.onApproveReject("Reject", "Rejected by Approver");
-                      } else {
+                      } else if (PendingWith === "SSIMS Manager") {
                         this.onApproveReject("Reject", "Rejected by Manager");
                       }
                     }}

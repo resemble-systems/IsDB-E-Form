@@ -174,6 +174,7 @@ export default class KeyRequestForm extends React.Component<
           cabinetCheckBox: listItems?.cabinet == "true" ? true : false,
           safeCheckBox: listItems?.officeSafe == "true" ? true : false,
           drawerCheckBox: listItems?.drawer == "true" ? true : false,
+          conditionCheckBox:listItems?.conditionCheckBox == "true" ? true : false,
           PendingWith: listItems?.pendingWith,
         });
         console.log("Res listItems", listItems);
@@ -231,6 +232,7 @@ export default class KeyRequestForm extends React.Component<
                 cabinet: cabinetCheckBox.toString(),
                 officeSafe: safeCheckBox.toString(),
                 drawer: drawerCheckBox.toString(),
+                conditionCheckBox:conditionCheckBox.toString(),
                 DDMenu: inputFeild.DDMenu,
                 OnBehalfOfName: JSON.stringify(peopleArr),
                 OnBehalfOfEmail: JSON.stringify(onBehalfEmail),
@@ -249,6 +251,7 @@ export default class KeyRequestForm extends React.Component<
                 cabinet: cabinetCheckBox.toString(),
                 officeSafe: safeCheckBox.toString(),
                 drawer: drawerCheckBox.toString(),
+                conditionCheckBox:conditionCheckBox.toString(),
                 DDMenu: inputFeild.DDMenu,
                 OnBehalfOfName: JSON.stringify(peopleArr),
                 OnBehalfOfEmail: JSON.stringify(onBehalfEmail),

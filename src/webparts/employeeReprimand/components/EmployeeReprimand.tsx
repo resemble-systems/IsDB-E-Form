@@ -18,7 +18,6 @@ import {
 import { Web } from "sp-pnp-js";
 import { postData } from "../../../Services/Services";
 
-
 interface IEmployeeReprimandState {
   inputFeild: any;
   language: any;
@@ -71,7 +70,6 @@ export default class EmployeeReprimand extends React.Component<
         id: "",
         position: "",
         otherViolation: "",
-      
       },
       language: "En",
       requestTypeData: [],
@@ -104,7 +102,7 @@ export default class EmployeeReprimand extends React.Component<
       PendingWith: "SSIMS Reviewer",
       showAssignToFollowUpDetails: false,
       Assignpeople: [],
-      pendingApprover: "",
+      pendingApprover: [],
       isAssignToFollowUp: false,
     };
   }
@@ -119,7 +117,7 @@ export default class EmployeeReprimand extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?viewitemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
@@ -161,7 +159,7 @@ export default class EmployeeReprimand extends React.Component<
             outOfHoursCheckBox:
               listItems?.OutOfHoursCheckBox == "true" ? true : false,
             fileInfos: listItems?.AttachmentFiles,
-            PendingWith: listItems?.pendingWith
+            PendingWith: listItems?.pendingWith,
           });
           console.log("Res listItems", listItems);
         });
@@ -321,121 +319,121 @@ export default class EmployeeReprimand extends React.Component<
     // if (Position.length < 1) {
     //   alert("User Name cannot be blank!");
     // } else {
-      let peopleArr = people;
-      console.log("people on submit", peopleArr, people);
-      // peopleArr?.map(async (post: any) => {
-      //   console.log("post on submit", post);
+    let peopleArr = people;
+    console.log("people on submit", peopleArr, people);
+    // peopleArr?.map(async (post: any) => {
+    //   console.log("post on submit", post);
 
-      const headers: any = {
-        "X-HTTP-Method": "POST",
-        "If-Match": "*",
-      };
+    const headers: any = {
+      "X-HTTP-Method": "POST",
+      "If-Match": "*",
+    };
 
-      const spHttpClintOptions: ISPHttpClientOptions =
-        window.location.href.indexOf("?itemID") != -1
-          ? {
-              headers,
-              body: JSON.stringify({
-                Title: inputFeild.position,
-                Violator: violatorPeople[0].secondaryText,
-                OtherViolation: inputFeild.otherViolation,
-                VisitorID: inputFeild.id,
-                Department: inputFeild.department,
-                // OnBehalfOfName: JSON.stringify(peopleArr),
-                //OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
-                Comments: commentsPost,
-                CandleCheckBox: candleCheckBox.toString(),
-                SmokingCheckBox: smokeCheckBox.toString(),
-                WrongParkCheckBox: wrongParkCheckBox.toString(),
-                SpeedCheckBox: speedCheckBox.toString(),
-                LeakageCheckBox: leakageCheckBox.toString(),
-                LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
-                OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
-                WarningCount: this.state.warningCount,
-                pendingWith: PendingWith
-              }),
-            }
-          : {
-              body: JSON.stringify({
-                Title: inputFeild.position,
-                Violator: violatorPeople[0].secondaryText,
-                OtherViolation: inputFeild.otherViolation,
-                VisitorID: inputFeild.id,
-                Department: inputFeild.department,
-                // OnBehalfOfName: JSON.stringify(peopleArr),
-                //OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
-                Comments: commentsPost,
-                CandleCheckBox: candleCheckBox.toString(),
-                SmokingCheckBox: smokeCheckBox.toString(),
-                WrongParkCheckBox: wrongParkCheckBox.toString(),
-                SpeedCheckBox: speedCheckBox.toString(),
-                LeakageCheckBox: leakageCheckBox.toString(),
-                LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
-                OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
-                WarningCount: this.state.warningCount,
-                pendingWith: PendingWith
-              }),
-            };
+    const spHttpClintOptions: ISPHttpClientOptions =
+      window.location.href.indexOf("?itemID") != -1
+        ? {
+            headers,
+            body: JSON.stringify({
+              Title: inputFeild.position,
+              Violator: violatorPeople[0].secondaryText,
+              OtherViolation: inputFeild.otherViolation,
+              VisitorID: inputFeild.id,
+              Department: inputFeild.department,
+              // OnBehalfOfName: JSON.stringify(peopleArr),
+              //OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
+              Comments: commentsPost,
+              CandleCheckBox: candleCheckBox.toString(),
+              SmokingCheckBox: smokeCheckBox.toString(),
+              WrongParkCheckBox: wrongParkCheckBox.toString(),
+              SpeedCheckBox: speedCheckBox.toString(),
+              LeakageCheckBox: leakageCheckBox.toString(),
+              LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
+              OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
+              WarningCount: this.state.warningCount,
+              pendingWith: PendingWith,
+            }),
+          }
+        : {
+            body: JSON.stringify({
+              Title: inputFeild.position,
+              Violator: violatorPeople[0].secondaryText,
+              OtherViolation: inputFeild.otherViolation,
+              VisitorID: inputFeild.id,
+              Department: inputFeild.department,
+              // OnBehalfOfName: JSON.stringify(peopleArr),
+              //OnBehalfOfEmail: JSON.stringify(peopleArr[0].secondaryText),
+              Comments: commentsPost,
+              CandleCheckBox: candleCheckBox.toString(),
+              SmokingCheckBox: smokeCheckBox.toString(),
+              WrongParkCheckBox: wrongParkCheckBox.toString(),
+              SpeedCheckBox: speedCheckBox.toString(),
+              LeakageCheckBox: leakageCheckBox.toString(),
+              LeaveEngineCheckBox: leaveEngineCheckBox.toString(),
+              OutOfHoursCheckBox: outOfHoursCheckBox.toString(),
+              WarningCount: this.state.warningCount,
+              pendingWith: PendingWith,
+            }),
+          };
 
-      console.log("spHttpClintOptions", spHttpClintOptions);
+    console.log("spHttpClintOptions", spHttpClintOptions);
 
-      let data = window.location.href.split("=");
-      let itemId = data[data.length - 1];
+    let data = window.location.href.split("=");
+    let itemId = data[data.length - 1];
 
-      let url =
-        window.location.href.indexOf("?itemID") != -1
-          ? `/_api/web/lists/GetByTitle('Employee-Reprimand')/items('${itemId}')`
-          : "/_api/web/lists/GetByTitle('Employee-Reprimand')/items";
+    let url =
+      window.location.href.indexOf("?itemID") != -1
+        ? `/_api/web/lists/GetByTitle('Employee-Reprimand')/items('${itemId}')`
+        : "/_api/web/lists/GetByTitle('Employee-Reprimand')/items";
 
-      const Response = await context.spHttpClient.post(
-        `${context.pageContext.web.absoluteUrl}${url}`,
-        SPHttpClient.configurations.v1,
-        spHttpClintOptions
-      );
-      if (Response.ok) {
-        const ResponseData = await Response.json();
-        console.log("ResponseData", ResponseData);
-        this.upload(ResponseData.ID);
-        alert(`You have successfully submitted`);
-        () => {
-          context.spHttpClient
-            .get(
-              `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Employee-Reprimand')/items?$select=Violator&$filter=Violator eq '${inputFeild.violator}'`,
-              SPHttpClient.configurations.v1
-            )
-            .then((res: SPHttpClientResponse) => {
-              console.log("violation listItems Success");
-              return res.json();
-            })
-            .then((listItems: any) => {
-              console.log("violation Res listItems", listItems.value);
-            });
-        };
-      } else {
-        console.log("Response", Response);
-      }
-      // });
-    
-  };
-
-  public onChangePeoplePickerItems = async (items: any) => {
-    const { peopleData } = this.state;
-
-    console.log("item in peoplepicker", items);
-    let finalData = peopleData?.filter((curr: any) =>
-      items.find(
-        (findData: any) => curr.userPrincipalName === findData.secondaryText
-      )
+    const Response = await context.spHttpClient.post(
+      `${context.pageContext.web.absoluteUrl}${url}`,
+      SPHttpClient.configurations.v1,
+      spHttpClintOptions
     );
-    if (finalData.length === 0) {
-      finalData = items;
+    if (Response.ok) {
+      const ResponseData = await Response.json();
+      console.log("ResponseData", ResponseData);
+      this.upload(ResponseData.ID);
+      alert(`You have successfully submitted`);
+      () => {
+        context.spHttpClient
+          .get(
+            `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Employee-Reprimand')/items?$select=Violator&$filter=Violator eq '${inputFeild.violator}'`,
+            SPHttpClient.configurations.v1
+          )
+          .then((res: SPHttpClientResponse) => {
+            console.log("violation listItems Success");
+            return res.json();
+          })
+          .then((listItems: any) => {
+            console.log("violation Res listItems", listItems.value);
+          });
+       
+      };
+    } else {
+      console.log("Response", Response);
     }
-    console.log("items", items[0].secondaryText);
-    this.setState({
-      people: finalData,
-    });
+    // });
   };
 
+  
+  public async getvisitordata(emailID: any) {
+    const { context } = this.props;
+    try {
+      const graphClient = await context.msGraphClientFactory.getClient("3");
+      const userResponse = await graphClient
+        .api(`/users/${emailID}`)
+        .version("v1.0")
+        .select("*")
+        .get();
+      const userDetails = userResponse;
+      console.log("USER DETAILS", userDetails);
+      return userDetails;
+    } catch (error) {
+      console.error("USER FETCH ERROR", error);
+      return [];
+    }
+  }
   public onChangePeoplePickerViolator = async (items: any) => {
     const { violatorPeopleData } = this.state;
     const { context } = this.props;
@@ -461,10 +459,17 @@ export default class EmployeeReprimand extends React.Component<
       }
       const listItems = await res.json();
       const violtorCount = listItems.value?.length + 1;
+      const emailID = finalData[0].secondaryText;
+      const userDetails = await this.getvisitordata(emailID);
       console.log("count", violtorCount);
       this.setState({
         violatorPeople: finalData,
         warningCount: violtorCount,
+        inputFeild: {
+          ...this.state.inputFeild,
+          id:finalData[0].id.toString(),
+          position:userDetails.jobTitle,
+      }
       });
     } catch (error) {
       console.error("Error in Get Violator", error);
@@ -497,13 +502,14 @@ export default class EmployeeReprimand extends React.Component<
         Status: Type,
         pendingWith: PendingWith,
         approverComments: comments || "",
-      
+
         pendingApprover: pendingApprover,
       });
     }
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
     if (updateInteraction) {
+      this.setState({ PendingWith: PendingWith });
       alert("The form has been succesfully " + PendingWith + "!");
       window.history.go(-1);
     }
@@ -513,30 +519,36 @@ export default class EmployeeReprimand extends React.Component<
   //   console.log(`Switch to ${checked}`);
   //   this.setState({ checked, redirection: false });
   // };
-  public handleAssign = (items: any) => {
+  public handleAssign = (items: any[]) => {
     const { peopleData } = this.state;
-    console.log("item in peoplepicker", items);
+    console.log("items in peoplepicker", items);
+
     let finalData = peopleData.filter((curr: any) =>
-      items.find(
-        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      items.some(
+        (selectedItem: any) =>
+          curr.userPrincipalName === selectedItem.secondaryText
       )
     );
     if (finalData.length === 0) {
       finalData = items;
     }
-    console.log("handle", finalData, items);
-    
-    const Assignpeople = finalData.length > 0 ? finalData[0].secondaryText : "";
-    const pendingApprover = finalData.length > 0 ? finalData[0].secondaryText : "";
 
+    console.log("finalData", finalData);
+    const Assignpeople = finalData
+      .map((item: any) => item.secondaryText)
+      .join(", ");
+    const pendingApprover = finalData
+      .map((item: any) => item.secondaryText)
+      .join(", ");
     this.setState({
       Assignpeople: Assignpeople,
       pendingApprover: pendingApprover,
     });
 
     console.log("Assignpeople", Assignpeople);
-    console.log("pendingApprover", pendingApprover);
-};
+    console.log("pendingApprovers", pendingApprover);
+  };
+
   public render(): React.ReactElement<IEmployeeReprimandProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -566,7 +578,7 @@ export default class EmployeeReprimand extends React.Component<
       fileInfos,
       commentsPost,
       PendingWith,
-      showAssignToFollowUpDetails
+      showAssignToFollowUpDetails,
     } = this.state;
     const { context } = this.props;
     console.log("attachments", attachments);
@@ -619,21 +631,13 @@ export default class EmployeeReprimand extends React.Component<
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
             >
-              {language === "En" ? "Visitor Information" : "معلومات للزوار"}
+              {language === "En" ? "Violator Information" : "معلومات للزوار"}
             </div>
             <div className="row">
-              <div className="d-flex justify-content-start py-2 ps-2">
-                <InputFeild
-                  self={this}
-                  type="text"
-                  disabled={redirection}
-                  label={language === "En" ? "Department" : "قسم"}
-                  name="department"
-                  state={inputFeild}
-                  inputFeild={inputFeild.department}
-                />
-                {!redirection ? (
-                  <div
+              {/* <div className="d-flex justify-content-start py-2 ps-2"> */}
+
+              {!redirection ? (
+                <div
                   className="d-flex col-lg-6 col-md-6 col-sm-12 mb-2"
                   style={{ paddingLeft: "12px" }}
                 >
@@ -646,51 +650,58 @@ export default class EmployeeReprimand extends React.Component<
                       backgroundColor: "#F0F0F0",
                     }}
                   >
-                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
-                    {language === "En" ? "Violator" : "منتهك"}
-                    {/* <span className="text-danger">*</span> */}
-                  </label>
-                </div>
-                <div
-                  style={{ marginLeft: "10px", width: "50%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={redirection}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerViolator(i);
-                    }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-
-                    // styles={{ peoplePicker: { border: 'none' } }}
-                  />
-                </div>
-                </div>
-                 
-                    
-                 ) : (
-                  <div>
-                    <InputFeild
-                      type="text"
+                    <label className="ps-2 py-2" htmlFor="onBehalfOf">
+                      {language === "En" ? "Violator" : "منتهك"}
+                      {/* <span className="text-danger">*</span> */}
+                    </label>
+                  </div>
+                  <div
+                    style={{ marginLeft: "10px", width: "50%" }}
+                    className={"custom-people-picker"}
+                  >
+                    <PeoplePicker
+                      context={context as any}
                       disabled={redirection}
-                      label={language === "En" ? "Violator" : "نيابة عن"}
-                      name="violator"
-                      state={inputFeild}
-                      inputFeild={inputFeild.violator}
-                      self={this}
+                      personSelectionLimit={1}
+                      showtooltip={true}
+                      required={true}
+                      onChange={(i: any) => {
+                        this.onChangePeoplePickerViolator(i);
+                      }}
+                      showHiddenInUI={false}
+                      principalTypes={[PrincipalType.User]}
+                      resolveDelay={1000}
+                      ensureUser={true}
+
+                      // styles={{ peoplePicker: { border: 'none' } }}
                     />
                   </div>
-                )}
-                   </div>
+                </div>
+              ) : (
+                <div>
+                  <InputFeild
+                    type="text"
+                    disabled={redirection}
+                    label={language === "En" ? "Violator" : "نيابة عن"}
+                    name="violator"
+                    state={inputFeild}
+                    inputFeild={inputFeild.violator}
+                    self={this}
+                  />
+                </div>
+              )}
+              <InputFeild
+                self={this}
+                type="text"
+                disabled={redirection}
+                label={language === "En" ? "Department" : "قسم"}
+                name="department"
+                state={inputFeild}
+                inputFeild={inputFeild.department}
+              />
+              {/* </div> */}
             </div>
-          
+
             <div className="row">
               <InputFeild
                 self={this}
@@ -730,34 +741,7 @@ export default class EmployeeReprimand extends React.Component<
               />
             </div>
 
-            <div>
-              <div
-                style={{
-                  fontSize: "1em",
-                  fontFamily: "Open Sans",
-                  fontWeight: "600",
-                  width: "24.5%",
-                  backgroundColor: "#F0F0F0",
-                }}
-              >
-                <label className="ps-2 py-2" htmlFor="onBehalfOf">
-                  {language === "En" ? "Comments" : "التعليقات"}
-                </label>
-              </div>
-              <textarea
-                className="form-control mb-2 mt-2"
-                disabled={redirection}
-                rows={3}
-                placeholder={
-                  language === "En" ? "Add a comment..." : "أضف تعليقا..."
-                }
-                required
-                value={commentsPost}
-                onChange={(e) =>
-                  this.setState({ commentsPost: e.target.value })
-                }
-              />
-            </div>
+         
 
             <div className="d-flex justify-content-start ps-2 mb-2">
               <input
@@ -903,7 +887,34 @@ export default class EmployeeReprimand extends React.Component<
                   : "القيادة الجانبية الخاطئة"}
               </label>
             </div>
-
+            <div>
+              <div
+                style={{
+                  fontSize: "1em",
+                  fontFamily: "Open Sans",
+                  fontWeight: "600",
+                  width: "24.5%",
+                  backgroundColor: "#F0F0F0",
+                }}
+              >
+                <label className="ps-2 py-2" htmlFor="onBehalfOf">
+                  {language === "En" ? "Comments" : "التعليقات"}
+                </label>
+              </div>
+              <textarea
+                className="form-control mb-2 mt-2"
+                disabled={redirection}
+                rows={3}
+                placeholder={
+                  language === "En" ? "Add a comment..." : "أضف تعليقا..."
+                }
+                required
+                value={commentsPost}
+                onChange={(e) =>
+                  this.setState({ commentsPost: e.target.value })
+                }
+              />
+            </div>
             <div
               className="d-flex justify-content-start text-white py-2 mb-4 ps-2 headerText"
               style={{ backgroundColor: "#223771" }}
@@ -1000,9 +1011,9 @@ export default class EmployeeReprimand extends React.Component<
                 </button>
               </div>
             )}
-            {((PendingWith === "SSIMS Reviewer" ||
+            {(PendingWith === "SSIMS Reviewer" ||
               PendingWith === "SSIMS Manager") &&
-              redirection == true) && (
+              redirection == true && (
                 <div>
                   <div
                     style={{
@@ -1031,10 +1042,9 @@ export default class EmployeeReprimand extends React.Component<
                     }
                   />
                   <div className="d-flex justify-content-end mb-2 gap-3">
-                   
                     <button
                       className="px-4 py-2 text-white"
-                      style={{ backgroundColor: "#E5E5E5" }}
+                      style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
                         const { approverComment } = this.state;
@@ -1058,71 +1068,68 @@ export default class EmployeeReprimand extends React.Component<
                     </button>
                     <button
                       className="px-4 py-2 text-white"
-                      style={{ backgroundColor: "#E5E5E5" }}
+                      style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
                         this.setState({ showAssignToFollowUpDetails: true });
                       }}
                     >
-                      {language === "En"
-                        ? "To Notify"
-                        : "إشعار آخرين"}
+                      {language === "En" ? "To Notify" : "إشعار آخرين"}
                     </button>
                     {showAssignToFollowUpDetails && (
-                    <div className="d-flex justify-content-end">
-                      <div
-                        className="d-flex justify-content-between"
-                        style={{
-                          fontSize: "1em",
-                          fontFamily: "Open Sans",
-                          fontWeight: "600",
-                          width: "24.5%",
-                          backgroundColor: "#F0F0F0",
-                        }}
-                      >
-                        <label className="ps-2 py-2" htmlFor="Assign To">
-                          {language === "En" ? "Assign To" : "باسم"}
-                        </label>
-                      </div>
-                      <PeoplePicker
-                        context={context as any}
-                        personSelectionLimit={1}
-                        showtooltip={true}
-                        required={true}
-                        onChange={(i: any) => {
-                          this.handleAssign(i);
-                        }}
-                        showHiddenInUI={false}
-                        principalTypes={[PrincipalType.User]}
-                        resolveDelay={1000}
-                        ensureUser={true}
-                      />
-                      <button
-                        className="px-4 py-2 text-white"
-                        style={{ backgroundColor: "#223771" }}
-                        type="button"
-                        onClick={() => {
-                          const { approverComment } = this.state;
-                          if (!this.state.Assignpeople) {
-                            alert(
-                              "Please select a user to Notify."
+                      <div className="d-flex justify-content-end">
+                        <div
+                          className="d-flex justify-content-between"
+                          style={{
+                            fontSize: "1em",
+                            fontFamily: "Open Sans",
+                            fontWeight: "600",
+                            width: "24.5%",
+                            backgroundColor: "#F0F0F0",
+                          }}
+                        >
+                          <label className="ps-2 py-2" htmlFor="Assign To">
+                            {language === "En" ? "Assign To" : "باسم"}
+                          </label>
+                        </div>
+                        <PeoplePicker
+                          context={context as any}
+                          personSelectionLimit={10}
+                          showtooltip={true}
+                          required={true}
+                          onChange={(i: any) => {
+                            this.handleAssign(i);
+                          }}
+                          showHiddenInUI={false}
+                          principalTypes={[PrincipalType.User]}
+                          resolveDelay={1000}
+                          ensureUser={true}
+                        />
+                        <button
+                          className="px-4 py-2 text-white"
+                          style={{ backgroundColor: "#223771" }}
+                          type="button"
+                          onClick={() => {
+                            const { approverComment, Assignpeople } =
+                              this.state;
+                            if (!Assignpeople) {
+                              alert("Please select a user to Notify.");
+                              return;
+                            }
+
+                            this.onApproveReject(
+                              "To Notify",
+                              "To Notify",
+                              approverComment
                             );
-                            return;
-                          }
 
-                          this.onApproveReject(
-                            "To Notify",
-                            "To Notify",
-                            approverComment
-                          );
-
-                          this.setState({ isAssignToFollowUp: false });
-                        }}
-                      >
-                        {language === "En" ? "Submit" : "يُقدِّم"}
-                      </button>
-                    </div>
-                  )}
+                            this.setState({ isAssignToFollowUp: false });
+                          }}
+                        >
+                          {language === "En" ? "Submit" : "يُقدِّم"}
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

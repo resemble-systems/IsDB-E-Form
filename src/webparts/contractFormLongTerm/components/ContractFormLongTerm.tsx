@@ -106,7 +106,7 @@ export default class ContractFormLongTerm extends React.Component<
         .then((listItems: any) => {
           console.log("listItems.value Edit News", listItems);
           this.setState({
-            PendingWith:listItems?.pendingWith,
+           
             inputFeild: {
               staffName: listItems?.Title,
               grade: listItems?.Grade,
@@ -134,6 +134,7 @@ export default class ContractFormLongTerm extends React.Component<
               requestorRemarks: listItems?.requestorRemarks,
               
             },
+            PendingWith:listItems?.pendingWith,
             requestorContract: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
                   ?.filter(
@@ -1148,7 +1149,7 @@ export default class ContractFormLongTerm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment} = this.state;
+                        const { approverComment,PendingWith} = this.state;
                        console.log(PendingWith,"PendingWithbutton")
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(
@@ -1184,7 +1185,7 @@ export default class ContractFormLongTerm extends React.Component<
                       style={{  backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment} = this.state;
+                        const { approverComment,PendingWith} = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(

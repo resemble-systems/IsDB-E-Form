@@ -6,7 +6,7 @@ import InputFeild from "./InputFeild";
 import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { MSGraphClientV3 } from "@microsoft/sp-http";
-import { Select, } from "antd";
+import { Select } from "antd";
 import "./index.css";
 import { Web } from "sp-pnp-js";
 import {
@@ -129,8 +129,8 @@ export default class ContractFormShortTerm extends React.Component<
               requestorValidityFrom: listItems?.requestorValidityFrom,
               requestorValidityTo: listItems?.requestorValidityTo,
               requestorRemarks: listItems?.requestorRemarks,
-              PendingWith: listItems?.pendingWith,
             },
+            PendingWith: listItems?.pendingWith,
             requestorContract: listItems.AttachmentJSON
               ? JSON.parse(listItems.AttachmentJSON)
                   ?.filter(
@@ -168,7 +168,7 @@ export default class ContractFormShortTerm extends React.Component<
           });
         });
     }
-    console.log(this.state,"stateissue")
+    console.log(this.state, "stateissue");
   }
   public getDetails() {
     const { context } = this.props;
@@ -209,8 +209,13 @@ export default class ContractFormShortTerm extends React.Component<
   }
   public onSubmit = async () => {
     const { context } = this.props;
-    const { inputFeild, postAttachments, requestorIdProof, requestorPhoto,  PendingWith, } =
-      this.state;
+    const {
+      inputFeild,
+      postAttachments,
+      requestorIdProof,
+      requestorPhoto,
+      PendingWith,
+    } = this.state;
     console.log("Request Type", inputFeild.requestType);
     const validityFrom = this.state.inputFeild.requestorValidityFrom;
     const validityTo = this.state.inputFeild.requestorValidityTo;
@@ -248,16 +253,16 @@ export default class ContractFormShortTerm extends React.Component<
 
       // } else if (!inputFeild.requestorJobTittle) {
       //   alert("Please enter the Job title!");
-    } else if (
-      !inputFeild.requestorRelatedEdu ||
-      inputFeild.requestorRelatedEdu?.length < 3 ||
-      inputFeild.requestorRelatedEdu?.length > 30
-    ) {
-      alert(
-        "Related Org/Company cannot be blank, should have more than 2 characters and less than 30 characters!"
-      );
-    } else if (!inputFeild.requestorRelatedDept) {
-      alert("Please enter the Related Department!");
+    // } else if (
+    //   !inputFeild.requestorRelatedEdu ||
+    //   inputFeild.requestorRelatedEdu?.length < 3 ||
+    //   inputFeild.requestorRelatedEdu?.length > 30
+    // ) {
+    //   alert(
+    //     "Related Org/Company cannot be blank, should have more than 2 characters and less than 30 characters!"
+    //   );
+    // } else if (!inputFeild.requestorRelatedDept) {
+    //   alert("Please enter the Related Department!");
     } else if (!validityFrom) {
       alert("Please enter the From date!");
     } else if (!validityTo) {
@@ -437,7 +442,7 @@ export default class ContractFormShortTerm extends React.Component<
       window.history.go(-1);
     }
   };
-  
+
   public render(): React.ReactElement<IContractFormShortTermProps> {
     let bootstarp5CSS =
       "https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css";
@@ -572,7 +577,6 @@ export default class ContractFormShortTerm extends React.Component<
             Please fill out the fields in * to proceed
           </div>
           <div className="d-flex justify-content-end mb-2">
-            
             <Select
               style={{ width: "200px" }}
               bordered={false}
@@ -678,7 +682,6 @@ export default class ContractFormShortTerm extends React.Component<
                 }
                 name="requestType"
                 options={[
-                  
                   "Short Term Contract",
                   "Long Term Contract",
                   "Trainee",
@@ -870,7 +873,9 @@ export default class ContractFormShortTerm extends React.Component<
             </div>
             <div className="row">
               <InputFeild
-                disabled={redirection}
+                disabled={
+                  inputFeild.requestType === "Trainee" ? true : redirection
+                }
                 self={this}
                 type="text"
                 label={
@@ -886,7 +891,9 @@ export default class ContractFormShortTerm extends React.Component<
                 inputFeild={inputFeild.requestorRelatedEdu}
               />
               <InputFeild
-                disabled={redirection}
+                disabled={
+                  inputFeild.requestType !== "Trainee" ? true : redirection
+                }
                 self={this}
                 type="text"
                 label={
@@ -1144,7 +1151,7 @@ export default class ContractFormShortTerm extends React.Component<
                       style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment,PendingWith  } = this.state;
+                        const { approverComment, PendingWith } = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(
@@ -1171,10 +1178,10 @@ export default class ContractFormShortTerm extends React.Component<
                     </button>
                     <button
                       className="px-4 py-2 text-white"
-                      style={{  backgroundColor: "#223771" }}
+                      style={{ backgroundColor: "#223771" }}
                       type="button"
                       onClick={() => {
-                        const { approverComment,PendingWith } = this.state;
+                        const { approverComment, PendingWith } = this.state;
 
                         if (PendingWith === "Immediate Supervisor") {
                           this.onApproveReject(

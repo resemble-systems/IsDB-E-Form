@@ -195,6 +195,7 @@ export default class ParkingRequestForm extends React.Component<
             modelYear: listItems?.modelYear,
             comments: listItems?.comments,
           },
+          conditionCheckBox:listItems?.drawer == "true" ? true : false,
           attachStaffID: listItems.AttachmentJSON
             ? JSON.parse(listItems.AttachmentJSON)
                 ?.filter((data: any) => data.targetName === "attachStaffID")
@@ -328,6 +329,8 @@ export default class ParkingRequestForm extends React.Component<
           comments: vehicleInfo.comments,
           AttachmentJSON: JSON.stringify(this.state.attachmentJson),
           RequestorValidityTo: vehicleInfo.requestorValidityTo,
+          conditionCheckBox:conditionCheckBox.toString(),
+
           pendingWith: PendingWith
         }),
       };
@@ -342,7 +345,7 @@ export default class ParkingRequestForm extends React.Component<
         console.log("visitor Created", postData);
         this.upload(postData.ID, postAttachments);
       } else {
-        alert("visitor form Failed.");
+        alert("parking form Failed.");
         console.log("Post Failed", postResponse);
       }
       // window.history.go(-1);
