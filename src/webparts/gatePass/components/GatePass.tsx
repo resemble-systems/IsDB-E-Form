@@ -180,7 +180,7 @@ export default class GatePass extends React.Component<
     const { inputFeild } = this.state;
     context.spHttpClient
       .get(
-        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Gate-Pass')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
+        `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Gate_Pass')/items('${itemId}')?$select=&$expand=AttachmentFiles`,
         SPHttpClient.configurations.v1
       )
       .then((res: SPHttpClientResponse) => {
@@ -246,9 +246,8 @@ export default class GatePass extends React.Component<
         console.log("post on submit", post);
 
         const headers: any = {
-          "X-HTTP-Method": "MERGE",
+          "X-HTTP-Method": "POST",
           "If-Match": "*",
-          "Content-Type": "application/json;odata=nometadata",
         };
         const spHttpClintOptions: ISPHttpClientOptions =
           window.location.href.indexOf("?itemID") != -1
@@ -297,8 +296,8 @@ export default class GatePass extends React.Component<
 
         let url =
           window.location.href.indexOf("?itemID") != -1
-            ? `/_api/web/lists/GetByTitle('Gate-Pass')/items('${itemId}')`
-            : "/_api/web/lists/GetByTitle('Gate-Pass')/items";
+            ? `/_api/web/lists/GetByTitle('Gate_Pass')/items('${itemId}')`
+            : "/_api/web/lists/GetByTitle('Gate_Pass')/items";
 
         context.spHttpClient
           .post(
@@ -370,7 +369,7 @@ export default class GatePass extends React.Component<
     const { context } = this.props;
     let data = window.location.href.split("=");
     let itemId = data[data.length - 1];
-    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Gate-Pass')/items('${itemId}')`;
+    const postUrl = `${context.pageContext.web.absoluteUrl}/_api/web/lists/GetByTitle('Gate_Pass')/items('${itemId}')`;
     const headers = {
       "X-HTTP-Method": "MERGE",
       "If-Match": "*",
@@ -685,114 +684,112 @@ export default class GatePass extends React.Component<
                     }}
                   />
                 </div>
-                </div>
-                {checkBox && (
-                  <div className="my-2">
-                    <Table
-                      columns={columns}
-                      dataSource={tableData}
-                      size="middle"
-                      className="mb-2"
-                      pagination={this.state.paginationData}
-                      scroll={{ y: 300 }}
-                    />
-                    {showAdd && (
-                      <div className="d-flex gap-3 mb-2">
-                        <Input
-                          required
-                          name="Model"
-                          placeholder="Please enter Model"
-                          onChange={handleChange}
-                        />
-                        <Input
-                          required
-                          name="Serial"
-                          placeholder="Please enter Serial"
-                          onChange={handleChange}
-                        />
-                        <Input
-                          required
-                          name="Description"
-                          placeholder="Please enter Description"
-                          onChange={handleChange}
-                        />
-                        <InputNumber
-                          style={{ width: "100%" }}
-                          required
-                          name="Quantity"
-                          placeholder="Please enter Quantity"
-                          min={0}
-                          onChange={(value: number) => {
-                            this.setState({
-                              addDetails: { ...addDetails, Quantity: value },
-                            });
-                          }}
-                        />
-                        <button
-                          className="px-4 py-2 text-white"
-                          style={{ backgroundColor: "#223771" }}
-                          type="button"
-                          onClick={() => {
-                            const { Model, Description, Serial, Quantity } =
-                              addDetails;
-                            if (Model?.length < 3) alert("Enter valid Model");
-                            else if (Description?.length < 3)
-                              alert("Enter valid Description");
-                            else if (Serial?.length < 3)
-                              alert("Enter valid Serial");
-                            else if (Quantity == 0)
-                              alert("Enter valid Quantity");
-                            else {
-                              this.setState({ showAdd: false });
-                              const getTableContent = (tableContent: any) => {
-                                console.log("tableContent", tableContent);
-                                const tableData = tableContent?.map(
-                                  (data: {
-                                    key: any;
-                                    Model: any;
-                                    Description: any;
-                                    Serial: any;
-                                    Quantity: any;
-                                  }) => ({
-                                    key: data.key,
-                                    Model: data.Model,
-                                    Description: data.Description,
-                                    Serial: data.Serial,
-                                    Quantity: data.Quantity,
-                                  })
-                                );
-                                this.setState({ addDetails: {} });
-                                return tableData;
-                              };
-                              this.setState({
-                                tableData: getTableContent([
-                                  ...tableData,
-                                  { ...addDetails, key: tableData?.length + 1 },
-                                ]),
-                              });
-                            }
-                          }}
-                        >
-                          {language === "En" ? "Add" : "جمع"}
-                        </button>
-                      </div>
-                    )}
-
-                    <div className="d-flex justify-content-end">
+              </div>
+              {checkBox && (
+                <div className="my-2">
+                  <Table
+                    columns={columns}
+                    dataSource={tableData}
+                    size="middle"
+                    className="mb-2"
+                    pagination={this.state.paginationData}
+                    scroll={{ y: 300 }}
+                  />
+                  {showAdd && (
+                    <div className="d-flex gap-3 mb-2">
+                      <Input
+                        required
+                        name="Model"
+                        placeholder="Please enter Model"
+                        onChange={handleChange}
+                      />
+                      <Input
+                        required
+                        name="Serial"
+                        placeholder="Please enter Serial"
+                        onChange={handleChange}
+                      />
+                      <Input
+                        required
+                        name="Description"
+                        placeholder="Please enter Description"
+                        onChange={handleChange}
+                      />
+                      <InputNumber
+                        style={{ width: "100%" }}
+                        required
+                        name="Quantity"
+                        placeholder="Please enter Quantity"
+                        min={0}
+                        onChange={(value: number) => {
+                          this.setState({
+                            addDetails: { ...addDetails, Quantity: value },
+                          });
+                        }}
+                      />
                       <button
                         className="px-4 py-2 text-white"
                         style={{ backgroundColor: "#223771" }}
                         type="button"
                         onClick={() => {
-                          this.setState({ showAdd: true });
+                          const { Model, Description, Serial, Quantity } =
+                            addDetails;
+                          if (Model?.length < 3) alert("Enter valid Model");
+                          else if (Description?.length < 3)
+                            alert("Enter valid Description");
+                          else if (Serial?.length < 3)
+                            alert("Enter valid Serial");
+                          else if (Quantity == 0) alert("Enter valid Quantity");
+                          else {
+                            this.setState({ showAdd: false });
+                            const getTableContent = (tableContent: any) => {
+                              console.log("tableContent", tableContent);
+                              const tableData = tableContent?.map(
+                                (data: {
+                                  key: any;
+                                  Model: any;
+                                  Description: any;
+                                  Serial: any;
+                                  Quantity: any;
+                                }) => ({
+                                  key: data.key,
+                                  Model: data.Model,
+                                  Description: data.Description,
+                                  Serial: data.Serial,
+                                  Quantity: data.Quantity,
+                                })
+                              );
+                              this.setState({ addDetails: {} });
+                              return tableData;
+                            };
+                            this.setState({
+                              tableData: getTableContent([
+                                ...tableData,
+                                { ...addDetails, key: tableData?.length + 1 },
+                              ]),
+                            });
+                          }
                         }}
                       >
-                        {language === "En" ? "Add New" : "إضافة جديد"}
+                        {language === "En" ? "Add" : "جمع"}
                       </button>
                     </div>
+                  )}
+
+                  <div className="d-flex justify-content-end">
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        this.setState({ showAdd: true });
+                      }}
+                    >
+                      {language === "En" ? "Add New" : "إضافة جديد"}
+                    </button>
                   </div>
-                )}
-              
+                </div>
+              )}
             </div>
             {!checkBox && (
               <div>

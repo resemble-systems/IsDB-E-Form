@@ -4,6 +4,11 @@ import { SPComponentLoader } from "@microsoft/sp-loader";
 import CommunityLayout from "../../../common-components/communityLayout/index";
 import { Row, Col, Select } from "antd";
 import "./index.css";
+
+import {
+  PeoplePicker,
+  PrincipalType,
+} from "@pnp/spfx-controls-react/lib/PeoplePicker";
 import InputFeild from "./InputFeild";
 import {
   ISPHttpClientOptions,
@@ -37,7 +42,10 @@ interface ISafetyIncidentState {
   attachments: any;
   listId: any;
   redirection: boolean;
-  PendingWith:any,
+  PendingWith: any;
+  showAssignToFollowUpDetails: boolean;
+  Assignpeople: any;
+  pendingApprover: any;
 }
 export default class SafetyIncident extends React.Component<
   ISafetyIncidentProps,
@@ -72,7 +80,10 @@ export default class SafetyIncident extends React.Component<
       attachments: "",
       listId: 0,
       redirection: false,
-      PendingWith:"SSIMS Manager",
+      PendingWith: "SSIMS Manager",
+      showAssignToFollowUpDetails: false,
+      Assignpeople: [],
+      pendingApprover: "",
     };
   }
   public componentDidMount() {
@@ -88,7 +99,7 @@ export default class SafetyIncident extends React.Component<
       });
     }
 
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID") != -1) {
       console.log("CDM Banner inside if");
       const { context } = this.props;
       const { inputFeild } = this.state;
@@ -122,6 +133,31 @@ export default class SafetyIncident extends React.Component<
         });
     }
   }
+  public handleAssign = (items: any) => {
+    const { peopleData } = this.state;
+    console.log("item in peoplepicker", items);
+    let finalData = peopleData.filter((curr: any) =>
+      items.find(
+        (findData: any) => curr.userPrincipalName === findData.secondaryText
+      )
+    );
+    if (finalData.length === 0) {
+      finalData = items;
+    }
+    console.log("handle", finalData, items);
+
+    const Assignpeople = finalData.length > 0 ? finalData[0].secondaryText : "";
+    const pendingApprover =
+      finalData.length > 0 ? finalData[0].secondaryText : "";
+
+    this.setState({
+      Assignpeople: Assignpeople,
+      pendingApprover: pendingApprover,
+    });
+
+    console.log("Assignpeople", Assignpeople);
+    console.log("pendingApprover", pendingApprover);
+  };
 
   public getIncidentType() {
     const { context } = this.props;
@@ -269,6 +305,7 @@ export default class SafetyIncident extends React.Component<
               Where: where,
               How: how,
               Why: why,
+              PendingWith: "SSIMS Manager",
             }),
           }
         : {
@@ -284,6 +321,7 @@ export default class SafetyIncident extends React.Component<
               Where: where,
               How: how,
               Why: why,
+              PendingWith: "SSIMS Manager",
             }),
           };
     let data = window.location.href.split("=");
@@ -320,17 +358,20 @@ export default class SafetyIncident extends React.Component<
       "If-Match": "*",
     };
 
-    let body: any = {
+    let body: any;
+    body = JSON.stringify({
       status: Type,
       PendingWith: PendingWith,
-    };
-    if (Type === "Approve") {
-      const { people } = this.state;
-      body.PeopleData = people.map((person: any) => person.secondaryText);
+    });
+    if (PendingWith === "Notify related contact") {
+      const { pendingApprover } = this.state;
+      body = JSON.stringify({
+        status: Type,
+        PendingWith: PendingWith,
+        userEmail: pendingApprover,
+        pendingApprover: pendingApprover,
+      });
     }
-  
-    
-    
 
     const updateInteraction = await postData(context, postUrl, headers, body);
     console.log(updateInteraction);
@@ -381,7 +422,8 @@ export default class SafetyIncident extends React.Component<
       when,
       fileInfos,
       redirection,
-      PendingWith
+      PendingWith,
+      showAssignToFollowUpDetails,
     } = this.state;
     const { context } = this.props;
 
@@ -481,7 +523,11 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder={language === "En" ? "Add a Incident Description..." : "إضافة وصف الحادث..."}
+                placeholder={
+                  language === "En"
+                    ? "Add a Incident Description..."
+                    : "إضافة وصف الحادث..."
+                }
                 required
                 value={descriptionPost}
                 onChange={(e) =>
@@ -507,7 +553,9 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder= {language === "En" ? "Add a comment..." : "اضف تعليق..."}
+                placeholder={
+                  language === "En" ? "Add a comment..." : "اضف تعليق..."
+                }
                 required
                 value={commentsPost}
                 onChange={(e) =>
@@ -542,7 +590,9 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
+                placeholder={
+                  language === "En" ? "Add a comment..." : "اضف تعليق..."
+                }
                 required
                 value={what}
                 onChange={(e) => this.setState({ what: e.target.value })}
@@ -567,7 +617,9 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
+                placeholder={
+                  language === "En" ? "Add a comment..." : "اضف تعليق..."
+                }
                 required
                 value={why}
                 onChange={(e) => this.setState({ why: e.target.value })}
@@ -617,7 +669,9 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
+                placeholder={
+                  language === "En" ? "Add a comment..." : "اضف تعليق..."
+                }
                 required
                 value={how}
                 onChange={(e) => this.setState({ how: e.target.value })}
@@ -642,7 +696,9 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
+                placeholder={
+                  language === "En" ? "Add a comment..." : "اضف تعليق..."
+                }
                 required
                 value={where}
                 onChange={(e) => this.setState({ where: e.target.value })}
@@ -667,7 +723,9 @@ export default class SafetyIncident extends React.Component<
                 className="form-control mb-2 mt-2"
                 disabled={redirection}
                 rows={3}
-                placeholder={language === "En" ? "Add a comment..." : "اضف تعليق..."}
+                placeholder={
+                  language === "En" ? "Add a comment..." : "اضف تعليق..."
+                }
                 required
                 value={who}
                 onChange={(e) => this.setState({ who: e.target.value })}
@@ -696,7 +754,7 @@ export default class SafetyIncident extends React.Component<
                       <label className={`px-2 newsAttachment`} htmlFor="doc">
                         {language === "En" ? "Attach Files" : "إرفاق الملفات"}
                       </label>
-                     
+
                       <input
                         type="file"
                         disabled={redirection}
@@ -750,34 +808,35 @@ export default class SafetyIncident extends React.Component<
               </Col>
             </Row>
             {redirection == false && (
-            <div className="d-flex justify-content-end mb-2 gap-3">
-              <button
-                className="px-4 py-2"
-                disabled={redirection}
-                style={{ backgroundColor: "#E5E5E5" }}
-                type="button"
-                onClick={() => {
-                  window.history.go(-1);
-                }}
-              >
-                {language === "En" ? "Cancel" : "إلغاء الأمر"}
-              </button>
-              <button
-                className="px-4 py-2 text-white"
-                disabled={redirection}
-                style={{ backgroundColor: "#223771" }}
-                type="button"
-                onClick={() => {
-                  this.onSubmit();
-                }}
-              >
-                {language === "En" ? "Submit" : "إرسال"}
-              </button>
-            </div>
-  )}
-         {PendingWith === "SSIMS Manager" && redirection == true && (
+              <div className="d-flex justify-content-end mb-2 gap-3">
+                <button
+                  className="px-4 py-2"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#E5E5E5" }}
+                  type="button"
+                  onClick={() => {
+                    window.history.go(-1);
+                  }}
+                >
+                  {language === "En" ? "Cancel" : "إلغاء الأمر"}
+                </button>
+                <button
+                  className="px-4 py-2 text-white"
+                  disabled={redirection}
+                  style={{ backgroundColor: "#223771" }}
+                  type="button"
+                  onClick={() => {
+                    this.onSubmit();
+                  }}
+                >
+                  {language === "En" ? "Submit" : "إرسال"}
+                </button>
+              </div>
+            )}
+            {PendingWith === "SSIMS Manager" && redirection == true && (
+              <div>
                 <div className="d-flex justify-content-end mb-2 gap-3">
-                  <button
+                  {/* <button
                     className="px-4 py-2"
                     style={{ backgroundColor: "#223771" }}
                     type="button"
@@ -786,8 +845,8 @@ export default class SafetyIncident extends React.Component<
                     }}
                   >
                     {language === "En" ? "Approve" : "يعتمد"}
-                  </button>
-                  <button
+                  </button> */}
+                  {/* <button
                     className="px-4 py-2 text-white"
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
@@ -796,57 +855,83 @@ export default class SafetyIncident extends React.Component<
                     }}
                   >
                     {language === "En" ? "Reject" : "يرفض"}
-                  </button>
+                  </button> */}
                   <button
                     className="px-4 py-2 text-white"
                     style={{ backgroundColor: "#E5E5E5" }}
                     type="button"
                     onClick={() => {
-                      this.onApproveReject("Archive","Archived");
+                      this.onApproveReject("Archive", "Archived");
                     }}
                   >
                     {language === "En" ? "Archive" : "أرشيف"}
                   </button>
-                  {/* <div className="d-flex justify-content-start py-2 ps-2">
-                <div
-                  className="d-flex justify-content-between"
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="To Notify">
-                    {language === "En" ? "To Notify" : "بللإخطاراسم"}
-                   
-                  </label>
-                 
-                </div>
-                <div
-                  style={{ marginLeft: "10px", width: "25%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={false}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerItems(i);
+                  <button
+                    className="px-4 py-2 text-white"
+                    style={{ backgroundColor: "#223771" }}
+                    type="button"
+                    onClick={() => {
+                      this.setState({ showAssignToFollowUpDetails: true });
                     }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-                  />
+                  >
+                    {language === "En"
+                      ? "Notify related contact"
+                      : "تكليف بالمتابعة"}
+                  </button>
                 </div>
-              </div> */}
-                </div>
-                
-              )}
+                {showAssignToFollowUpDetails && (
+                  <div className="d-flex justify-content-end">
+                    <div
+                      className="d-flex justify-content-between"
+                      style={{
+                        fontSize: "1em",
+                        fontFamily: "Open Sans",
+                        fontWeight: "600",
+                        width: "24.5%",
+                        backgroundColor: "#F0F0F0",
+                      }}
+                    >
+                      <label className="ps-2 py-2" htmlFor="Assign To">
+                        {language === "En"
+                          ? "Notifying contact"
+                          : "إخطار الاتصال"}
+                      </label>
+                    </div>
+                    <PeoplePicker
+                      context={context as any}
+                      personSelectionLimit={1}
+                      showtooltip={true}
+                      required={true}
+                      onChange={(i: any) => {
+                        this.handleAssign(i);
+                      }}
+                      showHiddenInUI={false}
+                      principalTypes={[PrincipalType.User]}
+                      resolveDelay={1000}
+                      ensureUser={true}
+                    />
+                    <button
+                      className="px-4 py-2 text-white"
+                      style={{ backgroundColor: "#223771" }}
+                      type="button"
+                      onClick={() => {
+                        if (!this.state.Assignpeople) {
+                          alert("Please select a user to assign to follow up.");
+                          return;
+                        }
+
+                        this.onApproveReject(
+                          "Notify related contact",
+                          "Notify related contact"
+                        );
+                      }}
+                    >
+                      {language === "En" ? "Submit" : "يُقدِّم"}
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
           </form>
         </div>
       </CommunityLayout>

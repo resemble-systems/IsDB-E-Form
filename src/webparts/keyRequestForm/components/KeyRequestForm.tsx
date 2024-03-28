@@ -82,7 +82,7 @@ export default class KeyRequestForm extends React.Component<
         redirection: true,
       });
     }
-    if (window.location.href.indexOf("?itemID") != -1) {
+    if (window.location.href.indexOf("?#viewitemID=") != -1) {
       this.getData(itemId);
     }
     context.spHttpClient
@@ -403,8 +403,8 @@ export default class KeyRequestForm extends React.Component<
       PendingWith,
     } = this.state;
     const { context } = this.props;
-    const hideApproveReject =
-      inputFeild.OnBehalfOfEmail === this.state.inputFeild.userEmail;
+    //const hideApproveReject = true;
+    //inputFeild.OnBehalfOfEmail === this.state.inputFeild.userEmail;
     console.log(inputFeild.doorCheckBox, PendingWith, "doorcheckbox value");
     return (
       <CommunityLayout
@@ -502,75 +502,75 @@ export default class KeyRequestForm extends React.Component<
             </div>
 
             <div className="row mb-2">
-            {!redirection ? (
-              <div className="d-flex justify-content-start py-2 ps-2">
-                <div
-                  className="d-flex justify-content-between"
-                  style={{
-                    fontSize: "1em",
-                    fontFamily: "Open Sans",
-                    fontWeight: "600",
-                    width: "24.5%",
-                    backgroundColor: "#F0F0F0",
-                  }}
-                >
-                  <label className="ps-2 py-2" htmlFor="onBehalfOf">
-                    {language === "En" ? "On behalf of" : "باسم"}
-                    {/* <span className="text-danger">*</span> */}
-                  </label>
-                  <input
+              {!redirection ? (
+                <div className="d-flex justify-content-start py-2 ps-2">
+                  <div
+                    className="d-flex justify-content-between"
                     style={{
-                      marginLeft: "13px",
-                      marginTop: "5px",
-                      width: "25px",
-                      height: "25px",
-                      borderRadius: "6px",
+                      fontSize: "1em",
+                      fontFamily: "Open Sans",
+                      fontWeight: "600",
+                      width: "24.5%",
+                      backgroundColor: "#F0F0F0",
                     }}
-                    className="form-check"
-                    type="checkbox"
-                    disabled={redirection}
-                    checked={checkBox}
-                    onChange={(event) => {
-                      this.setState({
-                        checkBox: event.target.checked,
-                      });
-                    }}
-                  />
-                </div>
-                <div
-                  style={{ marginLeft: "10px", width: "25%" }}
-                  className={"custom-people-picker"}
-                >
-                  <PeoplePicker
-                    context={context as any}
-                    disabled={!checkBox}
-                    personSelectionLimit={1}
-                    showtooltip={true}
-                    required={true}
-                    onChange={(i: any) => {
-                      this.onChangePeoplePickerItems(i);
-                    }}
-                    showHiddenInUI={false}
-                    principalTypes={[PrincipalType.User]}
-                    resolveDelay={1000}
-                    ensureUser={true}
-                  />
-                </div>
-              </div>
-                 ) : (
-                  <div>
-                    <InputFeild
-                      type="text"
+                  >
+                    <label className="ps-2 py-2" htmlFor="onBehalfOf">
+                      {language === "En" ? "On behalf of" : "باسم"}
+                      {/* <span className="text-danger">*</span> */}
+                    </label>
+                    <input
+                      style={{
+                        marginLeft: "13px",
+                        marginTop: "5px",
+                        width: "25px",
+                        height: "25px",
+                        borderRadius: "6px",
+                      }}
+                      className="form-check"
+                      type="checkbox"
                       disabled={redirection}
-                      label={language === "En" ? "On behalf of" : "نيابة عن"}
-                      name="on behalf of"
-                      state={inputFeild}
-                      inputFeild={inputFeild.OnBehalfOfEmail}
-                      self={this}
+                      checked={checkBox}
+                      onChange={(event) => {
+                        this.setState({
+                          checkBox: event.target.checked,
+                        });
+                      }}
                     />
                   </div>
-                )}
-          
+                  <div
+                    style={{ marginLeft: "10px", width: "25%" }}
+                    className={"custom-people-picker"}
+                  >
+                    <PeoplePicker
+                      context={context as any}
+                      disabled={!checkBox}
+                      personSelectionLimit={1}
+                      showtooltip={true}
+                      required={true}
+                      onChange={(i: any) => {
+                        this.onChangePeoplePickerItems(i);
+                      }}
+                      showHiddenInUI={false}
+                      principalTypes={[PrincipalType.User]}
+                      resolveDelay={1000}
+                      ensureUser={true}
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <InputFeild
+                    type="text"
+                    disabled={redirection}
+                    label={language === "En" ? "On behalf of" : "نيابة عن"}
+                    name="on behalf of"
+                    state={inputFeild}
+                    inputFeild={inputFeild.OnBehalfOfEmail}
+                    self={this}
+                  />
+                </div>
+              )}
+
               {this.state.inputFeild.requestType == "Key Request" && (
                 <div className="row">
                   <InputFeild
@@ -737,7 +737,6 @@ export default class KeyRequestForm extends React.Component<
               )}
               {(PendingWith === "Key Processor" ||
                 PendingWith === "On Behalf Of") &&
-                !hideApproveReject &&
                 redirection === true && (
                   <div className="d-flex justify-content-end mb-2 gap-3">
                     <button
